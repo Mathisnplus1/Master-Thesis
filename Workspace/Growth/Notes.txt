@@ -1,0 +1,14 @@
+On part d'une architecture noyau, on a une architecture objectif. Donc on sait que sur chaque layer l, on doit ajouter n_l neurones.
+
+
+A visualizer :
+- graph avec les chemin à travers les deux layers (couleur selon précision)
+- Accuracy du root model et du target model
+- Comparaison initialisation random ou GradMax
+- Cifar-10 et MNIST
+
+
+Donc, data needed :
+- Schedules
+- Test accuracy à la fin
+- 

@@ -89,8 +89,8 @@ def visualize_statistical_reliability (test_accs_repeted, test_accs, test_acc_ro
     min_acc, max_acc = min(test_accs), max(test_accs)
     c_scale = cm.viridis(np.linspace(0, 1, 60))
     colors = [get_color(c_scale, min_acc, max_acc, test_acc) for test_acc in test_accs]
-    axs[0].errorbar(range(1,9), test_accs_means, yerr=test_accs_stds, fmt="none", ecolor=colors)
-    axs[0].scatter(range(1,9), test_accs_means, marker='.', s=100, color=colors)
+    axs[0].errorbar(range(1,test_accs.shape[0]+1), test_accs_means, yerr=test_accs_stds, fmt="none", ecolor=colors)
+    axs[0].scatter(range(1,test_accs.shape[0]+1), test_accs_means, marker='.', s=100, color=colors)
     axs[0].set_xlabel("On each path")
     
     # Root

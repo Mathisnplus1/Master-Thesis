@@ -70,7 +70,7 @@ def register_hooks(model, pre_layer, post_layer):
 
 
 def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, val_loader, 
-           num_epochs, batch_size, device, c = 1, verbose = 0) :
+           num_epochs, batch_size, device, init_name=None, c=1, verbose=0) :
     train_loss_hist, val_loss_hist = [], []
     train_acc_hist, val_acc_hist = [], []
     batch_index = 0
@@ -186,12 +186,12 @@ def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, 
                         fc1_weight_grad = model.fc1.weight.grad
                         fc1_bias_grad = model.fc1.bias.grad
                         fc2_weight_grad = model.fc2.weight.grad
-                        model.add_neurons(layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device)
+                        model.add_neurons(layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device, init_name)
                     elif layer_name == "fc2" :
                         fc2_weight_grad = model.fc2.weight.grad
                         fc2_bias_grad = model.fc2.bias.grad
                         fc3_weight_grad = model.fc3.weight.grad
-                        model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device)
+                        model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device, init_name)
                     
                     optimizer = get_optimizer(optimizer_name, model, lr)
             

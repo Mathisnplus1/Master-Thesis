@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from lib.test import get_batch_accuracy
+from lib.abstract_torch import get_loss, get_optimizer
 
 
 
@@ -68,11 +69,13 @@ def register_hooks(model, pre_layer, post_layer):
 
 
 
-def train (model, growth_schedule, loss, loss_name, optimizer, train_loader, val_loader, 
-           num_epochs, batch_size, device, c = 1, print_num_params = False) :
+def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, val_loader, 
+           num_epochs, batch_size, device, c = 1, verbose = 0) :
     train_loss_hist, val_loss_hist = [], []
     train_acc_hist, val_acc_hist = [], []
     batch_index = 0
+    loss = get_loss(loss_name)
+    optimizer = get_optimizer(optimizer_name, model, lr)
     if growth_schedule :
         growth_schedule = iter(growth_schedule)
         hooks_list = []
@@ -97,7 +100,7 @@ def train (model, growth_schedule, loss, loss_name, optimizer, train_loader, val
             if (growth_schedule is not None) and (batch_index%50 == 0) and (batch_index != 0):
                 
                 # Print the number of parameters
-                if print_num_params :
+                if verbose > 1 :
                     count_all_parameters(model)
                 
                 # Remove previous hooks in case they are some
@@ -190,7 +193,7 @@ def train (model, growth_schedule, loss, loss_name, optimizer, train_loader, val
                         fc3_weight_grad = model.fc3.weight.grad
                         model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device)
                     
-                    optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
+                    optimizer = get_optimizer(optimizer_name, model, lr)
             
             # Get feedback from train and val sets
             if batch_index%50 == 49:
@@ -214,9 +217,9 @@ def train (model, growth_schedule, loss, loss_name, optimizer, train_loader, val
             # End of batch training loop  
             batch_index += 1
 
-            if batch_index%50 == 0:
+            if verbose > 0 and batch_index%50 == 0:
                 print(f'{i} batches used in epoch {epoch}')
-
-        print("Total number of batches :", batch_index)
+        if verbose > 1 :
+            print("Total number of batches :", batch_index)
     output = [train_loss_hist, train_acc_hist, val_loss_hist, val_acc_hist]
     return output

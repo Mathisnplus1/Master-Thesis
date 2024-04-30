@@ -1,0 +1,61 @@
+import torch
+import torch.nn as nn
+
+
+# Define the function to add neurons to a layer. It will be call in the ANN class
+def add_neurons (fc1, fc2, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device) :
+    # PRE-LAYER
+
+    num_in_1, num_out_1 = fc1.in_features, fc1.out_features
+    new_fc1 = nn.Linear(in_features=num_in_1, out_features=num_out_1 + num_neurons).to(device)
+    # Set parameters
+    new_fc1.weight = nn.Parameter(torch.cat((fc1.weight,torch.randn(num_neurons, num_in_1).to(device))))
+    new_fc1.bias = nn.Parameter(torch.cat((fc1.bias, torch.randn(num_neurons).to(device))))
+    # Set gradients
+    new_fc1.weight.grad = nn.Parameter(torch.cat((fc1_weight_grad,torch.randn(num_neurons, num_in_1).to(device)), dim=0))
+    new_fc1.bias.grad = nn.Parameter(torch.cat((fc1_bias_grad, torch.randn(num_neurons).to(device)), dim=0))
+
+    # POST-LAYER
+
+    num_in_2, num_out_2 = fc2.in_features, fc2.out_features
+    new_fc2 = nn.Linear(in_features=num_in_2 + num_neurons, out_features=num_out_2).to(device)
+    # Set parameters
+    new_fc2.weight = nn.Parameter(torch.cat((fc2.weight, torch.randn(num_out_2,num_neurons).to(device)), dim=1))
+    new_fc2.bias = fc2.bias
+    # Set gradients
+    new_fc2.weight.grad = torch.cat((fc2_weight_grad, torch.randn(num_out_2, num_neurons).to(device)), dim=1)
+    new_fc2.bias.grad = fc2.bias.grad
+
+    return new_fc1, new_fc2
+
+# Define the ANN class 
+class ANN (nn.Module):
+    def __init__(self, num_inputs, num_hidden, num_outputs):
+        super().__init__()
+        
+        self.fc1 = nn.Linear(num_inputs,num_hidden)
+        self.fc2 = nn.Linear(num_hidden, num_hidden)
+        self.fc3 = nn.Linear(num_hidden, num_outputs)
+        
+        self.activation = torch.sigmoid ## nn.ReLU()
+        
+    def forward(self, x) :
+        x = self.fc1(x)
+        x = self.activation(x)
+        x = self.fc2(x)
+        x = self.activation(x)
+        x = self.fc3(x)
+        x = self.activation(x)
+        
+        return x
+    
+    def add_neurons (self, layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device) :
+        if layer_name == "fc1" :
+            self.fc1, self.fc2 = add_neurons(self.fc1, self.fc2, 
+                                             fc1_weight_grad, fc1_bias_grad, fc2_weight_grad,
+                                             num_neurons, device)
+        
+        elif layer_name == "fc2" :
+            self.fc2, self.fc3 = add_neurons(self.fc2, self.fc3, 
+                                             fc1_weight_grad, fc1_bias_grad, fc2_weight_grad,
+                                             num_neurons, device)

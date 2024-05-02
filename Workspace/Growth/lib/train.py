@@ -15,25 +15,25 @@ def count_all_parameters(model) :
     return num_params
 
 
-def compute_loss(model, data, targets, loss, loss_name, batch_size) :
+def compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size) :
     if loss_name == "CE":
         y = model(data.view(batch_size, -1))
         loss_val = loss(y, targets)
     else :
         y = model(data.view(batch_size, -1))
-        one_hot_targets = nn.functional.one_hot(targets, num_classes=10).to(y.dtype)
+        one_hot_targets = nn.functional.one_hot(targets, num_classes=num_classes).to(y.dtype)
         loss_val = loss(y, one_hot_targets)
     return y, loss_val
 
 
-def compute_val (model, loss, loss_name, val_loader, val_loss_hist, val_acc_hist, epoch, batch_size, device, print_shit=False) :
+def compute_val (model, num_classes, loss, loss_name, val_loader, val_loss_hist, val_acc_hist, epoch, batch_size, device, print_shit=False) :
     model.eval()
     val_data, val_targets = next(iter(val_loader))
     val_data = val_data.to(device)
     val_targets = val_targets.to(device)
     
     # Forward path
-    y, val_loss_val = compute_loss(model, val_data, val_targets, loss, loss_name, batch_size)
+    y, val_loss_val = compute_loss(model, num_classes, val_data, val_targets, loss, loss_name, batch_size)
     val_loss_hist.append(val_loss_val.item())
     
     # ACCURACY
@@ -69,7 +69,7 @@ def register_hooks(model, pre_layer, post_layer):
 
 
 
-def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, val_loader, 
+def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, train_loader, val_loader, 
            num_epochs, batch_size, device, init_name=None, c=1, verbose=0) :
     train_loss_hist, val_loss_hist = [], []
     train_acc_hist, val_acc_hist = [], []
@@ -129,7 +129,7 @@ def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, 
                     hooks_list.append(backward_hook_handle)
                     
                     # Forward path
-                    y, loss_val = compute_loss(model, data, targets, loss, loss_name, batch_size)
+                    y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
                     
                     # Gradient calculation + weight update
                     #output_grad = torch.zeros(torch.Size([])).requires_grad_(True).to(device)
@@ -147,7 +147,7 @@ def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, 
                     hooks_list.append(backward_hook_handle)
                     
                     # Forward path
-                    y, loss_val = compute_loss(model, data, targets, loss, loss_name, batch_size)
+                    y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
                     
                     # Gradient calculation + weight update
                     #output_grad = torch.ones(torch.Size([])).requires_grad_(True)
@@ -160,7 +160,7 @@ def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, 
             
             else :
                 # Forward path
-                y, loss_val = compute_loss(model, data, targets, loss, loss_name, batch_size)
+                y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
                 
                 # Gradient calculation + weight update
                 optimizer.zero_grad()
@@ -204,6 +204,7 @@ def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, 
                     
                     # Val data
                     val_loss_hist, val_acc_hist = compute_val (model,
+                                                               num_classes,
                                                                loss,
                                                                loss_name,
                                                                val_loader, 

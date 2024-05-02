@@ -7,11 +7,11 @@ MNIST_transform = transforms.Compose([transforms.ToTensor(), transforms.Normaliz
 CIFAR_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 
-def get_MNIST_loaders(path, class_names, batch_size) :
+def get_MNIST_loaders(path, class_names, batch_size, download=False) :
 
     # load MNIST 
-    mnist_train = datasets.MNIST(root=path, train=True, download=True, transform=MNIST_transform)
-    mnist_test = datasets.MNIST(root=path, train=False, download=False, transform=MNIST_transform)
+    mnist_train = datasets.MNIST(root=path, train=True, download=download, transform=MNIST_transform)
+    mnist_test = datasets.MNIST(root=path, train=False, download=download, transform=MNIST_transform)
 
 
     # create a mask to filter indices for each label
@@ -33,11 +33,11 @@ def get_MNIST_loaders(path, class_names, batch_size) :
 
     return train_loader, val_loader, test_loader
 
-def get_FMNIST_loaders(path, class_names, batch_size) :
+def get_FMNIST_loaders(path, class_names, batch_size, download=False) :
 
     # load MNIST 
-    fmnist_train = datasets.FashionMNIST(root=path, train=True, download=False, transform=MNIST_transform)
-    fmnist_test = datasets.FashionMNIST(root=path, train=False, download=False, transform=MNIST_transform)
+    fmnist_train = datasets.FashionMNIST(root=path, train=True, download=download, transform=MNIST_transform)
+    fmnist_test = datasets.FashionMNIST(root=path, train=False, download=download, transform=MNIST_transform)
 
 
     # create a mask to filter indices for each label
@@ -60,11 +60,11 @@ def get_FMNIST_loaders(path, class_names, batch_size) :
     return train_loader, val_loader, test_loader
 
 
-def get_CIFAR10_loaders(path, class_names, batch_size) :
+def get_CIFAR10_loaders(path, class_names, batch_size, download=False) :
 
     # load MNIST 
-    cifar10_train = datasets.CIFAR10(root=path, train=True, download=False, transform=CIFAR_transform)
-    cifar10_test = datasets.CIFAR10(root=path, train=False, download=False, transform=CIFAR_transform)
+    cifar10_train = datasets.CIFAR10(root=path, train=True, download=download, transform=CIFAR_transform)
+    cifar10_test = datasets.CIFAR10(root=path, train=False, download=download, transform=CIFAR_transform)
 
     # create a mask to filter indices for each label
     train_mask = torch.tensor([label in class_names for label in cifar10_train.targets])
@@ -86,11 +86,11 @@ def get_CIFAR10_loaders(path, class_names, batch_size) :
     return train_loader, val_loader, test_loader
 
 
-def get_CIFAR100_loaders(path, class_names, batch_size) :
+def get_CIFAR100_loaders(path, class_names, batch_size, download=False) :
 
     # load MNIST 
-    cifar100_train = datasets.CIFAR100(root=path, train=True, download=False, transform=CIFAR_transform)
-    cifar100_test = datasets.CIFAR100(root=path, train=False, download=False, transform=CIFAR_transform)
+    cifar100_train = datasets.CIFAR100(root=path, train=True, download=download, transform=CIFAR_transform)
+    cifar100_test = datasets.CIFAR100(root=path, train=False, download=download, transform=CIFAR_transform)
 
     # create a mask to filter indices for each label
     train_mask = torch.tensor([label in class_names for label in cifar100_train.targets])

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
-
+from datetime import datetime
 
 
 def get_path (num_hidden, num_hidden_target, growth_schedule) :
@@ -26,7 +26,7 @@ def get_color (c_scale, min_acc, max_acc, test_acc) :
 
 
 def visualize_pathes (num_hidden, num_hidden_target, growth_schedules, 
-                      test_accs, savefig=False) :
+                      test_accs, savefig=None) :
     
     test_accs = test_accs.tolist()
     
@@ -64,22 +64,23 @@ def visualize_pathes (num_hidden, num_hidden_target, growth_schedules,
                                                              vmax=max_acc)),
                         cax=cax)
     cbar.set_label('Test accuracy')
-    
-    ax.set_title("Growth pathes and their average test accuracy across 5 trials")
-    
+        
     if savefig :
-        plt.savefig("MNIST_pathes.png")
-    
+        ax.set_title(savefig + " :\nGrowth pathes with average test accuracy across 5 trials")
+        current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        plt.savefig(f"pathes_{savefig}_{current_time}.png")
+    else :
+        ax.set_title("Growth pathes and their average test accuracy across 5 trials")
+
     plt.show()
 
 
 
 
 def visualize_statistical_reliability (test_accs_repeted, test_accs, test_acc_roots, test_acc_targets,
-                                       free_lim=True, savefig=False) :
+                                       free_lim=True, savefig=None) :
     # Create figure
     fig, axs = plt.subplots(1, 3, figsize=(15, 5), gridspec_kw={'width_ratios': [4, 1, 1]})
-    fig.suptitle("Average test accuracy across 5 trials, with standard deviation")
     axs[0].set_ylabel("Test accuracy")
     
     # Paths
@@ -118,13 +119,16 @@ def visualize_statistical_reliability (test_accs_repeted, test_accs, test_acc_ro
         axs[2].set_ylim(np.mean(test_acc_targets) - root_std-2,np.mean(test_acc_targets) + root_std+2)
     
     if savefig :
-        plt.savefig("MNIST_statistical_reliability"+free_lim_tag+".png")
-
+        fig.suptitle(savefig + " :\nAverage test accuracy across 5 trials, with standard deviation")
+        current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        plt.savefig(f"statistical_reliability_{savefig}_{current_time}.png")
+    else :
+        fig.suptitle("Average test accuracy across 5 trials, with standard deviation")
     plt.show()
 
 
 
-def visualize_box_plot (test_accs, test_acc_root, test_acc_target, savefig=False):
+def visualize_box_plot (test_accs, test_acc_root, test_acc_target, savefig=None):
     
     test_accs = test_accs.tolist()
     
@@ -155,8 +159,12 @@ def visualize_box_plot (test_accs, test_acc_root, test_acc_target, savefig=False
     plt.xticks([])
     
     plt.grid(True)
-    
-    plt.title("Average test accuracy across 5 trials of\npathes, root model and target model",
+
+    if savefig :
+        plt.title(savefig + " :\nAverage test accuracy across 5 trials of\npathes, root model and target model",
+              fontsize=10)
+    else :
+        plt.title("Average test accuracy across 5 trials of\npathes, root model and target model",
               fontsize=10)
     
     # Create colorbar axis
@@ -168,8 +176,9 @@ def visualize_box_plot (test_accs, test_acc_root, test_acc_target, savefig=False
                                           norm=plt.Normalize(vmin=min_acc,
                                                              vmax=max_acc)),
                         cax=cax)
-    
+
     if savefig :
-        plt.savefig("MNIST_box_plot.png")
-    
+        current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        plt.savefig(f"box_plot_{savefig}_{current_time}.png")
+
     plt.show()

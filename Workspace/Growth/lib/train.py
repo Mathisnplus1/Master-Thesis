@@ -112,9 +112,9 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                 
                 # Initialize the matrix on which we will perform SVD
                 if layer_name == "fc1" :
-                    matrix_to_SVD = torch.zeros(model.fc2.out_features, model.fc1.in_features).to(device)
+                    growth_matrix = torch.zeros(model.fc2.out_features, model.fc1.in_features).to(device)
                 elif layer_name == "fc2" :
-                    matrix_to_SVD = torch.zeros(model.fc3.out_features, model.fc2.in_features).to(device)
+                    growth_matrix = torch.zeros(model.fc3.out_features, model.fc2.in_features).to(device)
                     #print("matrix_to_SVD :", matrix_to_SVD.shape)
 
             model.train()
@@ -138,7 +138,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     optimizer.step()
                     
                     # Compute the matrix to which we will apply SVD
-                    #matrix_to_SVD += torch.mm(grad[0][0].t(),h) / batch_size
+                    growth_matrix += torch.mm(grad[0][0].t(),h) / batch_size
                     
                 elif layer_name == "fc2" :
                     # register hooks
@@ -156,7 +156,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     optimizer.step()
                     
                     # Compute the matrix to which we will apply SVD
-                    #matrix_to_SVD += torch.mm(grad[0][0].t(),h[0]) / batch_size
+                    growth_matrix += torch.mm(grad[0][0].t(),h[0]) / batch_size
             
             else :
                 # Forward path
@@ -186,12 +186,12 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                         fc1_weight_grad = model.fc1.weight.grad
                         fc1_bias_grad = model.fc1.bias.grad
                         fc2_weight_grad = model.fc2.weight.grad
-                        model.add_neurons(layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device, init_name)
+                        model.add_neurons(layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device, init_name, growth_matrix, c)
                     elif layer_name == "fc2" :
                         fc2_weight_grad = model.fc2.weight.grad
                         fc2_bias_grad = model.fc2.bias.grad
                         fc3_weight_grad = model.fc3.weight.grad
-                        model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device, init_name)
+                        model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device, init_name, growth_matrix, c)
                     
                     optimizer = get_optimizer(optimizer_name, model, lr)
             

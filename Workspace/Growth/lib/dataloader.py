@@ -10,7 +10,7 @@ CIFAR_transform = transforms.Compose([transforms.ToTensor(), transforms.Normaliz
 def get_MNIST_loaders(path, class_names, batch_size) :
 
     # load MNIST 
-    mnist_train = datasets.MNIST(root=path, train=True, download=False, transform=MNIST_transform)
+    mnist_train = datasets.MNIST(root=path, train=True, download=True, transform=MNIST_transform)
     mnist_test = datasets.MNIST(root=path, train=False, download=False, transform=MNIST_transform)
 
 

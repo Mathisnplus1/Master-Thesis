@@ -1,0 +1,9 @@
+# Automatically at execution
+__pycache__
+.ipynb_checkpoints
+.idea
+
+# Automaticaly dowloaded at execution
+data
+.data
+resultats/

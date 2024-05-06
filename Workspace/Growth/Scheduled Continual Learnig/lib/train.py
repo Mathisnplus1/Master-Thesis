@@ -76,9 +76,22 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
     batch_index = 0
     loss = get_loss(loss_name)
     optimizer = get_optimizer(optimizer_name, model, lr)
-    if growth_schedule :
+    hooks_list = []
+
+    # Initialize growth
+    if (growth_schedule is not None) :
         growth_schedule = iter(growth_schedule)
         hooks_list = []
+        growth_occured = False
+        
+        # Get the layer to grow and the number of neurons to add
+        growth_epoch, growth_batch, layer_name, num_neurons = next(growth_schedule)
+        
+        # Initialize the matrix on which we will perform SVD
+        if layer_name == "fc1" :
+            growth_matrix = torch.zeros(model.fc2.out_features, model.fc1.in_features).to(device)
+        elif layer_name == "fc2" :
+            growth_matrix = torch.zeros(model.fc3.out_features, model.fc2.in_features).to(device)
     
     # Epoch training loop
     for epoch in tqdm(range(num_epochs)):
@@ -89,38 +102,39 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
         
         # Batch training loop
         for i, (data, targets) in enumerate(train_batch):
-            if i == 300 :
-                break
-            # Get data from the batch
             data = data.to(device)
             targets = targets.to(device)
-            
-            
-            # Initialize GradMax growth
-            if (growth_schedule is not None) and (batch_index%50 == 0) and (batch_index != 0):
+
+            for h in hooks_list :
+                h.remove()
+
+            # Grow architecture
+            if (growth_schedule is not None) and epoch == growth_epoch and i == growth_batch :
                 
+                if layer_name == "fc1" :
+                    fc1_weight_grad = model.fc1.weight.grad
+                    fc1_bias_grad = model.fc1.bias.grad
+                    fc2_weight_grad = model.fc2.weight.grad
+                    model.add_neurons(layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device, init_name, growth_matrix, c)
+                elif layer_name == "fc2" :
+                    fc2_weight_grad = model.fc2.weight.grad
+                    fc2_bias_grad = model.fc2.bias.grad
+                    fc3_weight_grad = model.fc3.weight.grad
+                    model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device, init_name, growth_matrix, c)
+                
+                optimizer = get_optimizer(optimizer_name, model, lr)
+
+                growth_occured = True
+
                 # Print the number of parameters
                 if verbose > 1 :
+                    print("epoch :", epoch, "batch :", i)
                     count_all_parameters(model)
-                
-                # Remove previous hooks in case they are some
-                for h in hooks_list :
-                    h.remove()
-                
-                # Get the layer to grow and the number of neurons to add
-                layer_name, num_neurons = next(growth_schedule)
-                
-                # Initialize the matrix on which we will perform SVD
-                if layer_name == "fc1" :
-                    growth_matrix = torch.zeros(model.fc2.out_features, model.fc1.in_features).to(device)
-                elif layer_name == "fc2" :
-                    growth_matrix = torch.zeros(model.fc3.out_features, model.fc2.in_features).to(device)
-                    #print("matrix_to_SVD :", matrix_to_SVD.shape)
 
             model.train()
             
             # Get the gradient of the layer after the one we grow, for GradMax computation
-            if (growth_schedule is not None) and (batch_index > 49): #and (batch_index%50 == 0) :
+            if (growth_schedule is not None): #and (batch_index%50 == 0) :
                 if layer_name == "fc1" :
                     
                     h = data.view(batch_size, -1)
@@ -132,7 +146,6 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
                     
                     # Gradient calculation + weight update
-                    #output_grad = torch.zeros(torch.Size([])).requires_grad_(True).to(device)
                     optimizer.zero_grad()
                     loss_val.backward() # Pass output_grad
                     optimizer.step()
@@ -150,15 +163,20 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
                     
                     # Gradient calculation + weight update
-                    #output_grad = torch.ones(torch.Size([])).requires_grad_(True)
                     optimizer.zero_grad()
                     loss_val.backward() # Pass output_grad
                     optimizer.step()
-                    
+
                     # Compute the matrix to which we will apply SVD
                     growth_matrix += torch.mm(grad[0][0].t(),h[0]) / batch_size
             
             else :
+                if i == 0 :
+                    # register hooks
+                    h, grad, forward_hook_handle, backward_hook_handle = register_hooks(model, model.fc1, model.fc3)
+                    hooks_list.append(forward_hook_handle)
+                    hooks_list.append(backward_hook_handle)
+
                 # Forward path
                 y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
                 
@@ -166,35 +184,31 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                 optimizer.zero_grad()
                 loss_val.backward()
                 optimizer.step()
-            
-            loss_epoch += loss_val.item()
-            
-            
-            # Add neurons
-            if (growth_schedule is not None) and (batch_index%50 == 0) and (batch_index != 0):
-                #with torch.no_grad():
-                    # Solve optimization problem (11)
-                    #print("Shape of matrix_to_SVD :", matrix_to_SVD.shape)
-                    # matrix_to_SVD = matrix_to_SVD.t()
 
-                    #if layer_name == "fc1" :
-                    #    model.fc1, model.fc2 = add_neurons(model.fc1, model.fc2, num_neurons, matrix_to_SVD, c, device)
-                    #elif layer_name == "fc2" :
-                    #    model.fc2, model.fc3 = add_neurons(model.fc2, model.fc3, num_neurons, matrix_to_SVD, c, device)
-                    
+                if i == 0 :
+                    print("grad :", grad[0][0][0])
+            loss_epoch += loss_val.item()
+
+            # Prepare next growth
+            if (growth_schedule is not None) and growth_occured :
+                # Remove previous hooks in case they are some
+                for h in hooks_list :
+                    h.remove()
+                
+                # Get the layer to grow and the number of neurons to add
+                try :
+                    growth_epoch, growth_batch, layer_name, num_neurons = next(growth_schedule)
+                
+                    # Initialize the matrix on which we will perform SVD
                     if layer_name == "fc1" :
-                        fc1_weight_grad = model.fc1.weight.grad
-                        fc1_bias_grad = model.fc1.bias.grad
-                        fc2_weight_grad = model.fc2.weight.grad
-                        model.add_neurons(layer_name, fc1_weight_grad, fc1_bias_grad, fc2_weight_grad, num_neurons, device, init_name, growth_matrix, c)
+                        growth_matrix = torch.zeros(model.fc2.out_features, model.fc1.in_features).to(device)
                     elif layer_name == "fc2" :
-                        fc2_weight_grad = model.fc2.weight.grad
-                        fc2_bias_grad = model.fc2.bias.grad
-                        fc3_weight_grad = model.fc3.weight.grad
-                        model.add_neurons(layer_name, fc2_weight_grad, fc2_bias_grad, fc3_weight_grad, num_neurons, device, init_name, growth_matrix, c)
-                    
-                    optimizer = get_optimizer(optimizer_name, model, lr)
-            
+                        growth_matrix = torch.zeros(model.fc3.out_features, model.fc2.in_features).to(device)
+                    growth_occured = False
+                except :
+                    growth_schedule = None
+                    growth_occured = False
+
             # Get feedback from train and val sets
             if batch_index%50 == 49:
                 with torch.no_grad():
@@ -217,10 +231,5 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     
             # End of batch training loop  
             batch_index += 1
-
-            if verbose > 0 and batch_index%50 == 0:
-                print(f'{i} batches used in epoch {epoch}')
-        if verbose > 1 :
-            print("Total number of batches :", batch_index)
     output = [train_loss_hist, train_acc_hist, val_loss_hist, val_acc_hist]
     return output

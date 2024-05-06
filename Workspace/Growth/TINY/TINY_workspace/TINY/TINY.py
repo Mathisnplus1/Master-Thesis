@@ -858,7 +858,7 @@ class TINY(torch.nn.Module):
                 if getattr(self, 'tr_loader', None) is None:
                     indices = perm_train[t * self.batch_size: (t + 1) * self.batch_size]
                 X_input, Y_input = self.get_batch(indices=indices, data='tr', device=my_device_0)
-
+                
                 optimizer.zero_grad()
                 Y_pred = self(X_input)
                 Loss = criterion(Y_pred, Y_input)

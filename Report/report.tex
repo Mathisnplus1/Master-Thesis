@@ -30,31 +30,56 @@ In this context, the aim of the project was initialy stated as follows:
     The aim of this project is to explore the integration of Gradmax with our dynamic 'Mosaic' architecture. We plan to approach this by factoring hardware limitations into the optimization process. In addition, we're considering the development of a gating network within this architecture that determines the optimal timing for assigning tasks to newly added neurons. This could leverage cutting-edge techniques like Mixture of Expert models \cite{DME}.
 \end{quote}
 
-Let's dissect this project statement to understand the main objectives and challenges it presents.
+\noindent
+Let's dissect this project statement to understand the main objectives and challenges it presents.\\
+\\
+\noindent
+\textbf{Computational costs.} The project aims to address the computational costs associated with continual learning methods. Thus we expect to have a way to measure this cost, employ as figure of merit or intregrate it to the optimization process and to compare it to the cost of other methods.\\
+\\
+\noindent
+\textbf{Continual learning approach.} Litterature categorizes continual learning approaches into three main categories: rehearsal, regularization, and architectural. However in the process of taking into account the computational costs, we will explore the architectural approach.\\
+\\
+\noindent
+\textbf{Gradmax} Gradmax is a method designed for learning on a single task. Thus this project invites to extend it to continual learning. \\
+\\
+\noindent
+\textbf{Mosaic} In the process of adapting Gradmax method to the continual learning framework, we will have to consider the hardware constraints of the Mosaic architecture.
 
-\textbf{Computational costs.} The project aims to address the computational costs associated with continual learning methods. By leveraging Gradmax and Mosaic, the project seeks to reduce these costs and make continual learning less expensive.
 
-\textbf{Continual learning approach.} Litterature categorizes continual learning into three main categories: rehearsal, regularization, and parameter isolation. 
-%Rehearsal methods store past data and use it to train the model on new tasks. Regularization methods penalize changes to the model's parameters that would disrupt past knowledge. Parameter isolation methods keep the model's critical weights intact while allowing non-critical weights to change. However, these methods have limitations in terms of memory and computational requirements, and they often struggle to adapt to new tasks that are significantly different from past tasks.
+
 
 \subsubsection{Major issues}
 
-However, in the very beginning of the project, we faced two major issues. The first one is a consequence of Gradmax paper misleading introduction. Indeed, in the very first paragraph of the paper, the authors introduces :
+In the very beginning of the project, we faced two major issues. The first one is a consequence of Gradmax paper misleading introduction. Indeed, in the very first paragraph of the paper, the authors introduces :
 \begin{quote}
     \itshape
     Searching for the best architecture for a given task is an active research area with diverse approaches.[...] Most of these approaches are costly, as they require large search spaces or large architectures to start with. In this work we consider an alternative approach.
 \end{quote}
-The genuine expectation regarding the work following such an introduction is that the authors will provide an inovative method that performs factorize architecture search in the optimization process of learning a task. We also expect that, contrary to existing methods in this domain, this method does not require to train numerous architectures of the final size, which is computationally expensive.\\
 
 \noindent
-Contrary to expectations, GradMax falls short at enabling neural architecture optimization. It consists in growing a network from a root architecture to a predetermined target architecture, by adding neurons to it through training epochs. It focuses on the initialization of added neurons (the \textit{how}), neglecting the crucial questions of \textit{when} and \textit{where} to add them, which are deferred for future research. In the paper, the decisions regarding \textit{where} and \textit{when} to add neurons are predetermined and take the form of a schedule established. Consequently, it's challenging to conclude that the GradMax framework effectively enables architecture optimization for growing artificial neural networks.\\
+The genuine expectation regarding the work following such an introduction is that the authors will provide an inovative method that factorizes architecture search in the optimization process of learning a task while avoiding to train numerous high-size architectures, which is computationally expensive.\\
 
 \noindent
-This introdcutory statement is also misleading in the sense that authors do not consider the computational cost of their method in the rest of the paper. This is a major issue as the project was initially designed to reduce the computational cost of continual learning methods.
+However, contrary to expectations, GradMax falls short at enabling neural architecture optimization. The method consists in growing a network from a root architecture to a predetermined target architecture, by adding neurons to it through training epochs. It focuses on the initialization of added neurons (the \textit{how}), neglecting the crucial questions of \textit{when} and \textit{where} to add them, which are deferred for future research. In the paper, the decisions regarding \textit{where} and \textit{when} to add neurons are predetermined and take the form of a schedule established. Consequently, it's challenging to conclude that the GradMax framework effectively enables architecture optimization for growing artificial neural networks.\\
+
+\noindent
+Additionaly, authors do not consider the computational cost of their method in the rest of the paper. This is a major issue as the project was initially designed to reduce the computational cost of continual learning methods.
 
 \subsubsection{Additional hurdles}
 
+As a general concept, we considere that continual learning referes to the ability of a model to learn and adapt to new information over time, without forgetting previously learned knowledge. However, this wide definition encompasses a variety of scenarios.
+First, it can be the case that there is no explicit task boundary, and the model must continuously adapt to new data without any indication of when a new task begins. This is known as incremental learning. Second, the model may be presented with a sequence of tasks, each with its own training data and objectives. In this case, the model must learn each task sequentially and adapt to new tasks without forgetting the previous ones, which is known as sequential learning. Third, the model may be presented with a series of tasks that are related or have some shared structure. In this case, the model must leverage this shared structure to learn new tasks more efficiently. This is known as multitask learning.
+
+But even after this specification, ambiguities persist. For instance when it comes to sequential learning, some frameworks assume that the model is knows when a new task arrives, whereas others do not make this assumption.
+
 \subsection{Revised project}
+
+
+\section{Attempted approaches}
+\subsection{LoRA}
+
+
+
 
 \nocite{*}
 \printbibliography

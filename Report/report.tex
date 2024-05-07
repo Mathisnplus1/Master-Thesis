@@ -1,0 +1,29 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[left=3.5cm, right=3.5cm, top=3.5cm, bottom=3.5cm]{geometry}
+\usepackage[style=numeric]{biblatex}
+\addbibresource{refs.bib}
+
+\title{[MVA] - Rapport de stage}
+\author{Mathis Reymond}
+\date{April 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Continual learning is a machine learning paradigm that focuses on the ability of a model to learn and adapt to new information over time, without forgetting previously learned knowledge. It is particularly relevant in scenarios where data is non-stationary or arrives in a sequential manner. By leveraging techniques such as online learning, regularization, and knowledge distillation, continual learning enables models to continuously update their knowledge and improve performance as new data becomes available.
+
+\subsection{Initial project}
+
+\begin{quote}
+    \itshape
+    The aim of this project is to explore the integration of Gradmax with our dynamic 'Mosaic' architecture. We plan to approach this by factoring hardware limitations into the optimization process. In addition, we're considering the development of a gating network within this architecture that determines the optimal timing for assigning tasks to newly added neurons. This could leverage cutting-edge techniques like Mixture of Expert models.
+\end{quote}
+\subsection{Revised project}
+
+\nocite{*}
+\printbibliography
+\end{document}

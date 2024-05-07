@@ -1,5 +1,9 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{hyperref}
+
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
 \usepackage[style=numeric]{biblatex}
 \addbibresource{refs.bib}
@@ -77,10 +81,159 @@ But even after this specification, ambiguities persist. For instance when it com
 
 \section{Attempted approaches}
 \subsection{LoRA}
+\subsection{Motivating growth exploration}
 
+Trying to taclke the questions of where and when to grow neurons in the framework of GradMax, that is, starting with a root architecture and converging to a target architecture, it can be interesting to assess whether or not the way we grow the architecture toward this target architecture matters. For example, we can considere a simple two-hidden layer architecture, and grow it by adding neurons to the first hidden layer first, then to the second hidden layer, or the other way around. So the order we add neurons to each layer define a path. And we can ask ourselves if some paths are more efficient than others.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png}
+        \caption{Average test accuracy achieved by following each paths to grow the network, accross 5 trials}
+        \label{fig:MNIST_gradmax_pathes}
+    \end{subfigure}
+    %\hfill
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png}
+        \caption{Average test accuracies of the paths, the root model and the taregt model, accross 5 trials}
+        \label{fig:MNIST_gradmax_box_plot}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png}
+        \caption{Average test accuracy across 5 trials, with standard deviation}
+        \label{fig:MNIST_gradmax_statistical_reliability}
+    \end{subfigure}
+    \caption{Results on MNIST with GradMax initialization}
+    \label{fig:subfigures}
+\end{figure}
+
+To do so, we set the root network (RN) to be a two-hidden-layer MLP with 10 neurons on each layer, and the target network (TN) to be a two-hidden-layer MLP with 100 neurons on each layer. As reference for comparison, we train both RN and TN on 300 batch MNIST batches, each of which is of size 128, for 3 epochs. We use Adam optimizer with learning rate equal to $5\times10^{-3}$, and mean squarred error loss function. We repeat this process 5 times for statistical reliability. See \ref{fig:MNIST_gradmax_statistical_reliability} for the results.
+
+Then, in the processus of growing RN toward TN through the training process, we define schedules. Each schelule consists 20 growth step. 10 of these growth steps consist in adding 9 neurons to the first and the other 10 growth steps consist in adding 9 neurons the second hidden layer. Thus, the only way two schedules differ from each other is this order it plans to grow each layer. As for training RN and TN, the growing process occurs while training on 300 batch MNIST batches, each of which is of size 128, for 3 epochs. Overall, each growth of 10 neurons happens once every We use Adam optimizer with learning rate equal to $5\times10^{-3}$, and mean squarred error loss function.
 
 
 
 \nocite{*}
 \printbibliography
+
+
+\section*{Appendix}
+\subsection{Other results for motivating exploration of growth paths}
+
+% MNIST random
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/pathes_MNIST_random_2024_05_02_14_52_58.png}
+    \end{subfigure}
+    %\hfill
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png}
+    \end{subfigure}
+    \caption{Results on MNIST with random initialization}
+\end{figure}
+
+% FMNIST random
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/pathes_FNIST_random_2024_05_02_15_13_26.png}
+    \end{subfigure}
+    %\hfill
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png}
+    \end{subfigure}
+    \caption{Results on FMNIST with random initialization}
+\end{figure}
+
+% FMNIST gradmax
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png}
+    \end{subfigure}
+    %\hfill
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png}
+    \end{subfigure}
+    \caption{Results on FMNIST with gradmax initialization}
+\end{figure}
+
+% CIFAR10 random
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png}
+    \end{subfigure}
+    %\hfill
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png}
+    \end{subfigure}
+    \caption{Results on CIFAR10 with random initialization}
+\end{figure}
+
+% CIFAR10 gradmax
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png}
+    \end{subfigure}
+    %\hfill
+    \begin{subfigure}[b]{0.29\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png}
+    \end{subfigure}
+    \caption{Results on CIFAR10 with gradmax initialization}
+\end{figure}
+
 \end{document}

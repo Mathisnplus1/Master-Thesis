@@ -78,7 +78,6 @@
       \field{title}{Mosaic: in-memory computing and routing for small-world spike-based neuromorphic systems}
       \field{volume}{15}
       \field{year}{2024}
-      \true{nocite}
       \verb{doi}
       \verb 10.1038/s41467-023-44365-x
       \endverb
@@ -121,7 +120,6 @@
       \field{eprinttype}{arXiv}
       \field{title}{Learning Factored Representations in a Deep Mixture of Experts}
       \field{year}{2014}
-      \true{nocite}
       \verb{eprint}
       \verb 1312.4314
       \endverb
@@ -237,7 +235,6 @@
       \field{eprinttype}{arXiv}
       \field{title}{GradMax: Growing Neural Networks using Gradient Information}
       \field{year}{2022}
-      \true{nocite}
       \verb{eprint}
       \verb 2201.05125
       \endverb

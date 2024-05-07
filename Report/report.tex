@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
-\usepackage[left=3.5cm, right=3.5cm, top=3.5cm, bottom=3.5cm]{geometry}
+\usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
 \usepackage[style=numeric]{biblatex}
 \addbibresource{refs.bib}
 
@@ -17,11 +17,43 @@
 Continual learning is a machine learning paradigm that focuses on the ability of a model to learn and adapt to new information over time, without forgetting previously learned knowledge. It is particularly relevant in scenarios where data is non-stationary or arrives in a sequential manner. By leveraging techniques such as online learning, regularization, and knowledge distillation, continual learning enables models to continuously update their knowledge and improve performance as new data becomes available.
 
 \subsection{Initial project}
+\subsubsection{Project statement}
+
+In this context, the aim of the project was initialy stated as follows:
 
 \begin{quote}
     \itshape
-    The aim of this project is to explore the integration of Gradmax with our dynamic 'Mosaic' architecture. We plan to approach this by factoring hardware limitations into the optimization process. In addition, we're considering the development of a gating network within this architecture that determines the optimal timing for assigning tasks to newly added neurons. This could leverage cutting-edge techniques like Mixture of Expert models.
+    Catastrophic forgetting is a major challenge in continual learning systems, where a neural network needs to adapt to new tasks that differ from what it has previously learned. To tackle this, experts have devised strategies to either keep the neural network's critical weights intact or use generative models to refresh the network's memory of past tasks. However, these methods aren't perfect for hardware implementation due to their additional memory demands or the need for a separate network that constantly rehearses past information.
+
+    Meanwhile, we understand that a system's architecture significantly impacts its ability to generalize knowledge. Enter Gradmax \cite{gradmax}, an innovative algorithm that simultaneously optimizes a network's structure and weights, and smartly allocates neurons for new tasks without disrupting existing knowledge. This method is memory and computation efficient, making it suitable for hardware applications. But it does require hardware capable of dynamically adjusting its architecture to integrate new neurons as needed. Our recent work has led to a flexible hardware architecture, Mosaic \cite{mosaic}, with multiple cores that can rearrange their connections in real-time.
+
+    The aim of this project is to explore the integration of Gradmax with our dynamic 'Mosaic' architecture. We plan to approach this by factoring hardware limitations into the optimization process. In addition, we're considering the development of a gating network within this architecture that determines the optimal timing for assigning tasks to newly added neurons. This could leverage cutting-edge techniques like Mixture of Expert models \cite{DME}.
 \end{quote}
+
+Let's dissect this project statement to understand the main objectives and challenges it presents.
+
+\textbf{Computational costs.} The project aims to address the computational costs associated with continual learning methods. By leveraging Gradmax and Mosaic, the project seeks to reduce these costs and make continual learning less expensive.
+
+\textbf{Continual learning approach.} Litterature categorizes continual learning into three main categories: rehearsal, regularization, and parameter isolation. 
+%Rehearsal methods store past data and use it to train the model on new tasks. Regularization methods penalize changes to the model's parameters that would disrupt past knowledge. Parameter isolation methods keep the model's critical weights intact while allowing non-critical weights to change. However, these methods have limitations in terms of memory and computational requirements, and they often struggle to adapt to new tasks that are significantly different from past tasks.
+
+\subsubsection{Major issues}
+
+However, in the very beginning of the project, we faced two major issues. The first one is a consequence of Gradmax paper misleading introduction. Indeed, in the very first paragraph of the paper, the authors introduces :
+\begin{quote}
+    \itshape
+    Searching for the best architecture for a given task is an active research area with diverse approaches.[...] Most of these approaches are costly, as they require large search spaces or large architectures to start with. In this work we consider an alternative approach.
+\end{quote}
+The genuine expectation regarding the work following such an introduction is that the authors will provide an inovative method that performs factorize architecture search in the optimization process of learning a task. We also expect that, contrary to existing methods in this domain, this method does not require to train numerous architectures of the final size, which is computationally expensive.\\
+
+\noindent
+Contrary to expectations, GradMax falls short at enabling neural architecture optimization. It consists in growing a network from a root architecture to a predetermined target architecture, by adding neurons to it through training epochs. It focuses on the initialization of added neurons (the \textit{how}), neglecting the crucial questions of \textit{when} and \textit{where} to add them, which are deferred for future research. In the paper, the decisions regarding \textit{where} and \textit{when} to add neurons are predetermined and take the form of a schedule established. Consequently, it's challenging to conclude that the GradMax framework effectively enables architecture optimization for growing artificial neural networks.\\
+
+\noindent
+This introdcutory statement is also misleading in the sense that authors do not consider the computational cost of their method in the rest of the paper. This is a major issue as the project was initially designed to reduce the computational cost of continual learning methods.
+
+\subsubsection{Additional hurdles}
+
 \subsection{Revised project}
 
 \nocite{*}

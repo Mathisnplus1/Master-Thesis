@@ -97,7 +97,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
             
             
             # Initialize GradMax growth
-            if (growth_schedule is not None) and (batch_index%50 == 0) and (batch_index != 0):
+            if (growth_schedule is not None) and (batch_index%45 == 0) and (batch_index != 0):
                 
                 # Print the number of parameters
                 if verbose > 1 :
@@ -171,7 +171,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
             
             
             # Add neurons
-            if (growth_schedule is not None) and (batch_index%50 == 0) and (batch_index != 0):
+            if (growth_schedule is not None) and (batch_index%45 == 0) and (batch_index != 0):
                 #with torch.no_grad():
                     # Solve optimization problem (11)
                     #print("Shape of matrix_to_SVD :", matrix_to_SVD.shape)
@@ -196,7 +196,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     optimizer = get_optimizer(optimizer_name, model, lr)
             
             # Get feedback from train and val sets
-            if batch_index%50 == 49:
+            if batch_index%45 == 44:
                 with torch.no_grad():
                     # Train data
                     train_loss_hist.append(loss_epoch/len(train_loader))
@@ -218,7 +218,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
             # End of batch training loop  
             batch_index += 1
 
-            if verbose > 0 and batch_index%50 == 0:
+            if verbose > 0 and batch_index%45 == 0:
                 print(f'{i} batches used in epoch {epoch}')
         if verbose > 1 :
             print("Total number of batches :", batch_index)

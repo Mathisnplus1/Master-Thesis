@@ -1,0 +1,1 @@
+Set "download" argument to "True" when calling get loader functions from lib/dataloader.py

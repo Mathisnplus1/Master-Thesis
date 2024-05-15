@@ -213,6 +213,7 @@ INPUT .\imgs\statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm1000.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmcsc10.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt10.tfm
 INPUT .\imgs\pathes_MNIST_random_2024_05_02_14_52_58.png
@@ -325,6 +326,8 @@ INPUT .\report.out
 INPUT .\report.out
 INPUT report.run.xml
 OUTPUT report.run.xml
+INPUT C:\Users\Mathis\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
+INPUT C:\Users\Mathis\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx10.pfb
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx10.pfb
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb

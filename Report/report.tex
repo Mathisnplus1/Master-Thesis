@@ -35,7 +35,7 @@ In this context, the aim of the project was initialy stated as follows:
 \end{quote}
 
 \noindent
-Let's dissect this project statement to understand the main objectives and challenges it presents.\\
+Let's dissect this project statement to understand the main objectives and challenges it encapsulates.\\
 \\
 \noindent
 \textbf{Computational costs.} The project aims to address the computational costs associated with continual learning methods. Thus we expect to have a way to measure this cost, employ as figure of merit or intregrate it to the optimization process and to compare it to the cost of other methods.\\
@@ -81,7 +81,10 @@ But even after this specification, ambiguities persist. For instance when it com
 
 \section{Attempted approaches}
 \subsection{LoRA}
+
+
 \subsection{Motivating growth exploration}
+
 
 Trying to taclke the questions of where and when to grow neurons in the framework of GradMax, that is, starting with a root architecture and converging to a target architecture, it can be interesting to assess whether or not the way we grow the architecture toward this target architecture matters. For example, we can considere a simple two-hidden layer architecture, and grow it by adding neurons to the first hidden layer first, then to the second hidden layer, or the other way around. So the order we add neurons to each layer define a path. And we can ask ourselves if some paths are more efficient than others.
 
@@ -117,6 +120,30 @@ To do so, we set the root network (RN) to be a two-hidden-layer MLP with 10 neur
 
 Then, in the processus of growing RN toward TN through the training process, we define schedules. Each schelule consists 20 growth step. 10 of these growth steps consist in adding 9 neurons to the first and the other 10 growth steps consist in adding 9 neurons the second hidden layer. Thus, the only way two schedules differ from each other is this order it plans to grow each layer. As for training RN and TN, the growing process occurs while training on 300 batch MNIST batches, each of which is of size 128, for 3 epochs. Overall, each growth of 10 neurons happens once every We use Adam optimizer with learning rate equal to $5\times10^{-3}$, and mean squarred error loss function.
 
+That being said, we can see that the path we choose to grow the network has a significant impact on the final test accuracy. In particular, the path that consists in adding neurons to the first hidden layer first, then to the second hidden layer, seems to be the most efficient. 
+
+Thus, exploring neurogeneis makes sense in the context of traditional learning (on a single task). However, what we want to do is to adapt this to a contiual learning framework. That is, we want to grow the network  
+
+
+To this regard, as a general concept, we can control :
+\begin{itemize}
+    \item how the added neurons react to new task samples
+    \item how the old neurons react to new task samples
+    \item (depending on the approach) how the old neurons react to previous tasks samples
+\end{itemize}
+
+However, we have absolutely no control over the way the added neurons react to previous tasks samples because :
+\begin{itemize}
+    \item we have no acces to previous tasks samples
+    \item we are not using any rehearsal strategy
+    \item so, in a nutshell : we assume we keep absolutely no memory of any kind of the previous tasks except for the weights of the old neurons
+\end{itemize}
+
+So our very last hope is to parametrize/constrain the weights so that they encode task information.
+
+\subsection{Conclusions we can draw from these attempts}
+
+Approaches like LoRA, EWC, neural growth (whether initialization is done through GradMax of TINY) are condemned to fail in the context of continual learning. While they have no information about previous tasks samples, they will be limited to trade offs and hyperparameter optimization.
 
 
 \nocite{*}

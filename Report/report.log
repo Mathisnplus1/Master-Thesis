@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.12) (preloaded format=pdflatex 2024.1.13)  15 MAY 2024 12:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.12) (preloaded format=pdflatex 2024.1.13)  17 MAY 2024 09:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -237,6 +237,15 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 285.
 )
 \Hy@SectionHShift=\skip53
+) (C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex/latex/epigraph\epigraph.sty
+Package: epigraph 2020/01/02 v1.5e typesetting epigraphs
+ (C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex/latex/nextpage\nextpage.sty
+Package: nextpage 2009/09/03 v1.1a additional page commands
+)
+\beforeepigraphskip=\skip54
+\afterepigraphskip=\skip55
+\epigraphwidth=\skip56
+\epigraphrule=\skip57
 ) (C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
  (C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
@@ -307,14 +316,14 @@ Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
 \blx@sectionciteorderinternal@0=\count333
 \blx@entrysetcounter=\count334
 \blx@biblioinstance=\count335
-\labelnumberwidth=\skip54
-\labelalphawidth=\skip55
-\biblabelsep=\skip56
-\bibitemsep=\skip57
-\bibnamesep=\skip58
-\bibinitsep=\skip59
-\bibparsep=\skip60
-\bibhang=\skip61
+\labelnumberwidth=\skip58
+\labelalphawidth=\skip59
+\biblabelsep=\skip60
+\bibitemsep=\skip61
+\bibnamesep=\skip62
+\bibinitsep=\skip63
+\bibparsep=\skip64
+\bibhang=\skip65
 \blx@bcfin=\read2
 \blx@bcfout=\write3
 \blx@langwohyphens=\language79
@@ -398,20 +407,20 @@ Package biblatex Info: ... file 'biblatex-dm.cfg' not found.
 \c@savedoriglanguage=\count404
 \c@pageref=\count405
 \c@savedpageref=\count406
-\shorthandwidth=\skip62
-\shortjournalwidth=\skip63
-\shortserieswidth=\skip64
-\shorttitlewidth=\skip65
-\shortauthorwidth=\skip66
-\shorteditorwidth=\skip67
-\locallabelnumberwidth=\skip68
-\locallabelalphawidth=\skip69
-\localshorthandwidth=\skip70
-\localshortjournalwidth=\skip71
-\localshortserieswidth=\skip72
-\localshorttitlewidth=\skip73
-\localshortauthorwidth=\skip74
-\localshorteditorwidth=\skip75
+\shorthandwidth=\skip66
+\shortjournalwidth=\skip67
+\shortserieswidth=\skip68
+\shorttitlewidth=\skip69
+\shortauthorwidth=\skip70
+\shorteditorwidth=\skip71
+\locallabelnumberwidth=\skip72
+\locallabelalphawidth=\skip73
+\localshorthandwidth=\skip74
+\localshortjournalwidth=\skip75
+\localshortserieswidth=\skip76
+\localshorttitlewidth=\skip77
+\localshortauthorwidth=\skip78
+\localshorteditorwidth=\skip79
 Package biblatex Info: Trying to load compatibility code...
 Package biblatex Info: ... file 'blx-compat.def' found.
  (C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-compat.def
@@ -490,24 +499,24 @@ Package: blx-case-expl3 2023/03/05 v3.19 expl3 case changing code for biblatex
  (report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
  (C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count421
@@ -530,7 +539,7 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 15.
+Package hyperref Info: Link coloring OFF on input line 16.
  (report.out) (report.out)
 \@outlinefile=\write4
 \openout4 = `report.out'.
@@ -583,146 +592,146 @@ Package biblatex Info: Automatic encoding selection.
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'report.bbl' found.
  (report.bbl)
-Package biblatex Info: Reference section=0 on input line 15.
-Package biblatex Info: Reference segment=0 on input line 15.
+Package biblatex Info: Reference section=0 on input line 16.
+Package biblatex Info: Reference segment=0 on input line 16.
 
-Underfull \hbox (badness 10000) in paragraph at lines 37--51
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 37--51
+Underfull \hbox (badness 10000) in paragraph at lines 39--53
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 37--51
+Underfull \hbox (badness 10000) in paragraph at lines 39--53
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 37--51
+Underfull \hbox (badness 10000) in paragraph at lines 39--53
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 39--53
 
  []
 
 [1
 
 {C:/Users/Mathis/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 63--65
+Underfull \hbox (badness 10000) in paragraph at lines 65--67
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 66--68
+Underfull \hbox (badness 10000) in paragraph at lines 68--70
 
  []
 
 [2]
-<imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png, id=68, 496.85625pt x 444.66125pt>
+<imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png, id=73, 496.85625pt x 444.66125pt>
 File: imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png Graphic file (type png)
 <use imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png>
-Package pdftex.def Info: imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png  used on input line 95.
+Package pdftex.def Info: imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png  used on input line 97.
 (pdftex.def)             Requested size: 115.7705pt x 103.60657pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 96--96
+Underfull \hbox (badness 10000) in paragraph at lines 98--98
 []\OT1/cmr/m/n/9 (a) |Av-er-age test ac-cu-racy
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 96--96
+Underfull \hbox (badness 10000) in paragraph at lines 98--98
 \OT1/cmr/m/n/9 achieved by fol-low-ing each
  []
 
 
-Underfull \hbox (badness 2951) in paragraph at lines 96--96
+Underfull \hbox (badness 2951) in paragraph at lines 98--98
 \OT1/cmr/m/n/9 paths to grow the net-work,
  []
 
-<imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png, id=70, 301.125pt x 397.485pt>
+<imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png, id=75, 301.125pt x 397.485pt>
 File: imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png Graphic file (type png)
 <use imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png>
-Package pdftex.def Info: imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png  used on input line 102.
+Package pdftex.def Info: imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png  used on input line 104.
 (pdftex.def)             Requested size: 77.18164pt x 101.88196pt.
-<imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png, id=71, 1254.6875pt x 451.6875pt>
+<imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png, id=76, 1254.6875pt x 451.6875pt>
 File: imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png Graphic file (type png)
 <use imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png>
-Package pdftex.def Info: imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png  used on input line 111.
+Package pdftex.def Info: imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png  used on input line 113.
 (pdftex.def)             Requested size: 221.78923pt x 79.8391pt.
 [3 <./imgs/pathes_MNIST_gradmax_2024_05_02_15_03_12.png> <./imgs/box_plot_MNIST_gradmax_2024_05_02_15_03_13.png> <./imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png>]
-<imgs/pathes_MNIST_random_2024_05_02_14_52_58.png, id=94, 496.85625pt x 444.66125pt>
+<imgs/pathes_MNIST_random_2024_05_02_14_52_58.png, id=97, 496.85625pt x 444.66125pt>
 File: imgs/pathes_MNIST_random_2024_05_02_14_52_58.png Graphic file (type png)
 <use imgs/pathes_MNIST_random_2024_05_02_14_52_58.png>
-Package pdftex.def Info: imgs/pathes_MNIST_random_2024_05_02_14_52_58.png  used on input line 161.
+Package pdftex.def Info: imgs/pathes_MNIST_random_2024_05_02_14_52_58.png  used on input line 174.
 (pdftex.def)             Requested size: 115.7705pt x 103.60657pt.
-<imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png, id=95, 301.125pt x 397.485pt>
+<imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png, id=98, 301.125pt x 397.485pt>
 File: imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png Graphic file (type png)
 <use imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png>
-Package pdftex.def Info: imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png  used on input line 166.
+Package pdftex.def Info: imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png  used on input line 179.
 (pdftex.def)             Requested size: 77.18164pt x 101.88196pt.
-<imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png, id=96, 1254.6875pt x 451.6875pt>
+<imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png, id=99, 1254.6875pt x 451.6875pt>
 File: imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png Graphic file (type png)
 <use imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png>
-Package pdftex.def Info: imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png  used on input line 173.
+Package pdftex.def Info: imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png  used on input line 186.
 (pdftex.def)             Requested size: 221.78923pt x 79.8391pt.
-<imgs/pathes_FNIST_random_2024_05_02_15_13_26.png, id=97, 496.85625pt x 444.66125pt>
+<imgs/pathes_FNIST_random_2024_05_02_15_13_26.png, id=100, 496.85625pt x 444.66125pt>
 File: imgs/pathes_FNIST_random_2024_05_02_15_13_26.png Graphic file (type png)
 <use imgs/pathes_FNIST_random_2024_05_02_15_13_26.png>
-Package pdftex.def Info: imgs/pathes_FNIST_random_2024_05_02_15_13_26.png  used on input line 183.
+Package pdftex.def Info: imgs/pathes_FNIST_random_2024_05_02_15_13_26.png  used on input line 196.
 (pdftex.def)             Requested size: 115.7705pt x 103.60657pt.
-<imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png, id=98, 301.125pt x 397.485pt>
+<imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png, id=101, 301.125pt x 397.485pt>
 File: imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png Graphic file (type png)
 <use imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png>
-Package pdftex.def Info: imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png  used on input line 188.
+Package pdftex.def Info: imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png  used on input line 201.
 (pdftex.def)             Requested size: 77.18164pt x 101.88196pt.
-<imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png, id=99, 1254.6875pt x 451.6875pt>
+<imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png, id=102, 1254.6875pt x 451.6875pt>
 File: imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png Graphic file (type png)
 <use imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png>
-Package pdftex.def Info: imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png  used on input line 195.
+Package pdftex.def Info: imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png  used on input line 208.
 (pdftex.def)             Requested size: 221.78923pt x 79.8391pt.
-<imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png, id=100, 496.85625pt x 444.66125pt>
+<imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png, id=103, 496.85625pt x 444.66125pt>
 File: imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png Graphic file (type png)
 <use imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png>
-Package pdftex.def Info: imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png  used on input line 205.
+Package pdftex.def Info: imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png  used on input line 218.
 (pdftex.def)             Requested size: 115.7705pt x 103.60657pt.
-<imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png, id=101, 301.125pt x 397.485pt>
+<imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png, id=104, 301.125pt x 397.485pt>
 File: imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png Graphic file (type png)
 <use imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png>
-Package pdftex.def Info: imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png  used on input line 210.
+Package pdftex.def Info: imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png  used on input line 223.
 (pdftex.def)             Requested size: 77.18164pt x 101.88196pt.
-<imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png, id=102, 1254.6875pt x 451.6875pt>
+<imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png, id=105, 1254.6875pt x 451.6875pt>
 File: imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png Graphic file (type png)
 <use imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png>
-Package pdftex.def Info: imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png  used on input line 217.
+Package pdftex.def Info: imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png  used on input line 230.
 (pdftex.def)             Requested size: 221.78923pt x 79.8391pt.
-<imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png, id=103, 496.85625pt x 444.66125pt>
+<imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png, id=106, 496.85625pt x 444.66125pt>
 File: imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png Graphic file (type png)
 <use imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png>
-Package pdftex.def Info: imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png  used on input line 227.
+Package pdftex.def Info: imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png  used on input line 240.
 (pdftex.def)             Requested size: 115.7705pt x 103.60657pt.
-<imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png, id=104, 301.125pt x 397.485pt>
+<imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png, id=107, 301.125pt x 397.485pt>
 File: imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png Graphic file (type png)
 <use imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png>
-Package pdftex.def Info: imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png  used on input line 232.
+Package pdftex.def Info: imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png  used on input line 245.
 (pdftex.def)             Requested size: 77.18164pt x 101.88196pt.
-<imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png, id=105, 1254.6875pt x 451.6875pt>
+<imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png, id=108, 1254.6875pt x 451.6875pt>
 File: imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png Graphic file (type png)
 <use imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png>
-Package pdftex.def Info: imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png  used on input line 239.
+Package pdftex.def Info: imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png  used on input line 252.
 (pdftex.def)             Requested size: 221.78923pt x 79.8391pt.
-<imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png, id=106, 496.85625pt x 444.66125pt>
+<imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png, id=109, 496.85625pt x 444.66125pt>
 File: imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png Graphic file (type png)
 <use imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png>
-Package pdftex.def Info: imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png  used on input line 249.
+Package pdftex.def Info: imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png  used on input line 262.
 (pdftex.def)             Requested size: 115.7705pt x 103.60657pt.
-<imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png, id=107, 301.125pt x 397.485pt>
+<imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png, id=110, 301.125pt x 397.485pt>
 File: imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png Graphic file (type png)
 <use imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png>
-Package pdftex.def Info: imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png  used on input line 254.
+Package pdftex.def Info: imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png  used on input line 267.
 (pdftex.def)             Requested size: 77.18164pt x 101.88196pt.
-<imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png, id=108, 1254.6875pt x 451.6875pt>
+<imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png, id=111, 1254.6875pt x 451.6875pt>
 File: imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png Graphic file (type png)
 <use imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png>
-Package pdftex.def Info: imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png  used on input line 261.
+Package pdftex.def Info: imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png  used on input line 274.
 (pdftex.def)             Requested size: 221.78923pt x 79.8391pt.
  [4] [5 <./imgs/pathes_MNIST_random_2024_05_02_14_52_58.png> <./imgs/box_plot_MNIST_random_2024_05_02_14_52_58.png> <./imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png> <./imgs/pathes_FNIST_random_2024_05_02_15_13_26.png> <./imgs/box_plot_FNIST_random_2024_05_02_15_13_27.png> <./imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png> <./imgs/pathes_FMNIST_gradmax_2024_05_02_15_23_40.png> <./imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png> <./imgs/statistical_reliability_FMNIST_gradmax_2024_05_02_15_23_40.png>] [6 <./imgs/pathes_CIFAR10_random_2024_05_02_15_49_40.png> <./imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png> <./imgs/statistical_reliability_CIFAR10_random_2024_05_02_15_49_40.png> <./imgs/pathes_CIFAR10_gradmax_2024_05_02_16_13_51.png> <./imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png> <./imgs/statistical_reliability_CIFAR10_gradmax_2024_05_02_16_13_51.png>] (report.aux)
  ***********
@@ -730,23 +739,23 @@ LaTeX2e <2023-11-01>
 L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 69729525D0CF0DBE5F7E73906DEFD93E;1899.
+(rerunfilecheck)             Checksum: C0911521123CF651B6668B8DC0AC3726;2106.
 Package logreq Info: Writing requests to 'report.run.xml'.
 \openout1 = `report.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 18417 strings out of 474486
- 332508 string characters out of 5743283
- 1940528 words of memory out of 5000000
- 40504 multiletter control sequences out of 15000+600000
- 564901 words of font info for 60 fonts, out of 8000000 for 9000
+ 18519 strings out of 474486
+ 334660 string characters out of 5743283
+ 1941528 words of memory out of 5000000
+ 40594 multiletter control sequences out of 15000+600000
+ 565739 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,8n,81p,845b,1295s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,8n,81p,845b,1297s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Mathis\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on report.pdf (6 pages, 513177 bytes).
+Output written on report.pdf (6 pages, 515152 bytes).
 PDF statistics:
- 213 PDF objects out of 1000 (max. 8388607)
- 33 named destinations out of 1000 (max. 500000)
- 179 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 217 PDF objects out of 1000 (max. 8388607)
+ 34 named destinations out of 1000 (max. 500000)
+ 187 words of extra memory for PDF output out of 10000 (max. 10000000)
 

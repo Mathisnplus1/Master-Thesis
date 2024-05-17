@@ -96,6 +96,10 @@ INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\rerunfilecheck\rer
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\rerunfilecheck\rerunfilecheck.sty
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\generic\uniquecounter\uniquecounter.sty
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\generic\uniquecounter\uniquecounter.sty
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\epigraph\epigraph.sty
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\epigraph\epigraph.sty
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\nextpage\nextpage.sty
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\nextpage\nextpage.sty
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.sty
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.sty
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
@@ -183,6 +187,11 @@ INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy6.tf
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr9.tfm
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi9.tfm
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy9.tfm
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex9.tfm
+INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
@@ -196,7 +205,6 @@ INPUT .\imgs\pathes_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\pathes_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\pathes_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\pathes_MNIST_gradmax_2024_05_02_15_03_12.png
-INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr9.tfm
 INPUT .\imgs\box_plot_MNIST_gradmax_2024_05_02_15_03_13.png
 INPUT .\imgs\box_plot_MNIST_gradmax_2024_05_02_15_03_13.png
 INPUT .\imgs\box_plot_MNIST_gradmax_2024_05_02_15_03_13.png
@@ -211,7 +219,6 @@ INPUT .\imgs\statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png
 INPUT .\imgs\statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png
-INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\tcrm1000.tfm
 INPUT C:\Users\Mathis\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmcsc10.tfm

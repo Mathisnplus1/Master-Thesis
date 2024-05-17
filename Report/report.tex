@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage{epigraph}
 
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
 \usepackage[style=numeric]{biblatex}
@@ -15,6 +16,7 @@
 \begin{document}
 
 \maketitle
+\epigraph{Goodhart's law}{When a metric becomes a target, it ceases to be a good metric.}
 
 \section{Introduction}
 
@@ -125,6 +127,15 @@ That being said, we can see that the path we choose to grow the network has a si
 Thus, exploring neurogeneis makes sense in the context of traditional learning (on a single task). However, what we want to do is to adapt this to a contiual learning framework. That is, we want to grow the network  
 
 
+\subsection{Growth in continual learning}
+
+
+
+
+\subsection{Conclusions we can draw from these attempts}
+
+
+
 To this regard, as a general concept, we can control :
 \begin{itemize}
     \item how the added neurons react to new task samples
@@ -136,13 +147,15 @@ However, we have absolutely no control over the way the added neurons react to p
 \begin{itemize}
     \item we have no acces to previous tasks samples
     \item we are not using any rehearsal strategy
-    \item so, in a nutshell : we assume we keep absolutely no memory of any kind of the previous tasks except for the weights of the old neurons
+    \item we do not intend to encode any information about the specificity of previous tasks in the weights 
 \end{itemize}
 
-So our very last hope is to parametrize/constrain the weights so that they encode task information.
+So our very last hopes without memory are :
+\begin{itemize}
+    \item to parametrize/constrain the weights so that they encode task information
+\end{itemize}
 
-\subsection{Conclusions we can draw from these attempts}
-
+Interestingly, these questions and remarks we have been objecting to ourselves about fundations of our approach applies to several other approaches.
 Approaches like LoRA, EWC, neural growth (whether initialization is done through GradMax of TINY) are condemned to fail in the context of continual learning. While they have no information about previous tasks samples, they will be limited to trade offs and hyperparameter optimization.
 
 

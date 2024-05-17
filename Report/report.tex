@@ -133,7 +133,7 @@ Thus, exploring neurogeneis makes sense in the context of traditional learning (
 
 
 \subsection{Conclusions we can draw from these attempts}
-
+\subsubsection{Limitation of approaches}
 
 
 To this regard, as a general concept, we can control :
@@ -155,9 +155,31 @@ So our very last hopes without memory are :
     \item to parametrize/constrain the weights so that they encode task information
 \end{itemize}
 
-Interestingly, these questions and remarks we have been objecting to ourselves about fundations of our approach applies to several other approaches.
-Approaches like LoRA, EWC, neural growth (whether initialization is done through GradMax of TINY) are condemned to fail in the context of continual learning. While they have no information about previous tasks samples, they will be limited to trade offs and hyperparameter optimization.
+Interestingly, these questions and remarks we have been objecting to ourselves about fundations of our approach applies to several other approaches including :
+\begin{itemize}
+    \item regularization approaches such as EWC, Hessian and Bayesian approaches
+    \item our LoRA approach
+    \item neural growth approaches (whether initialization is done randomly, through GradMax or TINY)
+    \item use of distincts neural networks for each task
+\end{itemize}
 
+However, when reading papers about these approaches we have the general feeling that continual learning is a solved problem whereas we argued that they are not adressing continual learning. While they have no information about previous tasks, these approaches can only positive results by performing trade offs between the total number of tasks in the benchmark, how much you forget about the previous tasks and how much you can learn about the new one at hand. That is, these approaches heavily rely on hyperparameter optimization.
+
+
+So in a nutshell, these approaches succeed at solving one specific continual learning benchmark at a time. None of these approaches can perform well on a new benchmark without going through a new heavy hyperparameter optimization process. So, can we really considere them as general continual learning approaches ? Because there seem to a close ressemblance to overfitting ; a hyper-overfitting.
+
+Would we need to need to define a validation set of benchmarks ? And require every approaches to be able to run on test benchmarks with none of few hyperparameter updates ?
+
+
+\subsubsection{Lack of specificity and definitions}
+
+In addition to the previous
+
+no definition of :
+- overfitting on a benchmark
+    - define and measure the hyper parameter importance (or cost) of any given approach, to quantify overfitting
+- task
+- similarity between tasks
 
 \nocite{*}
 \printbibliography

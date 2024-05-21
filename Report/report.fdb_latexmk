@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber report"] 0 "report.bcf" "report.bbl" "report" 1715939762.80511 -1
+["biber report"] 0 "report.bcf" "report.bbl" "report" 1716311327.1765 -1
   "refs.bib" 1715066025 2489 275f451c33b58373b10a29a4efede101 ""
-  "report.bcf" 1715939762 107943 3200b02cee0833fd5ad2002c073db63f "pdflatex"
+  "report.bcf" 1716311327 107943 3200b02cee0833fd5ad2002c073db63f "pdflatex"
   (generated)
   "report.bbl"
   "report.blg"
   (rewritten before read)
-["pdflatex"] 1715939760.07232 "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" "report.pdf" "report" 1715939762.80613 0
+["pdflatex"] 1716311325.74824 "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" "report.pdf" "report" 1716311327.17704 0
   "C:/Users/Mathis/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1715932459 83807 b38554b55758e36eaf2c7d766bbbec95 ""
   "C:/Users/Mathis/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk" 1715766249 11548 4bd82a20807964119c6422e30c31b98c ""
   "C:/Users/Mathis/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1705159599 24225406 033f892fef2711b06bf20b60d7e06aa1 ""
@@ -36,6 +36,7 @@
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1247596666 34811 78b52f49e893bcba91bd7581cdc144c0 ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1247596666 32080 340ef9bf63678554ee606688e7b5339d ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmcsc10.pfb" 1247596667 32001 6aeea3afe875097b1eb0da29acd61e28 ""
+  "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1247596667 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1247596667 35752 024fb6c41858982481f6968b5fc26508 ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1247596667 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb" 1247596666 32362 bc3f3eec7ab7d65fe700963d4017d32c ""
@@ -114,7 +115,7 @@
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/tex/latex/refcount/refcount.sty" 1576433952 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1657800696 9714 ba3194bd52c8499b3f1e3eb91d409670 ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" 1715939759 17524 1ec2e677f33c441c59aba974abea67f6 ""
+  "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" 1716311325 18599 853684889eb59cef9c2694c3884bdd4b ""
   "imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png" 1714722810 12306 03c59a250dcd7df87168d3eac3328f37 ""
   "imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png" 1714722810 13696 209a1906659ad0f81d888daccde6c8a7 ""
   "imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png" 1714722810 10745 8db9a58c44be77ec03b302aed26725f4 ""
@@ -133,11 +134,11 @@
   "imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png" 1714722810 32497 5cc5e2843ce7706af3ee3978ca4f04dd ""
   "imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png" 1714722810 30055 24d66fdc4f23d7c36a87b8c5a5809eea ""
   "imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png" 1714722810 29438 38fb16f40bcca15a40eff57213c8d658 ""
-  "report.aux" 1715939762 4857 45f1d1e290a70b7bbb2b12c359c6b6c0 "pdflatex"
+  "report.aux" 1716311326 4976 63a0444fcebd8093f8a2173c9f8ca3d6 "pdflatex"
   "report.bbl" 1715086362 13782 7f4d2fb935a886ce4b7c036ac0c79c43 "biber report"
-  "report.out" 1715939762 2555 e0efe874af31639f5be900d635a25f91 "pdflatex"
-  "report.run.xml" 1715939762 2313 71764d4a9a10ed8a3ba4ca1c3500a605 "pdflatex"
-  "report.tex" 1715939759 17524 1ec2e677f33c441c59aba974abea67f6 ""
+  "report.out" 1716311327 2633 286512805ff47dd2824614ad0f6725db "pdflatex"
+  "report.run.xml" 1716311327 2313 71764d4a9a10ed8a3ba4ca1c3500a605 "pdflatex"
+  "report.tex" 1716311325 18599 853684889eb59cef9c2694c3884bdd4b ""
   (generated)
   "report.aux"
   "report.bcf"

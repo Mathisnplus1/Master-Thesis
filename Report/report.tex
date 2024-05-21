@@ -81,11 +81,12 @@ But even after this specification, ambiguities persist. For instance when it com
 \subsection{Revised project}
 
 
-\section{Attempted approaches}
+\section{Approaches explored}
 \subsection{LoRA}
 
 
-\subsection{Motivating growth exploration}
+\subsection{Growth in continual learning}
+\subsubsection{Motivating growth exploration}
 
 
 Trying to taclke the questions of where and when to grow neurons in the framework of GradMax, that is, starting with a root architecture and converging to a target architecture, it can be interesting to assess whether or not the way we grow the architecture toward this target architecture matters. For example, we can considere a simple two-hidden layer architecture, and grow it by adding neurons to the first hidden layer first, then to the second hidden layer, or the other way around. So the order we add neurons to each layer define a path. And we can ask ourselves if some paths are more efficient than others.
@@ -127,8 +128,28 @@ That being said, we can see that the path we choose to grow the network has a si
 Thus, exploring neurogeneis makes sense in the context of traditional learning (on a single task). However, what we want to do is to adapt this to a contiual learning framework. That is, we want to grow the network  
 
 
-\subsection{Growth in continual learning}
 
+\subsection{EWC}
+
+
+Issues with the fundational paper itself :
+\begin{itemize}
+    \item No code avaiable
+    \item No specification of the number of $\lambda$ parameters
+    \item No specification of the values of the $\lambda$ parameters
+    \item Mismatch between figure and references to figures
+\end{itemize}
+
+\noindent
+Issues with the approach :
+\begin{itemize}
+    \item Ranks on paperwithcode benchmarks : $\frac{5}{6},\frac{13}{15},\frac{6}{8},\frac{6}{6},\frac{3}{7}$, so the approach falls just above the first quintile, ranking on average 22th out of 100 approaches. But when we read the paper, it feels like continual learning is solved.
+    \item Redundancy
+    \item 2 to 1 pollution
+    \item 1 to 2 pollution
+    \item Too much hyper parameters (lambda(s))
+    \item Fact that no matter how hard you try, every time you learn a new task, you do hurt knowledge about the previous tasks. So from the very beginning, the approach is doomed to be very limited... the only way to save the face is to overfit with loads of HPs.
+\end{itemize}
 
 
 

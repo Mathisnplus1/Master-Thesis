@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{epigraph}
@@ -59,6 +60,7 @@ Let's dissect this project statement to understand the main objectives and chall
 In the very beginning of the project, we faced two major issues. The first one is a consequence of Gradmax paper misleading introduction. Indeed, in the very first paragraph of the paper, the authors introduces :
 \begin{quote}
     \itshape
+    \centering
     Searching for the best architecture for a given task is an active research area with diverse approaches.[...] Most of these approaches are costly, as they require large search spaces or large architectures to start with. In this work we consider an alternative approach.
 \end{quote}
 
@@ -157,6 +159,37 @@ Issues with the approach :
 \subsubsection{Limitation of approaches}
 
 
+As a very general principle, the problem with these approaches in the context of continual learning is that
+\begin{quote}
+    \itshape
+    \centering
+    Improving on task 2 mean regressing on task 1, and reciprocally
+\end{quote}
+
+\noindent
+Which implies that performing continual learning in such a way requires to perform trade-offs. And the most convenient way one performs trade-offs in deep learning is through hyperparameters.
+
+\vspace{0.5cm}
+
+\noindent
+We often assume that it is fine to attempt somewhat limited approaches because improvements are achieved by building on failed attempts. This is true for incremental improvements, typically made by engineers through the combination and optimization of previous work. However, researchers aim for disruptive improvements by stepping back from the current state of the art to identify what is arbitrary, poorly motivated, or inherently limited in current approaches.
+
+\vspace{0.5cm}
+
+\noindent
+Let's assume we are given $I$ tasks indexed by the set $\{1,2,...,I\}$. We define a neural network as the set of its parameters
+\begin{align}
+    \phi = \left\{\left\{w_{l,m,n}\right\}\right\} \in \mathbb{R}^{L+1,N_{l-1},N_{l}}
+\end{align}
+
+Let's define $\mathbb{W}_i$ the set of protected weights for task $i$ by 
+\begin{align}
+    \mathbb{W}_i
+\end{align}
+
+\vspace{0.5cm}
+
+\noindent
 To this regard, as a general concept, we can control :
 \begin{itemize}
     \item how the added neurons react to new task samples

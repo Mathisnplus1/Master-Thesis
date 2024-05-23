@@ -1,28 +1,55 @@
-Workspace/Growth/Motivation/.ipynb_checkpoints
-Workspace/Growth/Motivation/data/MNIST
-Workspace/Growth/Motivation/data/FashionMNIST
-Workspace/Growth/Motivation/data/cifar-10-batches-py
-Workspace/Growth/Motivation/data/cifar-100-python
+#Workspace/Growth/Motivation/.ipynb_checkpoints
+#Workspace/Growth/Motivation/data/MNIST
+#Workspace/Growth/Motivation/data/FashionMNIST
+#Workspace/Growth/Motivation/data/cifar-10-batches-py
+#Workspace/Growth/Motivation/data/cifar-100-python
 Workspace/Growth/Motivation/old
-Workspace/Growth/Motivation/lib/__pycache__
+#Workspace/Growth/Motivation/lib/__pycache__
 
-Workspace/Growth/Scheduled Continual Learnig/.ipynb_checkpoints
-Workspace/Growth/Scheduled Continual Learnig/data/MNIST
-Workspace/Growth/Scheduled Continual Learnig/data/FashionMNIST
-Workspace/Growth/Scheduled Continual Learnig/data/cifar-10-batches-py
-Workspace/Growth/Scheduled Continual Learnig/data/cifar-100-python
-Workspace/Growth/Scheduled Continual Learnig/old
-Workspace/Growth/Scheduled Continual Learnig/lib/__pycache__
+#Workspace/Growth/Scheduled Continual Learnig/.ipynb_checkpoints
+#Workspace/Growth/Scheduled Continual Learnig/data/MNIST
+#Workspace/Growth/Scheduled Continual Learnig/data/FashionMNIST
+#Workspace/Growth/Scheduled Continual Learnig/data/cifar-10-batches-py
+#Workspace/Growth/Scheduled Continual Learnig/data/cifar-100-python
+#Workspace/Growth/Scheduled Continual Learnig/old
+#Workspace/Growth/Scheduled Continual Learnig/lib/__pycache__
 
-Workspace/Growth/Time parametrization/.ipynb_checkpoints
-Workspace/Growth/Time parametrization/data/MNIST
-Workspace/Growth/Time parametrization/data/FashionMNIST
-Workspace/Growth/Time parametrization/data/cifar-10-batches-py
-Workspace/Growth/Time parametrization/data/cifar-100-python
-Workspace/Growth/Time parametrization/old
-Workspace/Growth/Time parametrization/lib/__pycache__
+#Workspace/Growth/Time parametrization/.ipynb_checkpoints
+#Workspace/Growth/Time parametrization/data/MNIST
+#Workspace/Growth/Time parametrization/data/FashionMNIST
+#Workspace/Growth/Time parametrization/data/cifar-10-batches-py
+#Workspace/Growth/Time parametrization/data/cifar-100-python
+#Workspace/Growth/Time parametrization/old
+#Workspace/Growth/Time parametrization/lib/__pycache__
 
 Workspace/Growth/TINY/TINY_workspace
 
-Workspace/Feature Selection/.ipynb_checkpoints
-Workspace/Feature Selection/data
+#Workspace/Feature Selection/.ipynb_checkpoints
+#Workspace/Feature Selection/data
+
+# Latex files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+
+# Notebook checkpoints
+*-checkpoint.ipynb
+
+# Python cache
+*.pyc
+
+# Model files
+*.pth
+
+# Data files
+*MNIST/
+*FashionMNIST/
+*cifar-10-batches-py/
+*cifar-100-python/

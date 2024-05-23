@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber report"] 1716392705.36495 "report.bcf" "report.bbl" "report" 1716392872.36098 0
+["biber report"] 1716392705.36495 "report.bcf" "report.bbl" "report" 1716454565.58372 0
   "refs.bib" 1715066025 2489 275f451c33b58373b10a29a4efede101 ""
-  "report.bcf" 1716392872 107943 3200b02cee0833fd5ad2002c073db63f "pdflatex"
+  "report.bcf" 1716454565 107943 3200b02cee0833fd5ad2002c073db63f "pdflatex"
   (generated)
   "report.bbl"
   "report.blg"
   (rewritten before read)
-["pdflatex"] 1716392870.88059 "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" "report.pdf" "report" 1716392872.36153 0
+["pdflatex"] 1716454562.87644 "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" "report.pdf" "report" 1716454565.58486 0
   "C:/Users/Mathis/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1716391314 83984 ba2ebfe4f6ba07255122322b4ee6ee79 ""
   "C:/Users/Mathis/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk" 1715766249 11548 4bd82a20807964119c6422e30c31b98c ""
   "C:/Users/Mathis/AppData/Local/MiKTeX/fonts/tfm/public/stmaryrd/stmary10.tfm" 1716391316 848 f478e0761563bbc369eca609a1741348 ""
@@ -138,7 +138,7 @@
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/tex/latex/stmaryrd/stmaryrd.sty" 1303229068 11317 aa7f81da60ce104f0dbb8b827dd14383 ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/tex/latex/stmaryrd/ustmry.fd" 1303229068 1811 216b0f832c406513647608b5bb9bb8ff ""
   "C:/Users/Mathis/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" 1716392870 20746 f2bb4b76637b787badf51ec627156cfc ""
+  "c:/Users/Mathis/Desktop/Bahut/M2/Stage/Master-Thesis/Report/report.tex" 1716454562 21123 e968698745f9363d01b11e0cdcf51f0d ""
   "imgs/box_plot_CIFAR10_gradmax_2024_05_02_16_13_51.png" 1714722810 12306 03c59a250dcd7df87168d3eac3328f37 ""
   "imgs/box_plot_CIFAR10_random_2024_05_02_15_49_41.png" 1714722810 13696 209a1906659ad0f81d888daccde6c8a7 ""
   "imgs/box_plot_FMNIST_gradmax_2024_05_02_15_23_40.png" 1714722810 10745 8db9a58c44be77ec03b302aed26725f4 ""
@@ -157,11 +157,11 @@
   "imgs/statistical_reliability_FNIST_random_2024_05_02_15_13_27.png" 1714722810 32497 5cc5e2843ce7706af3ee3978ca4f04dd ""
   "imgs/statistical_reliability_MNIST_gradmax_2024_05_02_15_03_12.png" 1714722810 30055 24d66fdc4f23d7c36a87b8c5a5809eea ""
   "imgs/statistical_reliability_MNIST_random_2024_05_02_14_52_58.png" 1714722810 29438 38fb16f40bcca15a40eff57213c8d658 ""
-  "report.aux" 1716392872 4976 ed210da7970b3880cbfcb7b6c4706086 "pdflatex"
+  "report.aux" 1716454565 4976 1a6a05c8e8e4772703fafe0b58d8c28e "pdflatex"
   "report.bbl" 1716392713 13782 7f4d2fb935a886ce4b7c036ac0c79c43 "biber report"
-  "report.out" 1716392872 2633 286512805ff47dd2824614ad0f6725db "pdflatex"
-  "report.run.xml" 1716392872 2313 71764d4a9a10ed8a3ba4ca1c3500a605 "pdflatex"
-  "report.tex" 1716392870 20746 f2bb4b76637b787badf51ec627156cfc ""
+  "report.out" 1716454565 2633 286512805ff47dd2824614ad0f6725db "pdflatex"
+  "report.run.xml" 1716454565 2313 71764d4a9a10ed8a3ba4ca1c3500a605 "pdflatex"
+  "report.tex" 1716454562 21123 e968698745f9363d01b11e0cdcf51f0d ""
   (generated)
   "report.aux"
   "report.bcf"

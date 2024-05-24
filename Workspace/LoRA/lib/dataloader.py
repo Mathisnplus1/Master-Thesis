@@ -22,7 +22,7 @@ def get_MNIST_loaders(path, batch_size, random_seed, train_percentage=0.7, downl
     test_dataset = Subset(mnist_test, torch.where(test_mask)[0])
 
     # GET LOADERS
-    lists_of_labels = [range(5), [5], [6], [7], [8], [9]]
+    lists_of_labels = [range(5), [0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
     for label_list in lists_of_labels :   
         # train/val/test_dataset's type is Subset, so can't directly access its targets through .targets
         train_subset_indices = train_dataset.indices

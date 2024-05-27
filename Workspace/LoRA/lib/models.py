@@ -11,9 +11,19 @@ import snntorch as snn
 ###########################
 
 class ANN(nn.Module):
-    def __init__(self, num_inputs, num_hidden, num_outputs):
+    def __init__(self, num_inputs, num_hidden, num_outputs, random_seed):
         super().__init__()
         
+        np.random.seed(random_seed)
+        torch.manual_seed(random_seed)
+
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(random_seed)
+
+        # Ensure deterministic behavior in PyTorch
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
         self.fc1 = nn.Linear(num_inputs,num_hidden)
         self.fc2 = nn.Linear(num_hidden, num_outputs)
         
@@ -41,11 +51,21 @@ def retrieve_model_weights(model, batch_size) :
     return model
 
 class LoRA_ANN(nn.Module):
-    def __init__(self, lora_rank, alpha, path, num_inputs, num_hidden, num_outputs, batch_size):
+    def __init__(self, lora_rank, alpha, path, num_inputs, num_hidden, num_outputs, batch_size, random_seed):
         super(LoRA_ANN, self).__init__()
+
+        np.random.seed(random_seed)
+        torch.manual_seed(random_seed)
+
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(random_seed)
+
+        # Ensure deterministic behavior in PyTorch
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
         
         # Load the pretrained model
-        self.model = ANN(num_inputs, num_hidden, num_outputs)
+        self.model = ANN(num_inputs, num_hidden, num_outputs, random_seed)
         #self.model = retrieve_model_weights(model, batch_size)
         self.model.load_state_dict(torch.load(path))
         
@@ -93,7 +113,7 @@ class LoRA_ANN(nn.Module):
 
 
 ###########################
-#### Define plain ANN #####
+#### Define plain SNN #####
 ###########################
 
 class SNN (nn.Module):

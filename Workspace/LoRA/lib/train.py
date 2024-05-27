@@ -69,7 +69,17 @@ def register_hooks(model, pre_layer, post_layer):
 
 
 
-def train_ANN (model, loss_name, optimizer_name, lr, train_loader, num_epochs, batch_size, device):
+def train_ANN (model, loss_name, optimizer_name, lr, train_loader, num_epochs, batch_size, device, random_seed):
+
+    torch.manual_seed(random_seed)
+
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(random_seed)
+
+    # Ensure deterministic behavior in PyTorch
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
     loss = get_loss(loss_name)
     optimizer = get_optimizer(optimizer_name, model, lr)
     model.to(device)

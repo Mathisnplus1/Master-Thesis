@@ -1,8 +1,11 @@
 import torch
 
 
-def get_device() :
-    device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+def get_device(i=0) :
+    if torch.cuda.device_count() > 1 :
+        device = torch.device(f"cuda:{i}")
+    else :
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     return device
 
 def get_loss(loss_name) :

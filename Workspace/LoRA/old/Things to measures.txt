@@ -1,0 +1,28 @@
+Trouver un moyen de mesurer le "cout" d'entrainement/inférence, doit prendre en compte :
+- nombre de paramètres
+- nombre d'epochs
+- le nombre de gradients propagés ?
+
+
+Plots :
+- Evolutions de loss/accuracy sur task_2 ET task_1, au file des epochs de l'entrainement de LoRA sur task_2
+
+
+Hyperparameters de LoRA :
+- LoRA rank
+- Epochs
+- Learning rate
+- betas
+- num_steps (nombre de time steps)
+- Apparemment le mieux est une seule epoch : est ce qu'on veut même regarder tous les training batches ?
+- le 1.8 dans lora_linear là
+
+
+Comparaison :
+- LoRA ANN
+- LoRA SNN (mais appliqué seulement au Linear layers)
+- Notre future adaptation de LoRA aux SNN layers
+
+Loss pour HPO :
+- On veut maximiser accuracy sur task 1 et accuracy sur task 2
+- Minimiser la distance entre accuracy sur task 1 et accuracy sur task 2

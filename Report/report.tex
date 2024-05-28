@@ -6,6 +6,9 @@
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{epigraph}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{comment}
 
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
 \usepackage[style=numeric]{biblatex}
@@ -88,9 +91,62 @@ But even after this specification, ambiguities persist. For instance when it com
 \subsection{Revised project}
 
 
-\section{Approaches explored}
+\section{Regularization approaches}
+
+\begin{comment}
+    LoRA
+    EWC
+    Autres approches comme EWC
+\end{comment}
+
+
+
+
 \subsection{LoRA}
 
+LoRA stands for Low Rank Adaptation. It is a method that aims to reduce the number of parameters that are updated when learning a new task. The idea is to factorize the weight matrix of a neural network into two low-rank matrices, which are shared across tasks, and a task-specific matrix. This allows the model to adapt to new tasks by updating only the task-specific matrix, while keeping the shared matrices fixed. This approach is motivated by the observation that neural networks tend to learn task-specific information in the last layers, while the lower layers capture more general features that are shared across tasks.
+
+LoRA and refinement have been intensively used for finetunning. However, it would be convenient to be able to  leverage this approach in the context of continual learning. Unfortunately, we cannot directly apply the fine-tunning approach to continual learning, as even if we have specialized sets of weight for each task, we would not know which set to used when given a new sample. Instead, we can realie on a core neural networks and update it each time we face a new task by adding LoRA weights trained specificly this new task.
+
+\begin{algorithm}
+\caption{LoRA for continual learning}
+\begin{algorithmic}[1]
+\State \textbf{Input:} A list of $n$ tasks $L = [(D_1,L_1), (D_2,L_2), \ldots, (D_n,Ln)]$
+\State \textbf{Output:} A model $\phi$ able to solve each task
+\State
+
+\State \textbf{Step 1:} Initialize the core model $\phi$ and train it on $(D_1,L_1)$
+\For{each task $(D_i,L_i)$ in the list}
+    \State \textbf{Step 2:} Freeze parameters of $\phi$ and initialize LoRA parameters $\mathbb{L}_i$.
+    \State \textbf{Step 3:} Train LoRA parameters on task $(D_i,L_i)$ using $\phi$ for forward propagation.
+    \State \textbf{Step 4:} Update $\phi$ by adding $\mathbb{L}_i$ parameters.
+\EndFor
+\State \textbf{Step 5:} The core model $\phi$ is now trained on each task
+\end{algorithmic}
+\end{algorithm}
+
+LoRA introduces a parameter $\alpha$ to set how important the LoRA weights are compared to the core weights.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/ICL5_128_trial_greedy_HPO_matrix_LoRA.png}
+        \caption{Evolution of test accuracy of each task through continual learning}
+        \label{fig:ICL5_127}
+    \end{subfigure}
+    \hspace{2.0mm}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{imgs/ICL5_greedy_HPO_curve_LoRA.png}
+        \caption{Average test accuracy for tasks trained so far, at various HPOs expenses}
+        \label{fig:ICL5_128}
+    \end{subfigure}
+    \caption{LoRA resuls}
+    \label{fig:LoRA_results}
+\end{figure}
+
+We demonstrate that the success of this approach heavily relie on the hyperoptimization performed. 
 
 \subsection{Growth in continual learning}
 \subsubsection{Motivating growth exploration}

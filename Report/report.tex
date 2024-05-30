@@ -254,7 +254,7 @@ Let's define $\mathbb{W}_{l,n}^i$ to be the set of protected weights for task $i
 \noindent
 which allows to define the pollution of task $i$ by protected weights for task $j$ on neuron $n$ of layer $l$ as
 \begin{align}
-    p_{l,n}^{i\rightarrow j} = \mathbb{E}_{x\in X_i}\left[\frac{\sum_{w \in \mathbb{W}_{l,n}^j}{w(x)}}{\sum_{w \in \mathbb{W}_{l,n}^i}{w(x)}}\right]
+    p_{l,n}^{i\rightarrow j} = \mathbb{E}_{x \sim D_i}\left[\frac{\sum_{w \in \mathbb{W}_{l,n}^j}{w(x)}}{\sum_{w \in \mathbb{W}_{l,n}^i}{w(x)}}\right]
 \end{align}
 
 \noindent
@@ -310,6 +310,8 @@ no definition of :
     - define and measure the hyper parameter importance (or cost) of any given approach, to quantify overfitting
 - task
 - similarity between tasks
+
+
 
 \nocite{*}
 \printbibliography

@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -5,31 +6,11 @@ from lib.test import get_batch_accuracy
 from lib.abstract_torch import get_loss, get_optimizer
 
 
-def train_ANN (model, loss_name, optimizer_name, lr, train_loader, num_epochs, batch_size, device, random_seed):
-
-    torch.manual_seed(random_seed)
-
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(random_seed)
-
-    # Ensure deterministic behavior in PyTorch
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-
-    loss = get_loss(loss_name)
-    optimizer = get_optimizer(optimizer_name, model, lr)
-    model.to(device)
-    for epoch in tqdm(range(num_epochs)):
-        train_batch = iter(train_loader)
-        for i, (data, targets) in enumerate(train_batch):
-            data = data.to(device)
-            targets = targets.to(device)
-            model.train()
-            optimizer.zero_grad()
-            y = model(data.view(batch_size, -1))
-            loss_val = loss(y, targets)
-            loss_val.backward()
-            optimizer.step()
+def get_number_of_neurons(model, epoch, batch_index) :
+    print(f"Number of neurons on epoch {epoch}, before batch {batch_index}:")
+    print("fc1 :", f"in = {model.fc1.in_features},", f"out = {model.fc1.out_features}")
+    print("fc2 :", f"in = {model.fc2.in_features},", f"out = {model.fc2.out_features}")
+    print("fc3 :", f"in = {model.fc3.in_features},", f"out = {model.fc3.out_features}")
 
 
 def count_all_parameters(model) :
@@ -70,7 +51,6 @@ def compute_val (model, num_classes, loss, loss_name, val_loader, val_loss_hist,
         print("\n")
     val_acc_hist.append(get_batch_accuracy(model, val_data, val_targets, batch_size))
     
-    
     return val_loss_hist, val_acc_hist
 
 
@@ -94,8 +74,20 @@ def register_hooks(model, pre_layer, post_layer):
 
 
 
-def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, train_loader, val_loader, 
-           num_epochs, batch_size, device, init_name=None, c=1, verbose=0) :
+def train (model, growth_schedule, loss_name, optimizer_name, lr, train_loader, val_loader, 
+           num_epochs, batch_size, device, random_seed, init_name=None, num_classes=10, c=1, verbose=0) :
+    
+    # Reproducibility
+    np.random.seed(random_seed)
+    torch.manual_seed(random_seed)
+
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(random_seed)
+
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    # Initialize stuff
     train_loss_hist, val_loss_hist = [], []
     train_acc_hist, val_acc_hist = [], []
     batch_index = 0
@@ -152,9 +144,9 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                 growth_occured = True
 
                 # Print the number of parameters
-                if verbose > 1 :
-                    print("epoch :", epoch, "batch :", i)
-                    count_all_parameters(model)
+                if verbose > 0 :
+                    get_number_of_neurons(model, epoch, i)
+
 
             model.train()
             
@@ -235,7 +227,7 @@ def train (model, num_classes, growth_schedule, loss_name, optimizer_name, lr, t
                     growth_occured = False
 
             # Get feedback from train and val sets
-            if batch_index%50 == 49:
+            if batch_index%50 == 49 and val_loader is not None:
                 with torch.no_grad():
                     # Train data
                     train_loss_hist.append(loss_epoch/len(train_loader))

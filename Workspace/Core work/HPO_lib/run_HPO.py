@@ -2,7 +2,7 @@ from lib.method import initialize_model
 from lib.method import train
 from lib.test import test
 try :
-    from lib.method import initialize_HPO
+    from lib.method import initialize_training
 except :
     pass
 import numpy as np
@@ -76,12 +76,12 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark, device, global_see
 
     # Intialize HPO
     if method_settings["method_name"] == "GroHess" :
-        overall_masks = initialize_HPO(model, method_settings)
+        overall_masks = initialize_training(model, method_settings)
     best_params_list = []
-    num_tasks = len(benchmark)
+    num_tasks = len(benchmark[0])
     test_accs_matrix = np.zeros((num_tasks, num_tasks))
 
-    for task_number in range(0,num_tasks) :
+    for task_number in range(0, num_tasks) :
 
         # Verbose
         print("\n" + "-"*50)

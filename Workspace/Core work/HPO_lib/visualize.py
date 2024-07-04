@@ -6,7 +6,26 @@ from datetime import datetime
 
 
 
-def visualize_accs_matrix(test_accs_matrix, HPO_name, method_name, grow_from, benchmark_name, difficulty, savefig=False):
+def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
+    # Check if all required settings are present
+    try :
+        HPO_name = HPO_settings["HPO_name"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
+    
+    try :
+        method_name = method_settings["method_name"]
+        grow_from = method_settings["grow_from"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
+    
+    try :
+        benchmark_name = benchmark_settings["benchmark_name"]
+        difficulty = benchmark_settings["difficulty"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
+
+    # Plot
     num_tasks = len(test_accs_matrix)
     plt.imshow(test_accs_matrix, cmap='viridis', interpolation='nearest')
     plt.yticks(np.arange(num_tasks), np.arange(num_tasks))
@@ -23,11 +42,30 @@ def visualize_accs_matrix(test_accs_matrix, HPO_name, method_name, grow_from, be
     plt.show()
 
 
-def visualize_avg_acc_curve(test_accs_matrix, HPO_name, method_name, grow_from, benchmark_name, difficulty, savefig=False):
+
+def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
+    # Check if all required settings are present
+    try :
+        HPO_name = HPO_settings["HPO_name"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
+    
+    try :
+        method_name = method_settings["method_name"]
+        grow_from = method_settings["grow_from"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
+    
+    try :
+        benchmark_name = benchmark_settings["benchmark_name"]
+        difficulty = benchmark_settings["difficulty"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
+
+    # Plot
     num_tasks = len(test_accs_matrix)
     mean_accs = [np.array(test_accs_matrix[i][:i+1]).sum() / (i+1) for i in range(num_tasks)]
     plt.plot(range(num_tasks), mean_accs, color="black")
-
     plt.xlabel("Number of tasks trained")
     plt.ylabel("Average test accuracy for tasks trained so far")
     plt.ylim(0, 100)
@@ -41,11 +79,31 @@ def visualize_avg_acc_curve(test_accs_matrix, HPO_name, method_name, grow_from, 
     plt.show()
 
 
-def visualize_best_params(best_params_list, HPO_name, method_name, grow_from, benchmark_name, difficulty, savefig=False) :
+
+def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
+    # Check if all required settings are present
+    try :
+        HPO_name = HPO_settings["HPO_name"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
+    
+    try :
+        method_name = method_settings["method_name"]
+        grow_from = method_settings["grow_from"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
+    
+    try :
+        benchmark_name = benchmark_settings["benchmark_name"]
+        difficulty = benchmark_settings["difficulty"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
+
     # Create a subplot for each param
     num_params = len(best_params_list[0])
     fig, axs = plt.subplots(nrows=1, ncols=num_params, figsize=(5*num_params, 5))
     
+    # Plot
     for ax, param_name in zip(axs, best_params_list[0].keys()) :
         param_values = [params[param_name] for params in best_params_list]
         ax.plot(param_values)
@@ -60,6 +118,15 @@ def visualize_best_params(best_params_list, HPO_name, method_name, grow_from, be
 
     # Show plot
     plt.show()
+
+
+#def visualize_HPO(visualization_settings) :
+#    for key, boolean in visualization_settings.items() :
+#        if key != "savefig" :
+#            visualisation_name = key
+#            visualisation_function = getattr(module, visualisation_name)
+#            visualisation_function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])
+
 
 
 def visualize_val_accs_matrix(val_accs_matrix, HPO_name, method_name, grow_from, benchmark_name, difficulty, savefig=False):

@@ -17,6 +17,7 @@ Workspace/Core work/Methods/GroHess/*
 *.out
 *.run.xml
 *.synctex.gz
+*.bbl
 
 # Notebook checkpoints
 *-checkpoint.ipynb

@@ -17,7 +17,7 @@ def visualize_accs_matrix(test_accs_matrix, HPO_name, method_name, grow_from, be
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"results/accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(f"Results/accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
@@ -35,7 +35,7 @@ def visualize_avg_acc_curve(test_accs_matrix, HPO_name, method_name, grow_from, 
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"results/avg_acc_curve_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(f"Results/avg_acc_curve_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
@@ -56,7 +56,7 @@ def visualize_best_params(best_params_list, HPO_name, method_name, grow_from, be
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"results/best_params_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(f"Results/best_params_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
@@ -72,7 +72,7 @@ def visualize_val_accs_matrix(val_accs_matrix, HPO_name, method_name, grow_from,
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"results/val_accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(f"Results/val_accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
@@ -103,7 +103,7 @@ def visualize_accuracy_through_benchmarks (val_accs_matrix, HPO_name, num_val_be
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"results/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(f"Results/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
@@ -128,7 +128,7 @@ def visualize_violin(val_accs_matrix, HPO_name, method_name, grow_from, benchmar
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"results/violin_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(f"Results/violin_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()

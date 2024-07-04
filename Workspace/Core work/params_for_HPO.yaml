@@ -1,0 +1,3 @@
+HPO_name : "greedy_HPO"
+method_name : "EWC"
+benchmark_name : "pMNIST"

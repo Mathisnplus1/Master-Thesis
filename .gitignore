@@ -3,12 +3,12 @@ Workspace/Preliminary work/Growth/Motivation/old
 Workspace/Preliminary work/LoRA/old
 Workspace/Preliminary work/Growth/TINY/TINY_workspace
 
-Workspace/Core work/Methods/GroHess*
+Workspace/Core work/Methods/GroHess/*
 !Workspace/Core work/Methods/GroHess/README.md
 
 # Latex files
 *.aux
-*.bbl
+*.bbls
 *.bcf
 *.blg
 *.fdb_latexmk

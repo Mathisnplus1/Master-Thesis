@@ -1,3 +1,34 @@
-HPO_name : "greedy_HPO"
-method_name : "EWC"
-benchmark_name : "pMNIST"
+global_seed : 88
+# Parameters specfific to the benchmark
+benchmark_settings : {"benchmark_name" : "pMNIST",
+                      "difficulty" : "standard",
+                      "num_tasks" : 3,
+                      "train_percentage" : 0.1,
+                      "num_val_benchmarks" : 3,
+                      "batch_size" : 128}
+
+# Parameters specific to the method
+method_settings : {"method_name" : "GroHess",
+                   "grow_from" : "output",
+                   "hessian_percentile" : 95,
+                   "grad_percentile" : 95,
+                   "num_inputs" : 784,
+                   "num_hidden_root" : 100,
+                   "num_outputs" : 10,
+                   "loss_name" : "CE",
+                   "optimizer_name" : "Adam"}
+
+# Parameters specific to HPO
+HPO_settings : {"HPO_name" : "greedy_HPO",
+                "n_trials" : 2,
+                "lr" : !!seq [!!float 5e-5, !!float 2e-3],
+                "num_epochs" : !!seq [2, 4]}
+
+# Parameters specific to the visualization
+visualization_settings : {"savefig" : True,
+                          "visualize_accs_matrix" : True,
+                          "visualize_avg_acc_curve" : True,
+                          "visualize_best_params" : True,
+                          "visualize_val_accs_matrix" : True,
+                          "visualize_accuracy_through_benchmarks" : True,
+                          "visualize_violin" : True}

@@ -2,11 +2,11 @@ global_seed : 88
 save_results : False
 # Parameters specfific to the benchmark
 benchmark_settings : {"benchmark_name" : "pMNIST",
-                      "difficulty" : "easy",
-                      "num_tasks" : 3,
-                      "train_percentage" : 0.1,
+                      "difficulty" : "standard",
+                      "num_tasks" : 5,
+                      "train_percentage" : 0.4,
                       "num_val_benchmarks" : 3,
-                      "batch_size" : 256}
+                      "batch_size" : 128}
 
 # Parameters specific to the method
 method_settings : {"method_name" : "GroHess",
@@ -21,15 +21,15 @@ method_settings : {"method_name" : "GroHess",
 
 # Parameters specific to HPO
 HPO_settings : {"HPO_name" : "greedy_HPO",
-                "n_trials" : 2,
+                "n_trials" : 10,
                 "lr" : !!seq [!!float 5e-5, !!float 2e-3],
-                "num_epochs" : !!seq [2, 4]}
+                "num_epochs" : !!seq [2, 6]}
 
 # Parameters specific to the visualization
-visualization_settings : {"savefig" : False,
-                          "visualize_accs_matrix" : True,
-                          "visualize_avg_acc_curve" : True,
+visualization_settings : {"savefig" : True,
+                          "visualize_accs_matrix" : False,
+                          "visualize_avg_acc_curve" : False,
                           "visualize_best_params" : False,
-                          "visualize_val_accs_matrix" : False,
-                          "visualize_accuracy_through_benchmarks" : True,
-                          "visualize_violin" : True}
+                          "visualize_val_accs_matrix" : True,
+                          "visualize_accuracy_through_benchmarks" : False,
+                          "visualize_violin" : False}

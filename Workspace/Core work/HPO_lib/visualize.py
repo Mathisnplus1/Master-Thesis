@@ -6,6 +6,12 @@ from datetime import datetime
 
 
 
+#################
+###    HPO    ###
+#################
+
+
+
 def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
     # Check if all required settings are present
     try :
@@ -120,19 +126,43 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
     plt.show()
 
 
-#def visualize_HPO(visualization_settings) :
-#    for key, boolean in visualization_settings.items() :
-#        if key != "savefig" :
-#            visualisation_name = key
-#            visualisation_function = getattr(module, visualisation_name)
-#            visualisation_function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])
+
+def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings) :
+    functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
+    for function in functions_list :
+        if visualization_settings[function.__name__] :
+            function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])
 
 
 
-def visualize_val_accs_matrix(val_accs_matrix, HPO_name, method_name, grow_from, benchmark_name, difficulty, savefig=False):
-    num_benchmarks = len(val_accs_matrix)
-    plt.imshow(val_accs_matrix, cmap='viridis', interpolation='nearest')
-    plt.yticks(np.arange(num_benchmarks), ["HPO's benchmark", "HPO's benchmark, reshuffled"]+[f"Val benchmark {i}" for i in range(num_benchmarks-2)])
+##################
+### VALIDATION ###
+##################
+
+
+
+def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, savefig=False):
+    # Check if all required settings are present
+    try :
+        HPO_name = HPO_settings["HPO_name"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
+    
+    try :
+        method_name = method_settings["method_name"]
+        grow_from = method_settings["grow_from"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
+    
+    try :
+        benchmark_name = benchmark_settings["benchmark_name"]
+        num_val_benchmarks = benchmark_settings["num_val_benchmarks"]
+        difficulty = benchmark_settings["difficulty"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
+    
+    plt.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
+    plt.yticks(np.arange(2+num_val_benchmarks), ["HPO's benchmark", "HPO's benchmark, reshuffled"]+[f"Val benchmark {i}" for i in range(1,num_val_benchmarks+1)])
     plt.xlabel("Task index")
     plt.colorbar()
 
@@ -145,17 +175,37 @@ def visualize_val_accs_matrix(val_accs_matrix, HPO_name, method_name, grow_from,
     plt.show()
 
 
-def visualize_accuracy_through_benchmarks (val_accs_matrix, HPO_name, num_val_benchmarks, method_name, grow_from, benchmark_name, difficulty, savefig=False) :
+
+def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, savefig=False) :
+    # Check if all required settings are present
+    try :
+        HPO_name = HPO_settings["HPO_name"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
+    
+    try :
+        method_name = method_settings["method_name"]
+        grow_from = method_settings["grow_from"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
+    
+    try :
+        benchmark_name = benchmark_settings["benchmark_name"]
+        num_val_benchmarks = benchmark_settings["num_val_benchmarks"]
+        difficulty = benchmark_settings["difficulty"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
+    
     # Calculate the mean and standard deviation along the axis of experiments
-    mean_results = np.mean(val_accs_matrix[2:], axis=0)
-    std_dev_results = np.std(val_accs_matrix[2:], axis=0)
+    mean_results = np.mean(combined_val_accs_matrix[2:], axis=0)
+    std_dev_results = np.std(combined_val_accs_matrix[2:], axis=0)
 
     # X-axis values
-    x = np.arange(val_accs_matrix.shape[1])
+    x = np.arange(combined_val_accs_matrix.shape[1])
 
     # Plotting the mean results and out of HPO result
-    plt.plot(x, val_accs_matrix[0], label="HPO's benchmark", color='r')
-    plt.plot(x, val_accs_matrix[1], label="HPO's benchmark, reshuffled", color='g')
+    plt.plot(x, combined_val_accs_matrix[0], label="HPO's benchmark", color='r')
+    plt.plot(x, combined_val_accs_matrix[1], label="HPO's benchmark, reshuffled", color='g')
     plt.plot(x, mean_results, label=f'Mean through {num_val_benchmarks} other benchmarks', color='b')
 
     # Shaded area for standard deviation
@@ -176,17 +226,36 @@ def visualize_accuracy_through_benchmarks (val_accs_matrix, HPO_name, num_val_be
     plt.show()
 
 
-def visualize_violin(val_accs_matrix, HPO_name, method_name, grow_from, benchmark_name, difficulty="standard", savefig=False) :
+
+def visualize_violin(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, savefig=False) :
+    # Check if all required settings are present
+    try :
+        HPO_name = HPO_settings["HPO_name"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
+    
+    try :
+        method_name = method_settings["method_name"]
+        grow_from = method_settings["grow_from"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
+    
+    try :
+        benchmark_name = benchmark_settings["benchmark_name"]
+        difficulty = benchmark_settings["difficulty"]
+    except ValueError :
+        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
+    
     # Resizing the plot
     plt.figure(figsize=(2, 5))
 
     # Creating the violin plot
-    violin = plt.violinplot(val_accs_matrix[2:].mean(axis=0), showmeans=True, showextrema=False)
+    violin = plt.violinplot(combined_val_accs_matrix[2:].mean(axis=0), showmeans=True, showextrema=False)
     violin['bodies'][0].set_facecolor("b")
     violin['bodies'][0].set_alpha(0.2)
     violin['cmeans'].set_color('b')
-    plt.scatter(1, val_accs_matrix[0].mean(), color='r')
-    plt.scatter(1, val_accs_matrix[1].mean(), color='g')
+    plt.scatter(1, combined_val_accs_matrix[0].mean(), color='r')
+    plt.scatter(1, combined_val_accs_matrix[1].mean(), color='g')
 
     # Adding labels and title
     plt.xticks([])
@@ -199,3 +268,12 @@ def visualize_violin(val_accs_matrix, HPO_name, method_name, grow_from, benchmar
 
     # Show plot
     plt.show()
+
+
+
+def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings) :
+    combined_val_accs_matrix = np.concatenate((np.reshape(test_accs_matrix[-1], (1,test_accs_matrix.shape[1])), val_accs_matrix), axis=0)
+    functions_list = [visualize_val_accs_matrix, visualize_accuracy_through_benchmarks, visualize_violin]
+    for function in functions_list :
+        if visualization_settings[function.__name__] :
+            function(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])

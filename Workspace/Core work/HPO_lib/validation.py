@@ -53,26 +53,26 @@ def train_with_best_params (method_settings, best_params_list, train_loaders_lis
 
 def validate(benchmarks_list, method_settings, best_params_list, device, global_seed) :
 
-    num_val_benchmarks = len(benchmarks_list) - 2
+    num_val_benchmarks = len(benchmarks_list)-2
     num_tasks = len(benchmarks_list[0][0])
 
     # Initialize the matrix to store the validation accuracies
     val_accs_matrix = np.zeros((num_val_benchmarks+1, num_tasks))
 
     # Train on each benchmark
-    for i in range(num_val_benchmarks+1) :
+    for i in range(1, num_val_benchmarks+2) :
 
         # Verbose
         print("\n" + "="*50)
-        print(f"BENCHMARK {i}")
+        print(f"BENCHMARK {i-1}")
 
         # Train model with best params obtained through HPO on benchmark 0
         train_loaders_list = benchmarks_list[i][0]
-        benchmark_model = train_with_best_params(method_settings, best_params_list, train_loaders_list, num_tasks, device, global_seed)
+        benchmark_model = train_with_best_params(method_settings, best_params_list, train_loaders_list, num_tasks, device, global_seed+1)
 
         # Test on each task
         test_loaders_list = benchmarks_list[i][2]
         for j in range(num_tasks) :
-            val_accs_matrix[i,j] = round(test(benchmark_model, test_loaders_list[j], device),2)
+            val_accs_matrix[i-1,j] = round(test(benchmark_model, test_loaders_list[j], device),2)
 
     return val_accs_matrix

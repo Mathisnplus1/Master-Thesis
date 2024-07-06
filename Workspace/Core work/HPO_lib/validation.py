@@ -1,6 +1,6 @@
 from lib.method import initialize_model
 from lib.method import train
-from lib.test import test
+from test_model import test
 try :
     from lib.method import initialize_training
 except :

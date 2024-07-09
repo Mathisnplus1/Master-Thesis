@@ -23,7 +23,7 @@ def get_benchmarks (benchmark_settings, global_seed) :
     if benchmark_name == "pMNIST_via_avalanche" :
         random_seed_list = [i for i in range(num_val_benchmarks+2)]
         for i in range(num_val_benchmarks+2) :
-            benchmark = PermutedMNIST(n_experiences=num_tasks, train_percentage=train_percentage, difficulty=difficulty, seed=random_seed_list[i])
+            benchmark = PermutedMNIST(n_experiences=num_tasks, train_percentage=train_percentage, difficulty=difficulty, batch_size=batch_size, seed=random_seed_list[i], global_seed=global_seed)
             benchmarks_list += [benchmark]
     
     if benchmark_name == "pMNIST_via_torch" :

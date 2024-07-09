@@ -25,11 +25,6 @@ def objective(model, task_number, HP_settings, params, method_settings, train_lo
         HPs["num_epochs"] = num_epochs
     except :
         pass
-    try :
-        ewc_lambda = trial.suggest_int("ewc_lambda", HP_settings["ewc_lambda"][0], HP_settings["ewc_lambda"][1])
-        HPs["ewc_lambda"] = ewc_lambda
-    except :
-        pass
      
 
     # Copy the model to perform HPO
@@ -66,16 +61,12 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
         pass
 
     # Train
-    if method_settings["method_name"] == "GroHess" :
-        overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
-        return overall_masks
+    overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
     
-    if method_settings["method_name"] == "EWC" :
-        train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
+    return overall_masks
 
 
-
-def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed) :
+def call_greedy_HPO(HPO_settings, method_settings, benchmark, device, global_seed) :
     
     # Unpack loaders
     train_loaders_list, val_loaders_list, test_loaders_list = benchmark
@@ -89,7 +80,6 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
     best_params_list = []
     num_tasks = len(benchmark[0])
     test_accs_matrix = np.zeros((num_tasks, num_tasks))
-    output = None
 
     for task_number in range(0, num_tasks) :
 
@@ -104,16 +94,9 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
                                     sampler=optuna.samplers.TPESampler(seed=global_seed),
                                     direction = "maximize")
         if method_settings["method_name"] == "GroHess" :
-            if output is not None :
-                overall_masks = output
             is_first_task = True if task_number==0 else False
             params = {"overall_masks" : overall_masks, "is_first_task" : is_first_task}
-            train_loader = train_loaders_list[task_number]
-
-        if method_settings["method_name"] == "EWC" :
-            params = {"batch_size" : benchmark_settings["batch_size"]}
-            train_loader = benchmark.train_stream[0]
-        partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
+        partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loaders_list[task_number], val_loaders_list, device, global_seed)
         study.optimize(partial_objective,
                     n_trials=HPO_settings["n_trials"],
                     timeout=3600)
@@ -121,7 +104,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         # Retrain and save a model with the best params
         best_params = study.best_trial.params
         best_params_list += [best_params]
-        output = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loader, device, global_seed) 
+        overall_masks = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loaders_list[task_number], device, global_seed) 
         
         # Test on each task
         for j in range(num_tasks) :
@@ -131,6 +114,6 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
 
 
-def run_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed) :
+def run_HPO(HPO_settings, method_settings, benchmark, device, global_seed) :
     if HPO_settings["HPO_name"] == "greedy_HPO" :
-        return call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed)
+        return call_greedy_HPO(HPO_settings, method_settings, benchmark, device, global_seed)

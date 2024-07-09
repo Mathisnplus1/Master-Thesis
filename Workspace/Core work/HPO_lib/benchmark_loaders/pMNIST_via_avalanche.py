@@ -12,6 +12,7 @@ from avalanche.benchmarks import split_validation_random
 
 from typing import Sequence, Union
 import torch
+from torch.utils.data import DataLoader
 from PIL.Image import Image
 from torch import Tensor
 from torchvision.transforms import (
@@ -64,16 +65,18 @@ _default_mnist_eval_transform = Compose([Normalize((0.1307,), (0.3081,))])
 
 
 
-def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",*,return_task_id=False,seed = None,
-    train_transform = _default_mnist_train_transform,
-    eval_transform = _default_mnist_eval_transform,
-    dataset_root = None) :
+def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",batch_size=128, *,
+                  return_task_id=False,seed=None, global_seed=88,
+                  train_transform = _default_mnist_train_transform,
+                  eval_transform = _default_mnist_eval_transform,
+                  dataset_root = None) :
 
     # Reproducibility
-    np.random.seed(seed)
-    torch.manual_seed(seed)
+    np.random.seed(global_seed)
+    torch.manual_seed(global_seed)
 
     list_train_dataset = []
+    list_val_dataset = []
     val_loaders_list = []
     test_loaders_list = []
     rng_permute = np.random.RandomState(seed)
@@ -107,12 +110,15 @@ def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",*,return_task
         )
 
         list_train_dataset.append(permuted_train)
-        val_loaders_list.append(permuted_val)
-        test_loaders_list.append(permuted_test)
+        list_val_dataset.append(permuted_val)
+        val_loader = DataLoader(permuted_val, batch_size=batch_size, shuffle=True)
+        val_loaders_list.append(val_loader)
+        test_loader = DataLoader(permuted_test, batch_size=batch_size, shuffle=True)
+        test_loaders_list.append(test_loader)
 
         train_loaders_list = nc_benchmark(
                                 list_train_dataset,
-                                val_loaders_list,
+                                list_val_dataset,
                                 n_experiences=len(list_train_dataset),
                                 task_labels=return_task_id,
                                 shuffle=False,

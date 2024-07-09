@@ -11,6 +11,7 @@ def test (model, loader, device) :
     batches = iter(loader)
     num_batches = len(batches)
     acc_sum = 0
-    for (data, targets) in batches :
+    for batch in batches :
+        data, targets = batch[:2]
         acc_sum += get_batch_accuracy(model, data.to(device), targets.to(device))
     return acc_sum/num_batches

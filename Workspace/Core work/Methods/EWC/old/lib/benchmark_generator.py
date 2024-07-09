@@ -74,8 +74,7 @@ def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",*,return_task
     torch.manual_seed(seed)
 
     list_train_dataset = []
-    val_loaders_list = []
-    test_loaders_list = []
+    list_test_dataset = []
     rng_permute = np.random.RandomState(seed)
 
     mnist_train, mnist_test = get_mnist_dataset(dataset_root)
@@ -107,21 +106,16 @@ def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",*,return_task
         )
 
         list_train_dataset.append(permuted_train)
-        val_loaders_list.append(permuted_val)
-        test_loaders_list.append(permuted_test)
+        list_test_dataset.append(permuted_test)
 
-        train_loaders_list = nc_benchmark(
-                                list_train_dataset,
-                                val_loaders_list,
-                                n_experiences=len(list_train_dataset),
-                                task_labels=return_task_id,
-                                shuffle=False,
-                                class_ids_from_zero_in_each_exp=True,
-                                one_dataset_per_exp=True,
-                                train_transform=train_transform,
-                                eval_transform=eval_transform,
-                            )
-    return train_loaders_list, val_loaders_list, test_loaders_list
-
-
-
+    return nc_benchmark(
+        list_train_dataset,
+        list_test_dataset,
+        n_experiences=len(list_train_dataset),
+        task_labels=return_task_id,
+        shuffle=False,
+        class_ids_from_zero_in_each_exp=True,
+        one_dataset_per_exp=True,
+        train_transform=train_transform,
+        eval_transform=eval_transform,
+    )

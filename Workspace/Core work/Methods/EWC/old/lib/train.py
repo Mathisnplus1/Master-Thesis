@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from abstract_torch import get_loss, get_optimizer
+from lib.abstract_torch import get_loss, get_optimizer
 
 
 def get_number_of_neurons(model, epoch=None, batch_index=None) :

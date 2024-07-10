@@ -2,48 +2,24 @@ import numpy as np
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from lib.test import get_batch_accuracy
-from lib.abstract_torch import get_loss, get_optimizer
+from abstract_torch import get_loss, get_optimizer
 
 
 
 
-def compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size) :
+def compute_loss(model, num_classes, data, targets, loss, loss_name) :
     if loss_name == "CE":
-        y = model(data.view(batch_size, -1))
+        y = model(data.view(data.shape[0], -1))
         loss_val = loss(y, targets)
     else :
-        y = model(data.view(batch_size, -1))
+        y = model(data.view(data.shape[0], -1))
         one_hot_targets = nn.functional.one_hot(targets, num_classes=num_classes).to(y.dtype)
         loss_val = loss(y, one_hot_targets)
     return y, loss_val
 
 
-
-def compute_val (model, num_classes, loss, loss_name, val_loader, val_loss_hist, val_acc_hist, epoch, batch_size, device, print_shit=False) :
-    model.eval()
-    val_data, val_targets = next(iter(val_loader))
-    val_data = val_data.to(device)
-    val_targets = val_targets.to(device)
-    
-    # Forward path
-    y, val_loss_val = compute_loss(model, num_classes, val_data, val_targets, loss, loss_name, batch_size)
-    val_loss_hist.append(val_loss_val.item())
-    
-    # ACCURACY
-    if print_shit :
-        print(f"Epoch {epoch}")
-        # print(f"Train Set Loss: {train_loss_hist[epoch]:.2f}")
-        print(f"Val Set Loss: {val_loss_hist[epoch]:.2f}")
-        print("\n")
-    val_acc_hist.append(get_batch_accuracy(model, val_data, val_targets, batch_size))
-    
-    return val_loss_hist, val_acc_hist
-
-
-
 def train (model, 
-           loss_name, optimizer_name, lr, num_epochs, batch_size,
+           loss_name, optimizer_name, lr, num_epochs,
            train_loader, 
            device, random_seed, num_classes=10, verbose=0) :
 
@@ -92,7 +68,7 @@ def train (model,
             model.train()
 
             # Forward path
-            y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name, batch_size)
+            y, loss_val = compute_loss(model, num_classes, data, targets, loss, loss_name)
             loss_hist.append(loss_val.item())
             
             # Gradient calculation

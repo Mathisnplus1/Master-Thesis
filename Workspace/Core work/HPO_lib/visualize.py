@@ -128,7 +128,10 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
 
 
 def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings) :
-    functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
+    if HPO_settings["HPO_name"] == "greedy_HPO" :
+        functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
+    if HPO_settings["HPO_name"] == "cheated_HPO" :
+        functions_list = [visualize_accs_matrix, visualize_avg_acc_curve]
     for function in functions_list :
         if visualization_settings[function.__name__] :
             function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])

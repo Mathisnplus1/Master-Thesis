@@ -1,5 +1,5 @@
-from validations.greedy_validatation import greedy_validate
-from validations.cheated_validatation import cheated_validate
+from validations.greedy_validation import greedy_validate
+from validations.cheated_validation import cheated_validate
 
 
 def validate(HPO_settings, benchmarks_list, benchmark_settings, method_settings, best_params_list, device, global_seed) :

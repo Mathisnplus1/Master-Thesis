@@ -8,8 +8,10 @@ except :
 import numpy as np
 
 
-def retrain_one_task (model, params, method_settings, best_params, train_loader, device, global_seed) :
+
+def train_with_best_params (method_settings, benchmark_settings, best_params_list, benchmark, num_tasks, device, global_seed) :
     # Get best HPs
+    best_params = best_params_list[0]
     best_HPs = {}
     try :
         lr = best_params["lr"]
@@ -37,52 +39,41 @@ def retrain_one_task (model, params, method_settings, best_params, train_loader,
     except :
         pass
 
-    # Train
-    if method_settings["method_name"] == "GroHess" :
-        overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
-        return overall_masks
-    
-    if method_settings["method_name"] in ["EWC", "LwF", "Naive baseline"] :
-        train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
-
-
-
-def train_with_best_params (method_settings, benchmark_settings, best_params_list, benchmark, num_tasks, device, global_seed) :
-    # Initialize model
-    benchmark_model = initialize_model(method_settings, global_seed).to(device)
-
-    # Intialize training
+    # Unpack loaders
     try :
         train_loaders_list = benchmark[0].train_stream
     except :
         train_loaders_list = benchmark[0]
+
+    # Initialize model
+    model = initialize_model(method_settings, global_seed).to(device)
+
+    # Initialize training
     if method_settings["method_name"] == "GroHess" :
-        overall_masks = initialize_training(benchmark_model, method_settings)
+        overall_masks = initialize_training(model, method_settings)
     output = None
 
-    for task_number in range(num_tasks) :
-
-        # Verbose
-        print("\n" + "-"*50)
-        print(f"LEARNING TASK {task_number+1}")
-
-        # Retrain and save a model with the best params
+    for task_number in range(0, num_tasks) :
         params = {}
         train_loader = train_loaders_list[task_number]
         if method_settings["method_name"] == "GroHess" :
             if output is not None :
-                overall_masks = output
+                overall_masks = output[0]
             is_first_task = True if task_number==0 else False
             params = {"overall_masks" : overall_masks, "is_first_task" : is_first_task}
+
         if method_settings["method_name"] in ["EWC", "LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
-        output = retrain_one_task(benchmark_model, params, method_settings, best_params_list[task_number], train_loader, device, global_seed) 
+
+        # Train
+        output = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
     
-    return benchmark_model
+    return model
 
 
-def greedy_validate(benchmarks_list, benchmark_settings, method_settings, best_params_list, device, global_seed) :
 
+def cheated_validate(benchmarks_list, benchmark_settings, method_settings, best_params_list, device, global_seed) :
+    
     num_val_benchmarks = benchmark_settings["num_val_benchmarks"]
     num_tasks = benchmark_settings["num_tasks"]
 

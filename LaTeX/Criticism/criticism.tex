@@ -76,7 +76,8 @@
 \twocolumn[
 \maketitle
 \begin{abstract}
-    This paper is a critique of unconstrained memoryless modular strategies in continual learning. We argue that these strategies are not well-suited for the problem of continual learning, as they certainly don't solve it but at best, solve specific benchmarks. These approaches do not deal with the core challenges of distributing inputs to modules and merging outputs from modules. More fundamentally, we show that these strategies are inherently unable to tackle these challenges and that they mainly mitigate pollution between tasks. We also discuss the management of hyperparameters in continual learning, which is often unfair and can lead to overfitting on benchmarks. Finally, we propose a naive approach that reaches state-of-the-art performance on two benchmarks, highlighting the limitations of unconstrained memoryless modular strategies.
+    %This paper is a critique of unconstrained memoryless modular strategies in continual learning. We argue that these strategies are not well-suited for the problem of continual learning, as they certainly don't solve it but at best, solve specific benchmarks. These approaches do not deal with the core challenges of distributing inputs to modules and merging outputs from modules. More fundamentally, we show that these strategies are inherently unable to tackle these challenges and that they mainly mitigate pollution between tasks. We also discuss the management of hyperparameters in continual learning, which is often unfair and can lead to overfitting on benchmarks. Finally, we propose a naive approach that reaches state-of-the-art performance on two benchmarks, highlighting the limitations of unconstrained memoryless modular strategies.
+    Starting with a critical review of Elastic Weight Consolidation method (EWC), we argue that unconstrained memoryless modular strategies does not account for pollution which is an inherent limitation to solve continual learning. So why does the litterature seem to show positive results? The reason lies in the introduction of hyperparameters (HPs) that create trade-offs between the tasks. Therefore, we argue that EWC should not perform any better than any other approach that makes similar trade-offs. To verify this, we present naive baselines along with a more elaborated method that only make trade-offs and show that, with the same amount of hyperparameters, they achieve similar performance to EWC. Additionally, we study how performances are impacted by the amount of hyperparameters, from $O(1)$ to $O(n^2)$. However, with all these HPs, we are essentially overfitting on the benchmarks, which we demonstrate through the introduction of validation benchmarks.
 \end{abstract}
 \vspace{1cm}
 ]
@@ -438,7 +439,33 @@ A good example of paper that encapsulate all these issues :
 
 \vspace{1mm}
 \noindent
-  
+Authors of EWC provide a geometric intuition for their method that we reproduced in \ref{fig:ellipses_EWC}, explaining that, after training on task A, the regularization prevent parameters from converging toward the argument of the minimum of the loss for task B when learning on task B. On the contrary, the parameters shoud converge to an overlapping region where both loss for task and loss for task B are small.
+
+More precisely, the blue area represents a region of the parameter space where $\mathcal{L}_A$ is low - let's say, below a certain threshold. Similarly, the red area represents a region of the parameter space where $\mathcal{L}_B$ is low - let's say, below the same threshold. 
+
+However, the intuition suggested by this illustration is quite misleading and we argue that in practise, it doesn't hold.
+
+\vspace{1mm}
+\noindent
+First, no control over the distance between low loss regions for task A and task B. The illustration suggests that the low loss regions for task A and task B are close enough to overlap. But in practise, the distance between these regions is not controlled by the authors, and we have no reason to believe that the low loss regions for task A and task B are close enough to overlap. In fact, we have no reason to believe that the low loss regions for task A and task B overlap at all.
+
+\vspace{1mm}
+\noindent
+the area (or volume) of this overlapping region tends doubly towards 0.
+
+On one hand, this representation accounts for two tasks, but in real life scenarios, there are many more. And as the number of tasks increases, the area of the overlapping region decreases, has 0 zero as a lower bound, so converges. But it has no reason to converge toward a non-zero value or at least, nobody has provided a better lower bound than 0 so far.
+On the other hand, In the illustration, the parameter space is $\mathbb{R}^2$. However, in deep learning, the parameter space is $\mathbb{R}^n$ with $n \sim 100 000$ or even orders of magnitudes bigger. And the previous remark implies that there exist a number of tasks for which the overlapping region is small enough to fit within the Euclidean unit sphere, which volume converges toward 0 the dimension of the space increases. 
+
+These two remarks do not constitute a solid argument against the method as \ref{fig:ellipses_EWC} is an illustrative depiction to build an intuitive understanding. But the intuition it provides is misleading and does not reflect the complexity of the problem. Our remarks point out the absence of guaranty for the low loss regions to overlap. The absence of guaranty is not dramatic though, as deep learning tends to be able to perform without theoretical results in practice. But what is more problematic is that authors do not even have control over the overlapping, as they don't measure it.
+
+\vspace{1mm}
+\noindent
+In addition to this criticism, one should also note that the representation in \ref{fig:ellipses_EWC} depicts a very optimistic case scenario. When training on task $B$ the loss used by EWC can be written as $\mathcal{L} = \mathcal{L}_{B} + \lambda\mathcal{L}_{reg}$, where $\mathcal{L}_{B}$ accounts for the performance on task B, $\lambda$ is a positive scalar and $\mathcal{L}_{reg}$ accounts for the regularisation. As introduced by EWC, $\mathcal{L}_{reg}$ aims at encouraging updates of parameters. Indeed, we identify two independant parameters that makes a case hard or easy : the orientation of the ellipse associated to low loss region for task B and the direction of the angle between the goal directions according to $\mathcal{L}_{reg}$ and $\mathcal{L}_B$. Indeed, in \ref{fig:two_ellipses_45}, we see that the goal direction according to $\mathcal{L}_{reg}$ is aligned with the axis passing $\theta_A^*$ and the center of the overlap region, which is the most convenient scenario. By constrast, the low loss region associated to task B in \ref{fig:two_ellipses_45_hard} makes. Additionally, as we see in \ref{fig:two_ellipses_45}, the center of the overlap region might
+
+That is, the center of the overlapping region
+The term of the loss that accounts for mini
+And once again, authors have no guaranty on the relative orientation of the ellipses, because they don't control it, because they don't even measure it.
+
 
 \vspace{1mm}
 \noindent
@@ -448,10 +475,6 @@ Parce que donc ça représente le minimum du modèle sur données de task 1 uniq
 \vspace{1mm}
 \noindent
 Dessin avec 4 elipses : l'orientation des elipse est quand même très idéale mdrrrr
-
-\vspace{1mm}
-\noindent
-Encore une fois, il fait une étude théorique très complète pour 2 tâches mais ça ne nous est guère utile en pratique
 
 \vspace{1mm}
 \noindent
@@ -498,21 +521,56 @@ Hum, ya toujours un problème avec les élipses sur lequel on n'a pas encore bie
 \noindent
 EWC is good at specializing modules (subset of weights), but it does not tackle the problem of distributing intputs to the modules and merging outputs from the modules. Which are the core challenges of continual Learning. If distribuing and merging were not problems, we would simply train separated neural networks, one for each task.
 
+
 \begin{figure*}
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
         \centering
         \includegraphics[width=0.95\textwidth]{images/ellipse_overlap.png}
         \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:ellipses_EWC}
     \end{subfigure}
     \hspace{-12mm}
     \begin{subfigure}[b]{0.48\textwidth}
         \centering
-    \includegraphics[width=0.95\textwidth]{images/ellipse_real_life.png}
-    \caption{A more realistic view of parameters space}
+        \includegraphics[width=0.95\textwidth]{images/ellipse_real_life.png}
+        \caption{A more realistic view of parameters space}
+        \label{fig:realistic_ellipses}
     \end{subfigure}
     \caption{Representations of the parameters space}
-    \label{fig:ellipses}
+\end{figure*}
+
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_45.png}
+        \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:two_ellipses_45_hard}
+    \end{subfigure}
+    \hspace{-8mm}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_45_hard.png}
+        \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:two_ellipses_45}
+    \end{subfigure}
+    \hspace{-8mm}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_90.png}
+        \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:two_ellipses_90}
+    \end{subfigure}
+    \hspace{-8mm}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_180.png}
+        \caption{A more realistic view of parameters space}
+        \label{fig:two_ellipses_180}
+    \end{subfigure}
+    \caption{Representations of the parameters space}
 \end{figure*}
 
 

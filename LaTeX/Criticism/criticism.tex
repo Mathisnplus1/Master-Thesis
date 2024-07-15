@@ -189,24 +189,26 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
     P^{i\rightarrow j} = \frac{1}{L+1}\sum_{l=1}^{L+1}{\frac{1}{N_l}\sum_{n=1}^{N_l}{p_{l,n}^{i\rightarrow j}}}
 \end{align}
 
-\vspace{0.5cm}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/pollution_update.png}
+    \caption{Illustration of $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell)}
+    \label{fig:pollution}
+\end{figure}
+
+
+\vspace{1mm}
 \noindent
-To this regard, as a general concept, we can control :
-\begin{itemize}
-    \item how the added neurons react to new task samples
-    \item how the old neurons react to new task samples
-    \item (depending on the approach) how the old neurons react to previous tasks samples
-\end{itemize}
+The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{fig:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
 
-However, we have absolutely no control over the way the added neurons react to previous tasks samples because :
-\begin{itemize}
-    \item we have no acces to previous tasks samples
-    \item we are not using any rehearsal strategy
-    \item we do not intend to encode any information about the specificity of previous tasks in the weights 
-\end{itemize}
+\vspace{1mm}
+\noindent
+More boradly, the challenge is to deal with $P^{i\rightarrow j}$ for $j \neq i$, which requires to learn data from task $i$ without being polluted by data from task $j$. Regularization approaches such as EWC claim to solve pollution of task $j$ over task $i$ $(P^{i\rightarrow j}=0)$ for $j<i$. While they can't really overcome it, they can at least mitigate it by penalizing the distance between the weights of the model after training on task $i$ and the weights of the model after training on task $j$. However, they do not tackle the minimization of $P^{i\rightarrow j}$ for $j>i$. But they have a good reason no to tackle it : this is a fundamental limitation of this familly approaches, as it is inherently not possible to deal with it. Indeed, without contraints or some form of memory of the previous tasks, when provided a sample from task $i$, the model has no discrimination power of weights updated for task $j$ from the ones the approach identified as specific for task $i$ when training on task $j$, for $j>i$. So it can't know how to react to a sample from task $i$ after training on task $j>i$.
 
-So our very last hopes without memory is that the weights are such that they encode information about the task's specificities. But, we considere unconstrained approaches, so the model has no reason to encourage such behavior.
+\vspace{1mm}
+\noindent
+Conversely, allowing some form of memorization of previous data distribution may enable to discriminate between samples features. This is has been attempted through replay memory approaches \cite{replay1}, \cite{replay2} and rehearsal methods \cite{rehearsal}. Alternatively, it can also be achieved through gating mechanisms such as mixture of expert models \cite{moe}, \cite{dmoe}. These approaches are not memoryless. However, in memoryless approaches we have no direct control over the way the neurons specialized to task $j$ will react when fed with samples from task $i<j$. So the very last hopes without memory is that the weights are such that they implicitly encode information about the task's specificities. This can be performed with constrained models, such as CNN, through which one could enforce convolution kernels associated to one task to be orthogonal to the convolution kernels associated to another task. And with additional contraints, this would prevent the model from using the same features for two different tasks while selecting for the most relevant features for each task. But, we considere unconstrained approaches, so the model has no reason to encourage such behavior.
 
 
 \subsection{Hyperparameters (mis)manipulations in continual learning}

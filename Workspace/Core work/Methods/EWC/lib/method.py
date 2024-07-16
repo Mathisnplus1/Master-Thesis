@@ -29,6 +29,7 @@ def train (model, method_settings, params, HPs, experience, device, global_seed,
     # Get params
     try :
         batch_size = params["batch_size"]
+        sto_importances = params["sto_importances"]
     except ValueError:
         print("One or more of the required params to train the model are missing. Please check the params.")
 
@@ -50,6 +51,9 @@ def train (model, method_settings, params, HPs, experience, device, global_seed,
         eval_every=-1,
         device=device
     )
+    for i in range(len(sto_importances)) :
+        ewc.plugins[0].importances[i] = sto_importances[i]
+    ewc.plugins[3].train_exp_counter = len(sto_importances)
 
     ewc.train(experience)
     

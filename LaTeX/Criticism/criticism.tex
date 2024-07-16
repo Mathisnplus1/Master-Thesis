@@ -1,4 +1,6 @@
 \documentclass[twocolumn]{article}
+\setlength{\columnsep}{0.5cm}
+\usepackage[margin=1.5cm]{geometry}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{stmaryrd}
@@ -526,14 +528,14 @@ EWC is good at specializing modules (subset of weights), but it does not tackle 
 
 \begin{figure*}
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.35\textwidth}
         \centering
         \includegraphics[width=0.95\textwidth]{images/ellipse_overlap.png}
         \caption{2 ellipses as depicted in EWC-like papers}
         \label{fig:ellipses_EWC}
     \end{subfigure}
-    \hspace{-12mm}
-    \begin{subfigure}[b]{0.48\textwidth}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.35\textwidth}
         \centering
         \includegraphics[width=0.95\textwidth]{images/ellipse_real_life.png}
         \caption{A more realistic view of parameters space}
@@ -594,11 +596,60 @@ There is no doubt that EWC is capable of solving benchmarks, but with all these 
 \subsection{EWC}
 
 EWC presents several reproducibility issues.
+Most paper "reuse" the results of the original paper without reprocuing them
+Some paper tried to reproduce the result but obtain much lower results
+Other papers show very inconsistant results
+And finally, papers trying to apply EWC to new benchmarks show that it is not working well, or even terribly bad. It is likely that these results are significantly poorer because authors don't spend as much energy trying to specificly tune hyperparameters as EWC authors did.
+
 
 \subsection{Our new approach (GroHess or naive)}
 
 We will also introduce an obviously bad method (or GroHess) that reaches state of the art on 2 benchmarks.
 
+
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/test_accs_matrix.png}
+        \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:test_accs_matrix}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/classic_plot.png}
+        \caption{A more realistic view of parameters space}
+        \label{fig:classic_plot}
+    \end{subfigure}
+    \caption{Representations of the parameters space}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/best_params.png}
+    \caption{2 ellipses as depicted in EWC-like papers}
+    \label{fig:best_params}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/val_accs_matrix.png}
+        \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:val_accs_matrix}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/graph_test_vs_val.png}
+        \caption{A more realistic view of parameters space}
+        \label{fig:graph_test_vs_val}
+    \end{subfigure}
+    \caption{Representations of the parameters space}
+\end{figure*}
 
 
 \section{Discussion}
@@ -607,7 +658,7 @@ We will also introduce an obviously bad method (or GroHess) that reaches state o
 
 We are really good at designing cute benchmarks, like permuted MNIST, which constitute interesting puzzles to solve from the point of view of artificial learning.
 
-but we are not good at solving real-world problems.
+but are we good at solving real-world problems ?
 
 \subsection{Continual learning usecases}
 

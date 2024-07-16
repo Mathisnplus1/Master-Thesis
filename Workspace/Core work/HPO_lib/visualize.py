@@ -34,10 +34,12 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
     # Plot
     num_tasks = len(test_accs_matrix)
     plt.imshow(test_accs_matrix, cmap='viridis', interpolation='nearest')
-    plt.yticks(np.arange(num_tasks), np.arange(num_tasks))
-    plt.xlabel("Accuracy on task j...")
-    plt.ylabel("...after training on task i")
-    plt.colorbar()
+    plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
+    plt.yticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
+    plt.xlabel("Accuracy on task j...", fontsize=18)
+    plt.ylabel("...after training on task i", fontsize=18)
+    cb = plt.colorbar()
+    cb.ax.tick_params(labelsize=18)
     
     # Save plot
     if savefig:
@@ -72,8 +74,9 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
     num_tasks = len(test_accs_matrix)
     mean_accs = [np.array(test_accs_matrix[i][:i+1]).sum() / (i+1) for i in range(num_tasks)]
     plt.plot(range(num_tasks), mean_accs, color="black")
-    plt.xlabel("Number of tasks trained")
-    plt.ylabel("Average test accuracy for tasks trained so far")
+    plt.xlabel("Number of tasks trained", fontsize=18)
+    plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
+    plt.yticks(fontsize=18)
     plt.ylim(0, 100)
     
     # Save plot
@@ -114,8 +117,9 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
         param_values = [params[param_name] for params in best_params_list]
         ax.plot(param_values)
         ax.set_xticks(range(len(param_values)))
-        ax.set_xlabel("Task index")
-        ax.set_title(f"Best {param_name}")
+        ax.tick_params(labelsize=18)
+        ax.set_ylabel(f"Best {param_name}", fontsize=18)
+        ax.set_xlabel("Task index", fontsize=18)
 
     # Save plot
     if savefig:
@@ -161,11 +165,13 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
         benchmark_name = benchmark_settings["benchmark_name"]
         num_val_benchmarks = benchmark_settings["num_val_benchmarks"]
         difficulty = benchmark_settings["difficulty"]
+        num_tasks = benchmark_settings["num_tasks"]
     except ValueError :
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
     
     plt.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
-    plt.yticks(np.arange(2+num_val_benchmarks), ["HPO's benchmark", "HPO's benchmark, reshuffled"]+[f"Val benchmark {i}" for i in range(1,num_val_benchmarks+1)])
+    plt.yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)], fontsize=18)
+    plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
     plt.xlabel("Task index")
     plt.colorbar()
 

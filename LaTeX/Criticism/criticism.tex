@@ -200,6 +200,14 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
 \end{figure}
 
 
+\begin{tabular}{|c|c|c|}
+    \hline
+    \diagbox{{\footnotesize Tested}}{{\footnotesize Trained}} & Taks 1 & Task 2 \\ \hline
+    Task 1 & \includegraphics[width=2.5cm]{images/pollution_11.png} & \includegraphics[width=2.5cm]{images/pollution_12.png} \\ \hline
+    Task 2 & \notableentry & \includegraphics[width=2.5cm]{images/pollution_21.png} \\ \hline
+\end{tabular}
+
+
 \vspace{1mm}
 \noindent
 The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{fig:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
@@ -612,15 +620,15 @@ We will also introduce an obviously bad method (or GroHess) that reaches state o
     \centering
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/test_accs_matrix.png}
+        \includegraphics[width=0.95\textwidth]{images/accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
         \caption{2 ellipses as depicted in EWC-like papers}
         \label{fig:test_accs_matrix}
     \end{subfigure}
     \hspace{-0mm}
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/classic_plot.png}
-        \caption{A more realistic view of parameters space}
+        \includegraphics[width=0.95\textwidth]{images/avg_acc_curve_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+        \caption{Average test accuracy for tasks trained so far}
         \label{fig:classic_plot}
     \end{subfigure}
     \caption{Representations of the parameters space}
@@ -628,7 +636,14 @@ We will also introduce an obviously bad method (or GroHess) that reaches state o
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.5\textwidth]{images/best_params.png}
+    \includegraphics[width=0.5\textwidth]{images/best_params_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+    \caption{2 ellipses as depicted in EWC-like papers}
+    \label{fig:best_params}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/val_accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
     \caption{2 ellipses as depicted in EWC-like papers}
     \label{fig:best_params}
 \end{figure*}
@@ -637,14 +652,14 @@ We will also introduce an obviously bad method (or GroHess) that reaches state o
     \centering
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/val_accs_matrix.png}
+        \includegraphics[width=0.95\textwidth]{images/accuracy_through_benchmarks_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
         \caption{2 ellipses as depicted in EWC-like papers}
         \label{fig:val_accs_matrix}
     \end{subfigure}
     \hspace{-0mm}
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/graph_test_vs_val.png}
+        \includegraphics[width=0.3\textwidth]{images/violin_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-01.png}
         \caption{A more realistic view of parameters space}
         \label{fig:graph_test_vs_val}
     \end{subfigure}

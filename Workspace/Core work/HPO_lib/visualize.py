@@ -39,7 +39,7 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
     plt.xlabel("Accuracy on task j...", fontsize=18)
     plt.ylabel("...after training on task i", fontsize=18)
     cb = plt.colorbar()
-    cb.ax.tick_params(labelsize=18)
+    cb.ax.tick_params(size=5, width=2, labelsize=18)
     
     # Save plot
     if savefig:
@@ -111,7 +111,8 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
     # Create a subplot for each param
     num_params = len(best_params_list[0])
     fig, axs = plt.subplots(nrows=1, ncols=num_params, figsize=(5*num_params, 5))
-    
+    plt.subplots_adjust(wspace=0.35)
+
     # Plot
     for ax, param_name in zip(axs, best_params_list[0].keys()) :
         param_values = [params[param_name] for params in best_params_list]
@@ -172,8 +173,9 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
     plt.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
     plt.yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)], fontsize=18)
     plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
-    plt.xlabel("Task index")
-    plt.colorbar()
+    plt.xlabel("Task index", fontsize=18)
+    cb = plt.colorbar()
+    cb.ax.tick_params(size=5, width=2, labelsize=18)
 
     # Save plot
     if savefig:
@@ -213,18 +215,19 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     x = np.arange(combined_val_accs_matrix.shape[1])
 
     # Plotting the mean results and out of HPO result
-    plt.plot(x, combined_val_accs_matrix[0], label="HPO's benchmark", color='r')
-    plt.plot(x, combined_val_accs_matrix[1], label="HPO's benchmark, reshuffled", color='g')
-    plt.plot(x, mean_results, label=f'Mean through {num_val_benchmarks} other benchmarks', color='b')
+    plt.plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='r')
+    plt.plot(x, combined_val_accs_matrix[1], label="HPO benchmark, reshuffled", color='g')
+    plt.plot(x, mean_results, label=f'Mean val benchmarks', color='b')
 
     # Shaded area for standard deviation
     plt.fill_between(x, mean_results - std_dev_results, mean_results + std_dev_results, color='b', alpha=0.2)
 
     # Adding labels and title
-    plt.xlabel('Task index')
-    plt.xticks(x)
-    plt.ylabel('Test Accuracy')
-    plt.legend()
+    plt.xlabel('Task index', fontsize=18)
+    plt.xticks(x, fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.ylabel('Test Accuracy', fontsize=18)
+    plt.legend(fontsize=12)
 
     # Save plot
     if savefig:
@@ -268,7 +271,8 @@ def visualize_violin(combined_val_accs_matrix, HPO_settings, method_settings, be
 
     # Adding labels and title
     plt.xticks([])
-    plt.ylabel('Test Accuracy')
+    plt.yticks(fontsize=18)
+    plt.ylabel('Test Accuracy', fontsize=18)
 
     # Save plot
     if savefig:

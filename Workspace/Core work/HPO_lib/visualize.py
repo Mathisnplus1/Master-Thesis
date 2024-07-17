@@ -40,6 +40,7 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
     plt.ylabel("...after training on task i", fontsize=18)
     cb = plt.colorbar()
     cb.ax.tick_params(size=5, width=2, labelsize=18)
+    plt.tight_layout()
     
     # Save plot
     if savefig:
@@ -75,9 +76,11 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
     mean_accs = [np.array(test_accs_matrix[i][:i+1]).sum() / (i+1) for i in range(num_tasks)]
     plt.plot(range(num_tasks), mean_accs, color="black")
     plt.xlabel("Number of tasks trained", fontsize=18)
+    plt.ylabel("Test accuracy", fontsize=18)
     plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
     plt.yticks(fontsize=18)
     plt.ylim(0, 100)
+    plt.tight_layout()
     
     # Save plot
     if savefig:
@@ -87,6 +90,14 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
     # Show plot
     plt.show()
 
+
+
+def format_float(values):
+    if len(str(values[0])) > 5 :
+        return [f"{value:.2e}" for value in values]
+    else:
+        return [str(value) for value in values]
+    
 
 
 def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
@@ -116,11 +127,12 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
     # Plot
     for ax, param_name in zip(axs, best_params_list[0].keys()) :
         param_values = [params[param_name] for params in best_params_list]
-        ax.plot(param_values)
+        ax.plot(format_float(param_values))
         ax.set_xticks(range(len(param_values)))
         ax.tick_params(labelsize=18)
         ax.set_ylabel(f"Best {param_name}", fontsize=18)
         ax.set_xlabel("Task index", fontsize=18)
+    plt.tight_layout()
 
     # Save plot
     if savefig:
@@ -174,8 +186,9 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
     plt.yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)], fontsize=18)
     plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
     plt.xlabel("Task index", fontsize=18)
-    cb = plt.colorbar()
+    cb = plt.colorbar(shrink=0.5)
     cb.ax.tick_params(size=5, width=2, labelsize=18)
+    plt.tight_layout()
 
     # Save plot
     if savefig:
@@ -202,11 +215,14 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     
     try :
         benchmark_name = benchmark_settings["benchmark_name"]
-        num_val_benchmarks = benchmark_settings["num_val_benchmarks"]
         difficulty = benchmark_settings["difficulty"]
     except ValueError :
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
     
+    # Create subplots
+    fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8, 5), width_ratios= [6, 2])
+    plt.subplots_adjust(wspace=0.35)
+
     # Calculate the mean and standard deviation along the axis of experiments
     mean_results = np.mean(combined_val_accs_matrix[2:], axis=0)
     std_dev_results = np.std(combined_val_accs_matrix[2:], axis=0)
@@ -215,19 +231,33 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     x = np.arange(combined_val_accs_matrix.shape[1])
 
     # Plotting the mean results and out of HPO result
-    plt.plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='r')
-    plt.plot(x, combined_val_accs_matrix[1], label="HPO benchmark, reshuffled", color='g')
-    plt.plot(x, mean_results, label=f'Mean val benchmarks', color='b')
+    axs[0].plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='r')
+    axs[0].plot(x, combined_val_accs_matrix[1], label="HPO benchmark, reshuffled", color='g')
+    axs[0].plot(x, mean_results, label=f'Mean val benchmarks', color='b')
 
     # Shaded area for standard deviation
-    plt.fill_between(x, mean_results - std_dev_results, mean_results + std_dev_results, color='b', alpha=0.2)
+    axs[0].fill_between(x, mean_results - std_dev_results, mean_results + std_dev_results, color='b', alpha=0.2)
 
     # Adding labels and title
-    plt.xlabel('Task index', fontsize=18)
-    plt.xticks(x, fontsize=18)
-    plt.yticks(fontsize=18)
-    plt.ylabel('Test Accuracy', fontsize=18)
-    plt.legend(fontsize=12)
+    axs[0].set_xlabel('Task index', fontsize=18)
+    axs[0].set_xticks(x)
+    axs[0].tick_params(labelsize=18)
+    axs[0].set_ylabel('Test Accuracy', fontsize=18)
+    axs[0].legend(fontsize=12)
+
+    # Creating the violin plot
+    violin = plt.violinplot(combined_val_accs_matrix[2:].mean(axis=0), showmeans=True, showextrema=False)
+    violin['bodies'][0].set_facecolor("b")
+    violin['bodies'][0].set_alpha(0.2)
+    violin['cmeans'].set_color('b')
+    axs[1].scatter(1, combined_val_accs_matrix[0].mean(), color='r')
+    axs[1].scatter(1, combined_val_accs_matrix[1].mean(), color='g')
+
+    # Adding labels and title
+    axs[1].set_xticks(ticks=[1], labels=["Mean"])
+    axs[1].tick_params(labelsize=18)
+
+    plt.tight_layout()
 
     # Save plot
     if savefig:
@@ -272,7 +302,8 @@ def visualize_violin(combined_val_accs_matrix, HPO_settings, method_settings, be
     # Adding labels and title
     plt.xticks([])
     plt.yticks(fontsize=18)
-    plt.ylabel('Test Accuracy', fontsize=18)
+    plt.ylabel("Test accuracy", fontsize=18)
+    plt.tight_layout()
 
     # Save plot
     if savefig:
@@ -286,7 +317,7 @@ def visualize_violin(combined_val_accs_matrix, HPO_settings, method_settings, be
 
 def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings) :
     combined_val_accs_matrix = np.concatenate((np.reshape(test_accs_matrix[-1], (1,test_accs_matrix.shape[1])), val_accs_matrix), axis=0)
-    functions_list = [visualize_val_accs_matrix, visualize_accuracy_through_benchmarks, visualize_violin]
+    functions_list = [visualize_val_accs_matrix, visualize_accuracy_through_benchmarks]
     for function in functions_list :
         if visualization_settings[function.__name__] :
             function(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])

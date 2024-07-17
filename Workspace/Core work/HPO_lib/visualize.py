@@ -181,14 +181,16 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
         num_tasks = benchmark_settings["num_tasks"]
     except ValueError :
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
-    
-    plt.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
-    plt.yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)], fontsize=18)
-    plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
-    plt.xlabel("Task index", fontsize=18)
-    cb = plt.colorbar(shrink=0.5)
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
+    im = ax.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
+    ax.set_yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)], fontsize=18)
+    ax.set_xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
+    ax.set_xlabel("Task index", fontsize=18)
+    cb = plt.colorbar(im, ax=ax)
     cb.ax.tick_params(size=5, width=2, labelsize=18)
-    plt.tight_layout()
+    plt.subplots_adjust(left=0.2, right=0.8, top=0.8, bottom=0.2)
+    #plt.tight_layout()
 
     # Save plot
     if savefig:

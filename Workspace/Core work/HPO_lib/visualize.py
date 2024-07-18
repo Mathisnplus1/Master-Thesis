@@ -94,7 +94,7 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
 
 def format_float(values):
     if len(str(values[0])) > 5 :
-        return [f"{value:.2e}" for value in values]
+        return [f"{float(value):.2e}" for value in values]
     else:
         return [str(value) for value in values]
     

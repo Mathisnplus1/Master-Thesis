@@ -2,7 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
+import matplotlib as mpl
 from datetime import datetime
+
+
+mpl.rcParams['axes.labelsize'] = 18
+mpl.rcParams['xtick.labelsize'] = 18
+mpl.rcParams['xtick.major.size'] = 5
+mpl.rcParams['xtick.major.width'] = 2
+mpl.rcParams['ytick.major.size'] = 5
+mpl.rcParams['ytick.major.width'] = 2
+mpl.rcParams['ytick.labelsize'] = 18
+mpl.rcParams['legend.fontsize'] = 12
 
 
 
@@ -34,12 +45,11 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
     # Plot
     num_tasks = len(test_accs_matrix)
     plt.imshow(test_accs_matrix, cmap='viridis', interpolation='nearest')
-    plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
-    plt.yticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
-    plt.xlabel("Accuracy on task j...", fontsize=18)
-    plt.ylabel("...after training on task i", fontsize=18)
-    cb = plt.colorbar()
-    cb.ax.tick_params(size=5, width=2, labelsize=18)
+    plt.xticks(np.arange(num_tasks), np.arange(num_tasks))
+    plt.yticks(np.arange(num_tasks), np.arange(num_tasks))
+    plt.xlabel("Accuracy on task j...")
+    plt.ylabel("...after training on task i")
+    plt.colorbar()
     plt.tight_layout()
     
     # Save plot
@@ -75,10 +85,9 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
     num_tasks = len(test_accs_matrix)
     mean_accs = [np.array(test_accs_matrix[i][:i+1]).sum() / (i+1) for i in range(num_tasks)]
     plt.plot(range(num_tasks), mean_accs, color="black")
-    plt.xlabel("Number of tasks trained", fontsize=18)
+    plt.xlabel("Number of tasks trained")
     plt.ylabel("Test accuracy", fontsize=18)
-    plt.xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
-    plt.yticks(fontsize=18)
+    plt.xticks(np.arange(num_tasks), np.arange(num_tasks))
     plt.ylim(0, 100)
     plt.tight_layout()
     
@@ -129,9 +138,8 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
         param_values = [params[param_name] for params in best_params_list]
         ax.plot(format_float(param_values))
         ax.set_xticks(range(len(param_values)))
-        ax.tick_params(labelsize=18)
-        ax.set_ylabel(f"Best {param_name}", fontsize=18)
-        ax.set_xlabel("Task index", fontsize=18)
+        ax.set_ylabel(f"Best {param_name}")
+        ax.set_xlabel("Task index")
     plt.tight_layout()
 
     # Save plot
@@ -182,15 +190,14 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
     except ValueError :
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
 
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
-    im = ax.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
-    ax.set_yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)], fontsize=18)
-    ax.set_xticks(np.arange(num_tasks), np.arange(num_tasks), fontsize=18)
-    ax.set_xlabel("Task index", fontsize=18)
-    cb = plt.colorbar(im, ax=ax)
-    cb.ax.tick_params(size=5, width=2, labelsize=18)
-    plt.subplots_adjust(left=0.2, right=0.8, top=0.8, bottom=0.2)
-    #plt.tight_layout()
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(6, 5))#, width_ratios= [5, 1])
+    im = axs.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
+    axs.set_yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)])
+    axs.set_xticks(np.arange(num_tasks), np.arange(num_tasks))
+    axs.set_xlabel("Task index")
+    plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+    cax = plt.axes((0.85, 0.2, 0.03, 0.6))
+    plt.colorbar(im, cax=cax)
 
     # Save plot
     if savefig:
@@ -241,11 +248,10 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     axs[0].fill_between(x, mean_results - std_dev_results, mean_results + std_dev_results, color='b', alpha=0.2)
 
     # Adding labels and title
-    axs[0].set_xlabel('Task index', fontsize=18)
+    axs[0].set_xlabel('Task index')
     axs[0].set_xticks(x)
-    axs[0].tick_params(labelsize=18)
-    axs[0].set_ylabel('Test Accuracy', fontsize=18)
-    axs[0].legend(fontsize=12)
+    axs[0].set_ylabel('Test Accuracy')
+    axs[0].legend()
 
     # Creating the violin plot
     violin = plt.violinplot(combined_val_accs_matrix[2:].mean(axis=0), showmeans=True, showextrema=False)
@@ -257,7 +263,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
 
     # Adding labels and title
     axs[1].set_xticks(ticks=[1], labels=["Mean"])
-    axs[1].tick_params(labelsize=18)
+    #axs[1].tick_params(labelsize=18)
 
     plt.tight_layout()
 
@@ -303,8 +309,7 @@ def visualize_violin(combined_val_accs_matrix, HPO_settings, method_settings, be
 
     # Adding labels and title
     plt.xticks([])
-    plt.yticks(fontsize=18)
-    plt.ylabel("Test accuracy", fontsize=18)
+    plt.ylabel("Test accuracy")
     plt.tight_layout()
 
     # Save plot

@@ -102,10 +102,10 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
 
 
 def format_float(values):
-    if len(str(values[0])) > 5 :
+    if values[0] != int(values[0]) : # len(str(values[0])) > 5 :
         return [f"{float(value):.2e}" for value in values]
     else:
-        return [str(value) for value in values]
+        return [str(int(value)) for value in values]
     
 
 
@@ -135,9 +135,10 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
 
     # Plot
     for ax, param_name in zip(axs, best_params_list[0].keys()) :
-        param_values = [params[param_name] for params in best_params_list]
-        ax.plot(format_float(param_values))
+        param_values = [float(params[param_name]) for params in best_params_list]
+        ax.plot(param_values)
         ax.set_xticks(range(len(param_values)))
+        ax.set_yticks(param_values, format_float(param_values))
         ax.set_ylabel(f"Best {param_name}")
         ax.set_xlabel("Task index")
     plt.tight_layout()
@@ -192,12 +193,13 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
 
     fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(6, 5))#, width_ratios= [5, 1])
     im = axs.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
-    axs.set_yticks(np.arange(2+num_val_benchmarks), ["HPO", "HPO, shuffled"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)])
+    axs.set_yticks(np.arange(1+num_val_benchmarks), ["HPO"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)])
     axs.set_xticks(np.arange(num_tasks), np.arange(num_tasks))
     axs.set_xlabel("Task index")
     plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
     cax = plt.axes((0.85, 0.2, 0.03, 0.6))
     plt.colorbar(im, cax=cax)
+    plt.tight_layout()
 
     # Save plot
     if savefig:
@@ -233,15 +235,14 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     plt.subplots_adjust(wspace=0.35)
 
     # Calculate the mean and standard deviation along the axis of experiments
-    mean_results = np.mean(combined_val_accs_matrix[2:], axis=0)
-    std_dev_results = np.std(combined_val_accs_matrix[2:], axis=0)
+    mean_results = np.mean(combined_val_accs_matrix[1:], axis=0)
+    std_dev_results = np.std(combined_val_accs_matrix[1:], axis=0)
 
     # X-axis values
     x = np.arange(combined_val_accs_matrix.shape[1])
 
     # Plotting the mean results and out of HPO result
     axs[0].plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='r')
-    axs[0].plot(x, combined_val_accs_matrix[1], label="HPO benchmark, reshuffled", color='g')
     axs[0].plot(x, mean_results, label=f'Mean val benchmarks', color='b')
 
     # Shaded area for standard deviation
@@ -254,12 +255,12 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     axs[0].legend()
 
     # Creating the violin plot
-    violin = plt.violinplot(combined_val_accs_matrix[2:].mean(axis=0), showmeans=True, showextrema=False)
+    violin = plt.violinplot(combined_val_accs_matrix[1:].mean(axis=0), widths=0.4, showmeans=True, showextrema=False)
     violin['bodies'][0].set_facecolor("b")
     violin['bodies'][0].set_alpha(0.2)
     violin['cmeans'].set_color('b')
-    axs[1].scatter(1, combined_val_accs_matrix[0].mean(), color='r')
-    axs[1].scatter(1, combined_val_accs_matrix[1].mean(), color='g')
+    #violin['cmeans'].set_linewidth(10)
+    axs[1].plot([0.9,1.1], 2*[combined_val_accs_matrix[0].mean()], color='r')
 
     # Adding labels and title
     axs[1].set_xticks(ticks=[1], labels=["Mean"])

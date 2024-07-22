@@ -79,7 +79,7 @@
 \maketitle
 \begin{abstract}
     %This paper is a critique of unconstrained memoryless modular strategies in continual learning. We argue that these strategies are not well-suited for the problem of continual learning, as they certainly don't solve it but at best, solve specific benchmarks. These approaches do not deal with the core challenges of distributing inputs to modules and merging outputs from modules. More fundamentally, we show that these strategies are inherently unable to tackle these challenges and that they mainly mitigate pollution between tasks. We also discuss the management of hyperparameters in continual learning, which is often unfair and can lead to overfitting on benchmarks. Finally, we propose a naive approach that reaches state-of-the-art performance on two benchmarks, highlighting the limitations of unconstrained memoryless modular strategies.
-    Starting with a critical review of Elastic Weight Consolidation method (EWC), we argue that unconstrained memoryless modular strategies does not account for pollution which is an inherent limitation to solve continual learning. So why does the litterature seem to show positive results? The reason lies in the introduction of hyperparameters (HPs) that create trade-offs between the tasks. Therefore, we argue that EWC should not perform any better than any other approach that makes similar trade-offs. To verify this, we present naive baselines along with a more elaborated method that only make trade-offs and show that, with the same amount of hyperparameters, they achieve similar performance to EWC. Additionally, we study how performances are impacted by the amount of hyperparameters, from $O(1)$ to $O(n^2)$. However, with all these HPs, we are essentially overfitting on the benchmarks, which we demonstrate through the introduction of validation benchmarks.
+    Starting with a critical review of Elastic Weight Consolidation method (EWC), we argue that unconstrained memoryless modular strategies does not account for all dimensions of pollution which is an inherent limitation to solve continual learning. So why does the litterature seem to show positive results? The reason lies in the introduction of hyperparameters (HPs) that create trade-offs between the tasks. Therefore, we argue that EWC should not perform any better than any other approach that makes similar trade-offs. To verify this, we present naive baselines along with a more elaborated method that only make trade-offs and show that, with the same amount of hyperparameters, they achieve similar performance to EWC. Additionally, we study how performances are impacted by the amount of hyperparameters, from $O(1)$ to $O(n^2)$. However, with all these HPs, we are essentially overfitting on the benchmarks, which we demonstrate through the introduction of validation benchmarks.
 \end{abstract}
 \vspace{1cm}
 ]
@@ -144,60 +144,46 @@ Litterature reviews on continual learning are mostly descriptive and not critica
 
 \subsection{Pollutions}
 
-Here we will introduce a formalism for pollution, add a plot
 
-\vspace{1mm}
 \noindent
 As a very general principle, the problem with these approaches in the context of continual learning is that
 \begin{quote}
     \itshape
     \centering
-    Improving on task 2 mean regressing on task 1, and reciprocally
+    Improving on task 2 means deteriorating on task 1, and reciprocally.
 \end{quote}
 
 \noindent
-Which implies that performing continual learning in such a way requires to perform trade-offs. And the most convenient way one performs trade-offs in deep learning is through hyperparameters.
+It does not mean that the more tasks there are to solve, the harder it gets to solve them all, which is true. But this statement is stronger, it means that tasks are inhrently put in a competition setting with each other. This implies that performing continual learning in such a way requires to perform trade-offs. And the most convenient way one performs trade-offs in deep learning is through hyperparameters.
 
-\vspace{0.5cm}
-
+\vspace{1mm}
 \noindent
-We often assume that it is fine to attempt somewhat limited approaches because improvements are achieved by building on failed attempts. This is true for incremental improvements, typically made by engineers through the combination and optimization of previous work. However, researchers aim for disruptive improvements by stepping back from the current state of the art to identify what is arbitrary, poorly motivated, or inherently limited in current approaches.
-
-\vspace{0.5cm}
-
-
-\noindent
-Let's assume we are given $I$ tasks indexed by the set $\intset{1}{I}$. We define a neural network as the set of its parameters
+Let's assume we are given $I$ tasks indexed in increasing order by the set $\intset{1}{I}$. We define a neural network as the set of its parameters
 \begin{align}
     \phi = \left\{\left\{ w_{l,m,n} \in \mathbb{R} | m,n \in \llbracket 1, N_{l-1} \rrbracket \times \llbracket 1, N_{l} \rrbracket \right\} | l \in \llbracket 1, L+1 \rrbracket \right\}
 \end{align}
 where $L$ is the number of hidden layers and $N_l$ is the number of neurons on layer $l$.
 
+\vspace{1mm}
 \noindent
 Let's define $\mathbb{W}_{l,n}^i$ to be the set of protected weights for task $i$ with respect to neuron $n$ of layer $l$, for any $i \in \intset{1}{I}$, $l \in \intset{1}{L+1}$ and $n \in \intset{1}{N_l}$:
 \begin{align}
     \mathbb{W}_{l,n}^i = \left\{ w_{l,m,n}, m \in \intset{1}{N_{l-1}} | w_{l,m,n} \text{ protected} \right\}
 \end{align}
 
+\vspace{1mm}
 \noindent
 which allows to define the pollution of task $i$ by protected weights for task $j$ on neuron $n$ of layer $l$ as
 \begin{align}
     p_{l,n}^{i\rightarrow j} = \mathbb{E}_{x \sim D_i}\left[\frac{\sum_{w \in \mathbb{W}_{l,n}^j}{w(x)}}{\sum_{w \in \mathbb{W}_{l,n}^i}{w(x)}}\right]
 \end{align}
 
+\vspace{1mm}
 \noindent
 Finally, we can define the pollution of task $i$ by protected weights for task $j$ on the whole network as
 \begin{align}
     P^{i\rightarrow j} = \frac{1}{L+1}\sum_{l=1}^{L+1}{\frac{1}{N_l}\sum_{n=1}^{N_l}{p_{l,n}^{i\rightarrow j}}}
 \end{align}
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.45\textwidth]{images/pollution_update.png}
-    \caption{Illustration of $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell)}
-    \label{fig:pollution}
-\end{figure}
 
 
 \begin{tabular}{|c|c|c|}

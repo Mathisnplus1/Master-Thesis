@@ -3,7 +3,7 @@ save_results : True
 # Parameters specfific to the benchmark
 benchmark_settings : {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
-                      "num_tasks" : 10,
+                      "num_tasks" : 3,
                       "train_percentage" : 0.8,
                       "num_val_benchmarks" : 10,
                       "batch_size" : 128}

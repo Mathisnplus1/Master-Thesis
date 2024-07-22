@@ -21,16 +21,15 @@ def get_benchmarks (benchmark_settings, global_seed) :
     benchmarks_list = []
 
     if benchmark_name == "pMNIST_via_avalanche" :
-        random_seed_list = [i for i in range(num_val_benchmarks+2)]
-        for i in range(num_val_benchmarks+2) :
+        random_seed_list = [i for i in range(num_val_benchmarks+1)]
+        for i in range(num_val_benchmarks+1) :
             benchmark = PermutedMNIST(n_experiences=num_tasks, train_percentage=train_percentage, difficulty=difficulty, batch_size=batch_size, seed=random_seed_list[i], global_seed=global_seed)
             benchmarks_list += [benchmark]
     
     if benchmark_name == "pMNIST_via_torch" :
-        permutation_random_seeds_list = [list(range(num_tasks*(i), num_tasks*(i+1))) for i in range(0,num_val_benchmarks+1)]
+        permutation_random_seeds_list = [list(range(num_tasks*(i), num_tasks*(i+1))) for i in range(num_val_benchmarks+1)]
 
-        for i in range(num_val_benchmarks+2) :
-            i = 0 if i <= 1 else i-1
+        for i in range(num_val_benchmarks+1) :
             permutation_random_seeds = permutation_random_seeds_list[i]
             train_loaders_list = []
             val_loaders_list = []

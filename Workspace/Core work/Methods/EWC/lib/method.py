@@ -18,38 +18,50 @@ def initialize_model(method_settings, global_seed) :
     return model
 
 
-def train (model, method_settings, params, HPs, experience, device, global_seed, verbose=0) :
-    # Get method settings
+def initialize_training(model, method_settings, benchmark_settings, device) :
     try :
-        loss_name = method_settings["loss_name"]
         optimizer_name = method_settings["optimizer_name"]
+        loss_name = method_settings["loss_name"]
     except ValueError:
-        print("One or more of the required settings to train the model are missing. Please check the method settings.")
-
-    # Get params
+        print("One or more of the required settings to initialize the HPO are missing. Please check the method settings.")
     try :
-        batch_size = params["batch_size"]
+        batch_size = benchmark_settings["batch_size"]
     except ValueError:
-        print("One or more of the required params to train the model are missing. Please check the params.")
+        print("One or more of the required settings to initialize the HPO are missing. Please check the benchmark settings.")
 
+    ewc = EWC(
+        model=model, 
+        optimizer=get_optimizer(optimizer_name, model),
+        criterion=get_loss(loss_name),
+        ewc_lambda=0,
+        train_mb_size=batch_size,
+        train_epochs=0, 
+        eval_every=-1,
+        device=device
+    )
+
+    return ewc
+
+
+def train (model, method_settings, params, HPs, experience, device, global_seed, verbose=0) :
     # Get HPs
     try :
         ewc_lambda = HPs["ewc_lambda"]
         num_epochs = HPs["num_epochs"]
     except ValueError:
         print("One or more of the required HPs to train the model are missing. Please check the HPs.")
+    # Get params
+    try :
+        ewc = params["ewc"]
+    except ValueError:
+        print("One or more of the required params to train the model are missing. Please check the params.")
 
     # Train
-    ewc = EWC(
-        model=model, 
-        optimizer=get_optimizer(optimizer_name, model),
-        criterion=get_loss(loss_name),
-        ewc_lambda=ewc_lambda,
-        train_mb_size=batch_size,
-        train_epochs=num_epochs, 
-        eval_every=-1,
-        device=device
-    )
+    #ewc.model = model
+    #ewc.optimizer = get_optimizer(method_settings["optimizer_name"], model)
+    ewc.plugins[0].ewc_lambda = ewc_lambda
+    ewc.train_epochs = num_epochs
 
     ewc.train(experience)
-    
+
+    return ewc

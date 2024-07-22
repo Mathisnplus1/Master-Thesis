@@ -191,14 +191,12 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
     except ValueError :
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
 
-    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(6, 5))#, width_ratios= [5, 1])
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(6, 5))
     im = axs.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
     axs.set_yticks(np.arange(1+num_val_benchmarks), ["HPO"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)])
     axs.set_xticks(np.arange(num_tasks), np.arange(num_tasks))
     axs.set_xlabel("Task index")
-    plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
-    cax = plt.axes((0.85, 0.2, 0.03, 0.6))
-    plt.colorbar(im, cax=cax)
+    plt.colorbar(im)
     plt.tight_layout()
 
     # Save plot

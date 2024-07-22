@@ -87,14 +87,14 @@ def greedy_validate(benchmarks_list, benchmark_settings, method_settings, best_p
     num_tasks = benchmark_settings["num_tasks"]
 
     # Initialize the matrix to store the validation accuracies
-    val_accs_matrix = np.zeros((num_val_benchmarks+1, num_tasks))
+    val_accs_matrix = np.zeros((num_val_benchmarks, num_tasks))
 
     # Train on each benchmark
-    for i in range(1, num_val_benchmarks+2) :
+    for i in range(1, num_val_benchmarks+1) :
 
         # Verbose
         print("\n" + "="*50)
-        print(f"BENCHMARK {i-1}")
+        print(f"BENCHMARK {i}")
 
         # Train model with best params obtained through HPO on benchmark 0
         benchmark = benchmarks_list[i]

@@ -9,6 +9,9 @@ import numpy as np
 import optuna
 from functools import partial
 import copy
+import gc
+import torch
+import ctypes
 
 
 def objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, trial) :
@@ -170,7 +173,8 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         # Test on each task
         for j in range(num_tasks) :
             test_accs_matrix[task_number,j] = round(test(model, test_loaders_list[j], device),2)
-    
+
+
     return test_accs_matrix, best_params_list
 
 

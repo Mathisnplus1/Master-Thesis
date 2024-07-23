@@ -33,9 +33,9 @@ def initialize_training(model, method_settings, benchmark_settings, device) :
         model=model, 
         optimizer=get_optimizer(optimizer_name, model),
         criterion=get_loss(loss_name),
-        ewc_lambda=0,
+        ewc_lambda=400,
         train_mb_size=batch_size,
-        train_epochs=0, 
+        train_epochs=3, 
         eval_every=-1,
         device=device
     )

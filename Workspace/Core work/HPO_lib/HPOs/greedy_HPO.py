@@ -12,6 +12,8 @@ import copy
 import gc
 import torch
 import ctypes
+from torch.utils.data import DataLoader
+
 
 
 def objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, trial) :
@@ -49,8 +51,15 @@ def objective(model, task_number, HPO_settings, params, method_settings, train_l
     model_copy = copy.deepcopy(model)
     params_copy = copy.deepcopy(params)
 
+    #if method_settings["method_name"] == "EWC" :
+    #    ewc_copy = copy.deepcopy(params["ewc"])
+    #    params["ewc"] = ewc_copy
+
     # Train
     _ = train(model_copy, method_settings, params_copy, HPs, train_loader, device, global_seed)
+
+    if method_settings["method_name"] == "EWC" :
+        model_copy = params_copy["ewc"].model
 
     # Test
     test_accs = np.zeros(task_number+1)
@@ -61,11 +70,6 @@ def objective(model, task_number, HPO_settings, params, method_settings, train_l
     # Compute score
     score = np.mean(test_accs)
 
-    if method_settings["method_name"] == "EWC" :
-        sto_ewcs.append(params_copy["ewc"])
-        sto_models.append(model_copy)
-        sto_scores.append(score)
-    
     return score
 
 
@@ -200,8 +204,8 @@ def call_greedy_HPO_for_EWC(HPO_settings, method_settings, benchmark_settings, b
     # Initialize model
     model = initialize_model(method_settings, global_seed).to(device)
     ewc = initialize_training(model, method_settings, benchmark_settings, device)
-    hpo_model = copy.deepcopy(model)
-    hpo_ewc = initialize_training(hpo_model, method_settings, benchmark_settings, device)
+    #hpo_model = copy.deepcopy(model)
+    #hpo_ewc = initialize_training(hpo_model, method_settings, benchmark_settings, device)
 
     # Intialize HPO
     best_params_list = []
@@ -223,13 +227,15 @@ def call_greedy_HPO_for_EWC(HPO_settings, method_settings, benchmark_settings, b
  
         train_loader = train_loaders_list[task_number]
         sto_scores, sto_ewcs, sto_models = [], [], []
-        hpo_params = {"ewc" : hpo_ewc}
-        partial_objective = partial(objective, hpo_model, task_number, HPO_settings, hpo_params, method_settings, train_loader, val_loaders_list, device, global_seed)
+        #hpo_params = {"ewc" : hpo_ewc}
+        params = {"ewc" : ewc}
+        #partial_objective = partial(objective, hpo_model, task_number, HPO_settings, hpo_params, method_settings, train_loader, val_loaders_list, device, global_seed)
+        partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
         study.optimize(partial_objective,
                     n_trials=HPO_settings["n_trials"],
                     timeout=3600)
-        best_index = np.argmax(sto_scores)
-        hpo_ewc, hpo_model = sto_ewcs[best_index], sto_models[best_index]
+        #best_index = np.argmax(sto_scores)
+        #hpo_ewc, hpo_model = sto_ewcs[best_index], sto_models[best_index]
 
 
         # Retrain and save a model with the best params
@@ -237,9 +243,6 @@ def call_greedy_HPO_for_EWC(HPO_settings, method_settings, benchmark_settings, b
         best_params_list += [best_params]
  
         params = {"ewc" : ewc}
-
-        print("###########################")
-        print(params)
 
         ewc = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loader, device, global_seed) 
 

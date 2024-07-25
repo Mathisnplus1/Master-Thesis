@@ -99,7 +99,7 @@ def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",batch_size=12
             _make_taskaware_classification_dataset(mnist_train),
             frozen_transform_groups=DefaultTransformGroups((_default_mnist_transform, None)),
         )
-        permuted_train, permuted_val = split_validation_random(1-train_percentage, shuffle=True, dataset=permuted_train)
+        permuted_train, permuted_val = split_validation_random(1-train_percentage, shuffle=False, dataset=permuted_train)
 
         permuted_test = make_avalanche_dataset(
             _make_taskaware_classification_dataset(mnist_test),

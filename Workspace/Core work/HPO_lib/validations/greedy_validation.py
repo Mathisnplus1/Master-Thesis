@@ -41,8 +41,10 @@ def retrain_one_task (model, params, method_settings, best_params, train_loader,
     if method_settings["method_name"] == "GroHess" :
         overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return overall_masks
-    
-    if method_settings["method_name"] in ["EWC", "LwF", "Naive baseline"] :
+    if method_settings["method_name"] == "EWC" :
+        ewc = train (model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=0)
+        return ewc
+    if method_settings["method_name"] in ["LwF", "Naive baseline"] :
         train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
 
 
@@ -52,13 +54,15 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
     benchmark_model = initialize_model(method_settings, global_seed).to(device)
 
     # Intialize training
+    output = None
     try :
         train_loaders_list = benchmark[0].train_stream
     except :
         train_loaders_list = benchmark[0]
     if method_settings["method_name"] == "GroHess" :
         overall_masks = initialize_training(benchmark_model, method_settings)
-    output = None
+    elif method_settings["method_name"] == "EWC" :
+        output = initialize_training(benchmark_model, method_settings, benchmark_settings, device)
 
     for task_number in range(num_tasks) :
 
@@ -74,7 +78,9 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
                 overall_masks = output
             is_first_task = True if task_number==0 else False
             params = {"overall_masks" : overall_masks, "is_first_task" : is_first_task}
-        if method_settings["method_name"] in ["EWC", "LwF"] :
+        if method_settings["method_name"] in ["EWC"] :
+            params = {"ewc" : output}
+        if method_settings["method_name"] in ["LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
         output = retrain_one_task(benchmark_model, params, method_settings, best_params_list[task_number], train_loader, device, global_seed) 
     

@@ -58,17 +58,11 @@ class PixelsPermutation(object):
             img = image_as_tensor
 
         return img
-    
-
-_default_mnist_train_transform = Compose([Normalize((0.1307,), (0.3081,))])
-_default_mnist_eval_transform = Compose([Normalize((0.1307,), (0.3081,))])
 
 
 
 def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",batch_size=128, *,
                   return_task_id=False,seed=None, global_seed=88,
-                  train_transform = _default_mnist_train_transform,
-                  eval_transform = _default_mnist_eval_transform,
                   dataset_root = None) :
 
     # Reproducibility
@@ -97,16 +91,19 @@ def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",batch_size=12
 
         permutation = PixelsPermutation(idx_permute)
 
+        _default_mnist_transform = Compose([Normalize((0.1307,), (0.3081,)),
+                                                  permutation])
+
         # Freeze the permutation
         permuted_train = make_avalanche_dataset(
             _make_taskaware_classification_dataset(mnist_train),
-            frozen_transform_groups=DefaultTransformGroups((permutation, None)),
+            frozen_transform_groups=DefaultTransformGroups((_default_mnist_transform, None)),
         )
         permuted_train, permuted_val = split_validation_random(1-train_percentage, shuffle=True, dataset=permuted_train)
 
         permuted_test = make_avalanche_dataset(
             _make_taskaware_classification_dataset(mnist_test),
-            frozen_transform_groups=DefaultTransformGroups((permutation, None)),
+            frozen_transform_groups=DefaultTransformGroups((_default_mnist_transform, None)),
         )
 
         list_train_dataset.append(permuted_train)
@@ -124,8 +121,8 @@ def PermutedMNIST(n_experiences,train_percentage,difficulty="easy",batch_size=12
                                 shuffle=False,
                                 class_ids_from_zero_in_each_exp=True,
                                 one_dataset_per_exp=True,
-                                train_transform=train_transform,
-                                eval_transform=eval_transform,
+                                train_transform=None,
+                                eval_transform=None,
                             )
     return train_loaders_list, val_loaders_list, test_loaders_list
 

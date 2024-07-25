@@ -5,7 +5,7 @@ benchmark_settings : {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
                       "num_tasks" : 10,
                       "train_percentage" : 0.8,
-                      "num_val_benchmarks" : 10,
+                      "num_val_benchmarks" : 5,
                       "batch_size" : 128}
 
 # Parameters specific to the method
@@ -21,14 +21,14 @@ method_settings : {"method_name" : "GroHess",
 
 # Parameters specific to HPO
 HPO_settings : {"HPO_name" : "greedy_HPO",
-                "n_trials" : 10,
+                "n_trials" : 5,
                 "lr" : !!seq [!!float 1e-5, !!float 2e-3],
-                "num_epochs" : !!seq [2,10],
+                "num_epochs" : !!seq [2,6],
                 #"ewc_lambda" : !!seq [!!int 200,!!int 1000]
                 }
 
 # Parameters specific to the visualization
-visualization_settings : {"savefig" : False,
+visualization_settings : {"savefig" : True,
                           "visualize_accs_matrix" : True,
                           "visualize_avg_acc_curve" : True,
                           "visualize_best_params" : True,

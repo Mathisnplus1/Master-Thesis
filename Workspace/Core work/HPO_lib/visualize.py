@@ -23,7 +23,7 @@ mpl.rcParams['legend.fontsize'] = 12
 
 
 
-def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
+def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, savefig) :
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -55,14 +55,14 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"Results/accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(folder + f"/accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
 
 
 
-def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
+def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, savefig) :
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -94,7 +94,7 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"Results/avg_acc_curve_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(folder + f"/avg_acc_curve_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
@@ -109,7 +109,7 @@ def format_float(values):
     
 
 
-def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, savefig) :
+def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, savefig) :
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -146,21 +146,21 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"Results/best_params_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(folder + f"/best_params_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
 
 
 
-def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings) :
+def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder) :
     if HPO_settings["HPO_name"] == "greedy_HPO" :
         functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
     if HPO_settings["HPO_name"] == "cheated_HPO" :
         functions_list = [visualize_accs_matrix, visualize_avg_acc_curve]
     for function in functions_list :
         if visualization_settings[function.__name__] :
-            function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])
+            function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, visualization_settings["savefig"])
 
 
 
@@ -170,7 +170,7 @@ def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HP
 
 
 
-def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, savefig=False):
+def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, folder, savefig=False):
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -202,14 +202,14 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"Results/val_accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(folder + f"/val_accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
 
 
 
-def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, savefig=False) :
+def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, folder, savefig=False) :
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -269,61 +269,16 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     # Save plot
     if savefig:
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"Results/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(folder + f"Results/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()
+   
 
 
-
-def visualize_violin(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, savefig=False) :
-    # Check if all required settings are present
-    try :
-        HPO_name = HPO_settings["HPO_name"]
-    except ValueError :
-        print("One or more of the required settings to visualize are missing. Please check the HPO_settings.")
-    
-    try :
-        method_name = method_settings["method_name"]
-        grow_from = method_settings["grow_from"]
-    except ValueError :
-        print("One or more of the required settings to visualize are missing. Please check the method_settings.")
-    
-    try :
-        benchmark_name = benchmark_settings["benchmark_name"]
-        difficulty = benchmark_settings["difficulty"]
-    except ValueError :
-        print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
-    
-    # Resizing the plot
-    plt.figure(figsize=(2, 5))
-
-    # Creating the violin plot
-    violin = plt.violinplot(combined_val_accs_matrix[2:].mean(axis=0), showmeans=True, showextrema=False)
-    violin['bodies'][0].set_facecolor("b")
-    violin['bodies'][0].set_alpha(0.2)
-    violin['cmeans'].set_color('b')
-    plt.scatter(1, combined_val_accs_matrix[0].mean(), color='r')
-    plt.scatter(1, combined_val_accs_matrix[1].mean(), color='g')
-
-    # Adding labels and title
-    plt.xticks([])
-    plt.ylabel("Test accuracy")
-    plt.tight_layout()
-
-    # Save plot
-    if savefig:
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(f"Results/violin_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
-
-    # Show plot
-    plt.show()
-
-
-
-def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings) :
+def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder) :
     combined_val_accs_matrix = np.concatenate((np.reshape(test_accs_matrix[-1], (1,test_accs_matrix.shape[1])), val_accs_matrix), axis=0)
     functions_list = [visualize_val_accs_matrix, visualize_accuracy_through_benchmarks]
     for function in functions_list :
         if visualization_settings[function.__name__] :
-            function(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, visualization_settings["savefig"])
+            function(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, folder, visualization_settings["savefig"])

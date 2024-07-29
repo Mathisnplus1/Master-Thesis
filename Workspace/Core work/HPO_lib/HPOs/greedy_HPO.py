@@ -13,65 +13,18 @@ import gc
 import torch
 import ctypes
 from torch.utils.data import DataLoader
+from HPO_lib.HPOs.greedy_objective import greedy_objective
+import pickle
 
 
 
 def objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, trial) :
+    greedy_objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, trial)
 
-    # Set HPs
-    HPs = {}
-    try :
-        lr = trial.suggest_float("lr", HPO_settings["lr"][0], HPO_settings["lr"][1])
-        HPs["lr"] = lr
-    except :
-        pass
-    try :
-        num_epochs = trial.suggest_int("num_epochs", HPO_settings["num_epochs"][0], HPO_settings["num_epochs"][1])
-        HPs["num_epochs"] = num_epochs
-    except :
-        pass
-    try :
-        ewc_lambda = trial.suggest_int("ewc_lambda", HPO_settings["ewc_lambda"][0], HPO_settings["ewc_lambda"][1])
-        HPs["ewc_lambda"] = ewc_lambda
-    except :
-        pass
-    try :
-        lwf_alpha = trial.suggest_float("lwf_alpha", HPO_settings["lwf_alpha"][0], HPO_settings["lwf_alpha"][1])
-        HPs["lwf_alpha"] = lwf_alpha
-    except :
-        pass
-    try :
-        lwf_temperature = trial.suggest_int("lwf_temperature", HPO_settings["lwf_temperature"][0], HPO_settings["lwf_temperature"][1])
-        HPs["lwf_temperature"] = lwf_temperature
-    except :
-        pass
-     
-
-    # Copy the model to perform HPO
-    model_copy = copy.deepcopy(model)
-    params_copy = copy.deepcopy(params)
-
-    #if method_settings["method_name"] == "EWC" :
-    #    ewc_copy = copy.deepcopy(params["ewc"])
-    #    params["ewc"] = ewc_copy
-
-    # Train
-    _ = train(model_copy, method_settings, params_copy, HPs, train_loader, device, global_seed)
-
-    if method_settings["method_name"] == "EWC" :
-        model_copy = params_copy["ewc"].model
-
-    # Test
-    test_accs = np.zeros(task_number+1)
-    for j in range(task_number+1) :
-        test_acc = test(model_copy, val_loaders_list[j], device)
-        test_accs[j] = test_acc
-    
-    # Compute score
-    score = np.mean(test_accs)
+    with open("logs/score.txt", "r") as f :
+        score = float(f.read())
 
     return score
-
 
 
 def retrain_and_save_with_best_HPs (model, params, method_settings, best_params, train_loader, device, global_seed) :
@@ -142,10 +95,12 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         print(f"LEARNING TASK {task_number+1}")
 
         # Perform HPO
-        storage = optuna.storages.InMemoryStorage()
-        study = optuna.create_study(storage=storage,
-                                    study_name=f"Search number {task_number+1}",
-                                    sampler=optuna.samplers.TPESampler(seed=global_seed),
+        #storage = optuna.storages.InMemoryStorage()
+        #storage = optuna.storages.JournalFileStorage(file_path="logs/study.db")
+        study = optuna.create_study(#storage=storage,
+                                    study_name = f"Search number {task_number+1}",
+                                    sampler = optuna.samplers.TPESampler(seed=global_seed),
+                                    #sampler = optuna.samplers.RandomSampler(seed=global_seed),
                                     direction = "maximize")
         params = {}
         train_loader = train_loaders_list[task_number]
@@ -156,10 +111,11 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
             params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
         if method_settings["method_name"] in ["EWC", "LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
-        partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
+        partial_objective = partial(greedy_objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
         study.optimize(partial_objective,
-                    n_trials=HPO_settings["n_trials"],
-                    timeout=3600)
+                       n_jobs=1,
+                       n_trials=HPO_settings["n_trials"],
+                       timeout=3600)
 
         # Retrain and save a model with the best params
         best_params = study.best_trial.params
@@ -178,7 +134,8 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         for j in range(num_tasks) :
             test_accs_matrix[task_number,j] = round(test(model, test_loaders_list[j], device),2)
 
-
+        #optuna.delete_study(storage=storage, study_name=f"Search number {task_number+1}")
+        
     return test_accs_matrix, best_params_list
 
 
@@ -195,8 +152,6 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
 def call_greedy_HPO_for_EWC(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed) :
     
-    global sto_scores, sto_ewcs, sto_models
-
     # Unpack loaders
     train_loaders_list = benchmark[0].train_stream
     val_loaders_list, test_loaders_list = benchmark[1:]
@@ -226,7 +181,6 @@ def call_greedy_HPO_for_EWC(HPO_settings, method_settings, benchmark_settings, b
                                     direction = "maximize")
  
         train_loader = train_loaders_list[task_number]
-        sto_scores, sto_ewcs, sto_models = [], [], []
         #hpo_params = {"ewc" : hpo_ewc}
         params = {"ewc" : ewc}
         #partial_objective = partial(objective, hpo_model, task_number, HPO_settings, hpo_params, method_settings, train_loader, val_loaders_list, device, global_seed)

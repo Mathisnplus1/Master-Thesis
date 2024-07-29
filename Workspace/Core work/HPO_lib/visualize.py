@@ -53,7 +53,7 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
     plt.tight_layout()
     
     # Save plot
-    if savefig:
+    if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         plt.savefig(folder + f"/accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
@@ -92,7 +92,7 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
     plt.tight_layout()
     
     # Save plot
-    if savefig:
+    if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         plt.savefig(folder + f"/avg_acc_curve_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
@@ -144,7 +144,7 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
     plt.tight_layout()
 
     # Save plot
-    if savefig:
+    if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         plt.savefig(folder + f"/best_params_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
@@ -153,7 +153,7 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
 
 
 
-def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder) :
+def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder=None) :
     if HPO_settings["HPO_name"] == "greedy_HPO" :
         functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
     if HPO_settings["HPO_name"] == "cheated_HPO" :
@@ -200,7 +200,7 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
     plt.tight_layout()
 
     # Save plot
-    if savefig:
+    if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         plt.savefig(folder + f"/val_accs_matrix_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
@@ -267,7 +267,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     plt.tight_layout()
 
     # Save plot
-    if savefig:
+    if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         plt.savefig(folder + f"Results/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
@@ -276,7 +276,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
    
 
 
-def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder) :
+def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder=None) :
     combined_val_accs_matrix = np.concatenate((np.reshape(test_accs_matrix[-1], (1,test_accs_matrix.shape[1])), val_accs_matrix), axis=0)
     functions_list = [visualize_val_accs_matrix, visualize_accuracy_through_benchmarks]
     for function in functions_list :

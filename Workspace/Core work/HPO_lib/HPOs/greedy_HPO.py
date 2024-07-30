@@ -95,9 +95,9 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         print(f"LEARNING TASK {task_number+1}")
 
         # Perform HPO
-        #storage = optuna.storages.InMemoryStorage()
+        storage = optuna.storages.InMemoryStorage()
         #storage = optuna.storages.JournalFileStorage(file_path="logs/study.db")
-        study = optuna.create_study(#storage=storage,
+        study = optuna.create_study(storage=storage,
                                     study_name = f"Search number {task_number+1}",
                                     sampler = optuna.samplers.TPESampler(seed=global_seed),
                                     #sampler = optuna.samplers.RandomSampler(seed=global_seed),
@@ -111,7 +111,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
             params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
         if method_settings["method_name"] in ["EWC", "LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
-        partial_objective = partial(greedy_objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
+        partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
         study.optimize(partial_objective,
                        n_jobs=1,
                        n_trials=HPO_settings["n_trials"],

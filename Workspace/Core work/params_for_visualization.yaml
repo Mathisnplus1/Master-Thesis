@@ -1,4 +1,4 @@
-method_name : "GroHess"
+method_name : "EWC"
 result_number : -1
 
 # Parameters specific to the visualization

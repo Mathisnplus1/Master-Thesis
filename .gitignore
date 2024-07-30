@@ -2,8 +2,8 @@
 **/old/
 Workspace/Preliminary work/Growth/TINY/TINY_workspace
 
-Workspace/Core work/Methods/GroHess/*
-!Workspace/Core work/Methods/GroHess/README.md
+#Workspace/Core work/Methods/GroHess/*
+#!Workspace/Core work/Methods/GroHess/README.md
 
 # Latex files
 *.aux

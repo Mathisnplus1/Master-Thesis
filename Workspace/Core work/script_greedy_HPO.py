@@ -3,7 +3,7 @@ save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
-                      "num_tasks" : 3,
+                      "num_tasks" : 1,
                       "train_percentage" : 0.2,
                       "num_val_benchmarks" : 1,
                       "batch_size" : 128}
@@ -31,12 +31,16 @@ HPO_settings = {"HPO_name" : "greedy_HPO",
 
 
 
-
+# IMPORTS
 import sys
 import os
 import numpy as np
 import warnings
 import subprocess
+import inspect
+import torch
+import pickle
+import json
 warnings.filterwarnings('ignore')
 
 sys.path.append("Methods/" + method_settings["method_name"])
@@ -63,11 +67,11 @@ except :
     pass
 
 
-
+# SET DEVICE
 device = get_device(0)
 
 
-
+# GET BENCHMARKS
 benchmarks_list = get_benchmarks(benchmark_settings, global_seed)
 benchmark = benchmarks_list[0]
 
@@ -75,60 +79,97 @@ benchmark = benchmarks_list[0]
 
 #test_accs_matrix, best_params_list = run_HPO(HPO_settings, method_settings, benchmark_settings, benchmarks_list[0], device, global_seed)
 
-#def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed) :
+def is_pytorch_object(obj):
+    pytorch_classes = (
+        torch.Tensor,
+        torch.nn.Module,
+        torch.optim.Optimizer
+    )
+    return isinstance(obj, pytorch_classes) 
 
-# Unpack loaders
-try :
-    train_loaders_list = benchmark[0].train_stream
-except :
-    train_loaders_list = benchmark[0]
-val_loaders_list, test_loaders_list = benchmark[1:]
+def save_dataloaders(key, value) :
+    for i, loader in enumerate(value) :
+        try :
+            print(loader.dataset.dataset.dataset)
+            #torch.save(loader.dataset.dataset.dataset, f'logs/{key}_dataset_{i}.pt')
+            torch.save(loader.dataset.dataset.indices, f'logs/{key}_indices_{i}.pt')
+        except ValueError :
+            print("Nan ça veut vraiment pas")
 
-# Initialize model
-model = initialize_model(method_settings, global_seed).to(device)
+def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed) :
 
-# Intialize HPO
-if method_settings["method_name"] == "GroHess" :
-    hessian_masks, overall_masks = initialize_training(model, method_settings)
-best_params_list = []
-num_tasks = benchmark_settings["num_tasks"]
-test_accs_matrix = np.zeros((num_tasks, num_tasks))
-output = None
+    # Unpack loaders
+    try :
+        train_loaders_list = benchmark[0].train_stream
+    except :
+        train_loaders_list = benchmark[0]
+    val_loaders_list, test_loaders_list = benchmark[1:]
 
-for task_number in range(0, num_tasks) :
+    # Initialize model
+    model = initialize_model(method_settings, global_seed).to(device)
 
-    subprocess.run(["python", "script_task.py"], 
-                   input = inputs,
-                   check = True,
-                   capture_output = True)
-
-    # Retrain and save a model with the best params
-    best_params = study.best_trial.params
-    best_params_list += [best_params]
+    # Intialize HPO
     if method_settings["method_name"] == "GroHess" :
-        if output is not None :
-            hessian_masks, overall_masks = output
-        is_first_task = True if task_number==0 else False
-        params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
-    if method_settings["method_name"] in ["EWC", "LwF"] :
-        params = {"batch_size" : benchmark_settings["batch_size"]}
-    output = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loader, device, global_seed) 
-    
+        hessian_masks, overall_masks = initialize_training(model, method_settings)
+    best_params_list = []
+    num_tasks = benchmark_settings["num_tasks"]
+    test_accs_matrix = np.zeros((num_tasks, num_tasks))
+    output = None
 
-    # Test on each task
-    for j in range(num_tasks) :
-        test_accs_matrix[task_number,j] = round(test(model, test_loaders_list[j], device),2)
+    for task_number in range(0, num_tasks) :
+        
+        def call_script_task(task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device):
+            signature = inspect.signature(call_script_task)
+            names = [param.name for param in signature.parameters.values()]
+            values = locals()
+            dic = {name: values[name] for name in names}
+            for key, value in dic.items() :
+                if is_pytorch_object(value) :
+                    torch.save(value, f'logs/{key}.pt')
+                else :
+                    try :
+                        with open(f'logs/{key}.pkl', 'wb') as f:
+                            pickle.dump(value, f)
+                    except :
+                        save_dataloaders(key, value)
+                        
+            best_params = subprocess.run(["python", "HPO_lib/script_task.py"], 
+                            input=json.dumps([names, train_loaders_list[0].dataset.indices, val_loaders_list[0].dataset.indices]).encode(),
+                            capture_output=True,
+                            check=True)
+            return best_params.stdout
 
-    #optuna.delete_study(storage=storage, study_name=f"Search number {task_number+1}")
-    
-return test_accs_matrix, best_params_list
+        best_params = call_script_task(task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device)
+        
+        print(best_params)
+
+        # Retrain and save a model with the best params
+        #best_params = study.best_trial.params
+        #best_params_list += [best_params]
+        #if method_settings["method_name"] == "GroHess" :
+        #    if output is not None :
+        #        hessian_masks, overall_masks = output
+        #    is_first_task = True if task_number==0 else False
+        #    params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
+        #if method_settings["method_name"] in ["EWC", "LwF"] :
+        #    params = {"batch_size" : benchmark_settings["batch_size"]}
+        #output = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loader, device, global_seed) 
+        
+
+        # Test on each task
+        #for j in range(num_tasks) :
+        #    test_accs_matrix[task_number,j] = round(test(model, test_loaders_list[j], device),2)
+
+        #optuna.delete_study(storage=storage, study_name=f"Search number {task_number+1}")
+        
+    return #test_accs_matrix, best_params_list
+
+
+call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed)
+
+
+    #val_accs_matrix = validate(HPO_settings, benchmarks_list, benchmark_settings, method_settings, best_params_list, device, global_seed)
 
 
 
-
-
-val_accs_matrix = validate(HPO_settings, benchmarks_list, benchmark_settings, method_settings, best_params_list, device, global_seed)
-
-
-
-save(test_accs_matrix, best_params_list, val_accs_matrix, HPO_settings, method_settings, benchmark_settings, save_results)
+    #save(test_accs_matrix, best_params_list, val_accs_matrix, HPO_settings, method_settings, benchmark_settings, save_results)

@@ -269,7 +269,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     # Save plot
     if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        plt.savefig(folder + f"Results/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
+        plt.savefig(folder + f"/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
     plt.show()

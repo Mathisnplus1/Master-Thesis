@@ -87,12 +87,35 @@ def is_pytorch_object(obj):
     )
     return isinstance(obj, pytorch_classes) 
 
-def save_dataloaders(key, value) :
+import matplotlib.pyplot as plt
+from torchvision import transforms
+
+def save_transform(key, value) :
     for i, loader in enumerate(value) :
         try :
-            print(loader.dataset.dataset.dataset)
-            #torch.save(loader.dataset.dataset.dataset, f'logs/{key}_dataset_{i}.pt')
-            torch.save(loader.dataset.dataset.indices, f'logs/{key}_indices_{i}.pt')
+            #im = loader.dataset.dataset.dataset.data[0]
+            #t_im = loader.dataset.dataset.dataset.transform(im.numpy())
+            #print(loader.dataset.dataset.dataset.transform)
+            # save the transformed image
+            #print(type(t_im.numpy()))
+            #pim = plt.imshow(t_im.numpy().reshape(28,28))
+            #plt.savefig(f'logs/{key}_image_{i}.png')
+
+            print(loader.dataset.dataset.dataset.transform)
+            #print(dir(loader.dataset.dataset.dataset))
+
+            transform = transforms.Compose([
+                transforms.Resize((128, 128)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+            ])
+            print(type(transform))
+
+            #torch.save(loader.dataset.dataset.dataset.data, f'logs/{key}_dataset_{i}.pt')
+            #torch.save(loader.dataset.dataset.dataset.targets, f'logs/{key}_targets_{i}.pt')
+            #torch.save(loader.dataset.dataset.indices, f'logs/{key}_indices_{i}.pt')
+            #torch.save(loader.dataset.dataset.dataset.transform, f'logs/{key}_transform_{i}.pt')
+            torch.save(loader, f'logs/{key}_{i}.pt')
         except ValueError :
             print("Nan ça veut vraiment pas")
 
@@ -131,7 +154,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
                         with open(f'logs/{key}.pkl', 'wb') as f:
                             pickle.dump(value, f)
                     except :
-                        save_dataloaders(key, value)
+                        save_transform(key, value)
                         
             best_params = subprocess.run(["python", "HPO_lib/script_task.py"], 
                             input=json.dumps([names, train_loaders_list[0].dataset.indices, val_loaders_list[0].dataset.indices]).encode(),

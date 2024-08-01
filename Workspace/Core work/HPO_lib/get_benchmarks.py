@@ -3,7 +3,7 @@ from pMNIST_via_torch import get_task_loaders
 from pMNIST_via_avalanche import PermutedMNIST
 
 
-def get_benchmarks (benchmark_settings, global_seed) :
+def get_benchmarks (benchmark_settings, global_seed, transform=None) :
     # Get benchmark settings
     try :
         benchmark_name = benchmark_settings["benchmark_name"]
@@ -36,9 +36,9 @@ def get_benchmarks (benchmark_settings, global_seed) :
             test_loaders_list = []
             for random_seed in permutation_random_seeds :
                 try :
-                    loaders = get_task_loaders(data_path, batch_size, global_seed, random_seed, train_percentage, difficulty)
+                    loaders = get_task_loaders(data_path, batch_size, global_seed, random_seed, train_percentage, difficulty, False, transform)
                 except :
-                    loaders = get_task_loaders(data_path, batch_size, global_seed, random_seed, train_percentage, difficulty, True)
+                    loaders = get_task_loaders(data_path, batch_size, global_seed, random_seed, train_percentage, difficulty, True, transform)
                 train_loader, val_loader, test_loader = loaders
                 train_loaders_list += [train_loader]
                 val_loaders_list += [val_loader]

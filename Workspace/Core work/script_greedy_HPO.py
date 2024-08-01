@@ -3,7 +3,7 @@ save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
-                      "num_tasks" : 1,
+                      "num_tasks" : 2,
                       "train_percentage" : 0.2,
                       "num_val_benchmarks" : 1,
                       "batch_size" : 128}
@@ -21,9 +21,9 @@ method_settings = {"method_name" : "GroHess",
 
 # Parameters specific to HPO
 HPO_settings = {"HPO_name" : "greedy_HPO",
-                "n_trials" : 1,
+                "n_trials" : 2,
                 "lr" : (5e-5, 2e-3),
-                "num_epochs" : (3,3),
+                "num_epochs" : (1,3),
                 #"ewc_lambda" : (400,400)
                 #"lwf_alpha" : (0.1, 0.9),
                 #"lwf_temperature" : (1, 3),
@@ -68,7 +68,7 @@ except :
 
 
 # SET DEVICE
-device = get_device(0)
+device = get_device(1)
 
 
 # GET BENCHMARKS
@@ -83,7 +83,8 @@ def is_pytorch_object(obj):
     pytorch_classes = (
         torch.Tensor,
         torch.nn.Module,
-        torch.optim.Optimizer
+        torch.optim.Optimizer,
+        torch.utils.data.dataloader.DataLoader
     )
     return isinstance(obj, pytorch_classes) 
 
@@ -115,7 +116,7 @@ def save_transform(key, value) :
             #torch.save(loader.dataset.dataset.dataset.targets, f'logs/{key}_targets_{i}.pt')
             #torch.save(loader.dataset.dataset.indices, f'logs/{key}_indices_{i}.pt')
             #torch.save(loader.dataset.dataset.dataset.transform, f'logs/{key}_transform_{i}.pt')
-            torch.save(loader, f'logs/{key}_{i}.pt')
+            torch.save(value, f'logs/{key}_{i}.pt')
         except ValueError :
             print("Nan ça veut vraiment pas")
 
@@ -141,7 +142,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
     for task_number in range(0, num_tasks) :
         
-        def call_script_task(task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device):
+        def call_script_task(hessian_masks, overall_masks, task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device):
             signature = inspect.signature(call_script_task)
             names = [param.name for param in signature.parameters.values()]
             values = locals()
@@ -154,17 +155,18 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
                         with open(f'logs/{key}.pkl', 'wb') as f:
                             pickle.dump(value, f)
                     except :
-                        save_transform(key, value)
-                        
-            best_params = subprocess.run(["python", "HPO_lib/script_task.py"], 
-                            input=json.dumps([names, train_loaders_list[0].dataset.indices, val_loaders_list[0].dataset.indices]).encode(),
+                        torch.save(value, f'logs/{key}.pt')
+            best_params = subprocess.run(["python", "script_task.py"], 
+                            input=json.dumps(names).encode(),
                             capture_output=True,
                             check=True)
             return best_params.stdout
-
-        best_params = call_script_task(task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device)
+        if method_settings["method_name"] == "GroHess" :
+            best_params = call_script_task(hessian_masks, overall_masks, task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device)
+        else :
+            best_params = call_script_task(task_number, global_seed, train_loaders_list, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device)
         
-        print(best_params)
+        print("Voici les best params :", best_params.decode())
 
         # Retrain and save a model with the best params
         #best_params = study.best_trial.params

@@ -45,13 +45,13 @@ def get_task_loaders(data_path, batch_size, global_seed, random_seed, train_perc
             img = img.view(1, 28, 28)
             return img
 
-    #if transform is None :
-    #    pre_transform = T.Compose([
-    #        T.ToTensor(),
-    #        T.Normalize((0.1307,), (0.3081,)),
+    if transform is None :
+        transform = T.Compose([
+            T.ToTensor(),
+            T.Normalize((0.1307,), (0.3081,)),
             #T.Lambda(lambda x: permute(x))
     #        RandomPermutePixels()
-    #    ])
+        ])
         #pre_transform = torch.nn.Sequential(
         #    #T.ToTensor(),
         #    T.Normalize((0.1307,), (0.3081,)),
@@ -87,10 +87,10 @@ def get_task_loaders(data_path, batch_size, global_seed, random_seed, train_perc
             self.mean, self.std = state
 
     # Create an instance of the custom transform
-    pre_transform = NormalizeAndPermute(mean=0.1307, std=0.3081)
+    #pre_transform = NormalizeAndPermute(mean=0.1307, std=0.3081)
 
     # Script the transform
-    transform = torch.jit.script(pre_transform)
+    #transform = torch.jit.script(pre_transform)
 
     # Save the scripted transform
     #torch.jit.save(scripted_transform, 'scripted_transform.pt')

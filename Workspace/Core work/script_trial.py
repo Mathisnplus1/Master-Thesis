@@ -59,16 +59,16 @@ def greedy_objective(model, task_number, HPO_settings, params, method_settings, 
     return score
 
 
-#names = ["model",
-#         "task_number",
-#         "HPO_settings",
-#         "params",
-#         "method_settings",
-#         "train_loader",
-#         "val_loaders_list",
-#         "device",
-#         "global_seed",
-#         "HPs"]
+names_to_retrieve = ["model",
+                    "task_number",
+                    "HPO_settings",
+                    "params",
+                    "method_settings",
+                    "train_loader",
+                    "val_loaders_list",
+                    "device",
+                    "global_seed",
+                    "HPs"]
 
 names_to_retrieve = json.loads(sys.stdin.read())
 

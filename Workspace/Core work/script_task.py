@@ -42,9 +42,9 @@ names = ["benchmark_settings",
          "output",
          "overall_masks",
          "task_number",
-         "train_loaders_list",
+         "train_loader",
          "val_loaders_list"]
-#names = json.loads(sys.stdin.read())
+names = json.loads(sys.stdin.read())
 
 
 #model = torch.load(f'logs/model.pt')
@@ -117,7 +117,7 @@ study = optuna.create_study(storage=storage,
                             #sampler = optuna.samplers.RandomSampler(seed=global_seed),
                             direction = "maximize")
 params = {}
-train_loader = train_loaders_list[task_number]
+
 if method_settings["method_name"] == "GroHess" :
     if output is not None :
         hessian_masks, overall_masks = output
@@ -129,8 +129,6 @@ if method_settings["method_name"] in ["EWC", "LwF"] :
 # Save useful variables
 with open(f'logs/params.pkl', 'wb') as f:
     pickle.dump(params, f)
-with open(f'logs/train_loader.pkl', 'wb') as f: 
-    pickle.dump(train_loader, f)
 
 partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
 study.optimize(partial_objective,

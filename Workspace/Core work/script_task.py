@@ -41,9 +41,7 @@ names = ["benchmark_settings",
          "model",
          "output",
          "overall_masks",
-         "task_number",
-         "train_loader",
-         "val_loaders_list"]
+         "task_number"]
 names = json.loads(sys.stdin.read())
 
 
@@ -63,7 +61,7 @@ for name in names :
         print(name)
 
 
-def objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, trial) :
+def objective(benchmark_settings, model, task_number, HPO_settings, params, method_settings, device, global_seed, trial) :
     # Set HPs
     HPs = {}
     try :
@@ -92,7 +90,7 @@ def objective(model, task_number, HPO_settings, params, method_settings, train_l
     except :
         pass
     
-    names_to_retrieve = ["model", "task_number", "HPO_settings", "params", "method_settings", "train_loader", "val_loaders_list", "device", "global_seed", "HPs"]
+    names_to_retrieve = ["benchmark_settings", "model", "task_number", "HPO_settings", "params", "method_settings", "device", "global_seed", "HPs"]
     
     with open(f'logs/HPs.pkl', 'wb') as f:
         pickle.dump(HPs, f)
@@ -130,7 +128,7 @@ if method_settings["method_name"] in ["EWC", "LwF"] :
 with open(f'logs/params.pkl', 'wb') as f:
     pickle.dump(params, f)
 
-partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
+partial_objective = partial(objective, benchmark_settings, model, task_number, HPO_settings, params, method_settings, device, global_seed)
 study.optimize(partial_objective,
                 n_jobs=1,
                 n_trials=HPO_settings["n_trials"],

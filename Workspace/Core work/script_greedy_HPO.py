@@ -55,7 +55,7 @@ data_path = path + "/data"
 
 
 from HPO_lib.abstract_torch import get_device
-from HPO_lib.get_benchmarks import get_benchmarks
+from HPO_lib.get_benchmarks_for_script import get_benchmarks
 from HPO_lib.validation import validate
 from HPO_lib.save_and_load_results import save
 
@@ -76,51 +76,32 @@ device = get_device(1)
 benchmarks_list = get_benchmarks(benchmark_settings, global_seed)
 benchmark = benchmarks_list[0]
 
+"""
+with open(f"logs/source_1.txt", "w") as f :
+    train_targets = "train_1_targets : " + str(next(iter(benchmark[0][0]))[1][:10]) + "\n"
+    train_inputs = "train_1_inputs : " + str(next(iter(benchmark[0][0]))[0][0][:10]) + "\n"
+    val = "val_pendant_source: " + str(next(iter(benchmark[1][1]))[1][:10]) + "\n"
+    f.write(train_targets)
+    f.write(train_inputs)
+    f.write(val)
+
+with open(f"logs/source_2.txt", "w") as f :
+    train_targets = "train_2_targets : " + str(next(iter(benchmark[0][1]))[1][:10]) + "\n"
+    train_inputs = "train_2_inputs : " + str(next(iter(benchmark[0][1]))[0][0][:10]) + "\n"
+    val = "val_pendant_source: " + str(next(iter(benchmark[1][1]))[1][:10]) + "\n"
+    f.write(train_targets)
+    f.write(train_inputs)
+    f.write(val)
 
 
-#test_accs_matrix, best_params_list = run_HPO(HPO_settings, method_settings, benchmark_settings, benchmarks_list[0], device, global_seed)
 
-def is_pytorch_object(obj):
-    pytorch_classes = (
-        torch.Tensor,
-        torch.nn.Module,
-        torch.optim.Optimizer,
-        torch.utils.data.dataloader.DataLoader
-    )
-    return isinstance(obj, pytorch_classes) 
+print("train_1_targets :", next(iter(benchmark[0][0]))[1][:10])
+print("train_1_inputs :", next(iter(benchmark[0][0]))[0][0][:10])
+print("train_2 :", next(iter(benchmark[0][1]))[1][:10])
+print("train_2_inputs :", next(iter(benchmark[0][1]))[0][0][:10])
 
-import matplotlib.pyplot as plt
-from torchvision import transforms
-
-def save_transformmmmmm_poubelle(key, value) :
-    for i, loader in enumerate(value) :
-        try :
-            #im = loader.dataset.dataset.dataset.data[0]
-            #t_im = loader.dataset.dataset.dataset.transform(im.numpy())
-            #print(loader.dataset.dataset.dataset.transform)
-            # save the transformed image
-            #print(type(t_im.numpy()))
-            #pim = plt.imshow(t_im.numpy().reshape(28,28))
-            #plt.savefig(f'logs/{key}_image_{i}.png')
-
-            print(loader.dataset.dataset.dataset.transform)
-            #print(dir(loader.dataset.dataset.dataset))
-
-            transform = transforms.Compose([
-                transforms.Resize((128, 128)),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-            ])
-            print(type(transform))
-
-            #torch.save(loader.dataset.dataset.dataset.data, f'logs/{key}_dataset_{i}.pt')
-            #torch.save(loader.dataset.dataset.dataset.targets, f'logs/{key}_targets_{i}.pt')
-            #torch.save(loader.dataset.dataset.indices, f'logs/{key}_indices_{i}.pt')
-            #torch.save(loader.dataset.dataset.dataset.transform, f'logs/{key}_transform_{i}.pt')
-            torch.save(value, f'logs/{key}_{i}.pt')
-        except ValueError :
-            print("Nan ça veut vraiment pas")
-
+print("val :", next(iter(benchmark[1][1]))[1][:10])
+"""
 
 def retrain_and_save_with_best_HPs (model, params, method_settings, best_params, train_loader, device, global_seed) :
     # Get best HPs
@@ -166,12 +147,12 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
 
 def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark, device, global_seed) :
 
-    # Unpack loaders
+    # Unpack train and test loaders
     try :
         train_loaders_list = benchmark[0].train_stream
     except :
         train_loaders_list = benchmark[0]
-    val_loaders_list, test_loaders_list = benchmark[1:]
+    test_loaders_list = benchmark[2]
 
     # Initialize model
     model = initialize_model(method_settings, global_seed).to(device)
@@ -188,7 +169,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
         train_loader = train_loaders_list[task_number]
         
-        def call_script_task(hessian_masks, overall_masks, task_number, global_seed, train_loader, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device):
+        def call_script_task(hessian_masks, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device):
             signature = inspect.signature(call_script_task)
             names = [param.name for param in signature.parameters.values()]
             values = locals()
@@ -207,9 +188,9 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
             return best_params.stdout
         
         if method_settings["method_name"] == "GroHess" :
-            best_params = call_script_task(hessian_masks, overall_masks, task_number, global_seed, train_loader, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
+            best_params = call_script_task(hessian_masks, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
         else :
-            best_params = call_script_task(task_number, global_seed, train_loader, val_loaders_list, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
+            best_params = call_script_task(task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
         
         print("Voici les best params :", best_params)
         best_params = ast.literal_eval(best_params)

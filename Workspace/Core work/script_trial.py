@@ -21,7 +21,7 @@ data_path = path + "/data"
 
 
 from HPO_lib.abstract_torch import get_device
-from HPO_lib.get_benchmarks import get_benchmarks
+from HPO_lib.get_benchmarks_for_script import get_loaders_for_trial
 from HPO_lib.validation import validate
 from HPO_lib.save_and_load_results import save
 
@@ -36,7 +36,7 @@ except :
 
 
 def greedy_objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, HPs) :
-     
+    
     # Copy the model to perform HPO
     model_copy = copy.deepcopy(model)
     params_copy = copy.deepcopy(params)
@@ -59,13 +59,12 @@ def greedy_objective(model, task_number, HPO_settings, params, method_settings, 
     return score
 
 
-names_to_retrieve = ["model",
+names_to_retrieve = ["benchmark_settings",
+                    "model",
                     "task_number",
                     "HPO_settings",
                     "params",
                     "method_settings",
-                    "train_loader",
-                    "val_loaders_list",
                     "device",
                     "global_seed",
                     "HPs"]
@@ -81,6 +80,19 @@ for name in names_to_retrieve :
             locals()[name] = torch.load(f'logs/{name}.pt')
     except :
         print(name)
+
+train_loader, val_loaders_list = get_loaders_for_trial(benchmark_settings, task_number, global_seed)
+
+"""
+with open(f"logs/trial_{task_number}.txt", "w") as f :
+    train_targets = f"train_{task_number}_targets : " + str(next(iter(train_loader))[1][:10]) + "\n"
+    train_inputs = f"train_{task_number}_inputs : " + str(next(iter(train_loader))[0][0][:10]) + "\n"
+    val = f"val_pendant_{task_number}: " + str(next(iter(val_loaders_list[1]))[1][:10]) + "\n"
+    f.write(train_targets)
+    f.write(train_inputs)
+    f.write(val)
+"""
+
 
 score = greedy_objective(model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed, HPs)
 

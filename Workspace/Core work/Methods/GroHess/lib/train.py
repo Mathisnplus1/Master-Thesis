@@ -229,10 +229,10 @@ def train (model, grow_from, hessian_masks, overall_masks, is_first_task,
     hessian_masks = []
     optimizer.zero_grad()
 
-    # Get 10% of the batches
+    # Get 100% of the batches
     train_batch = iter(train_loader)
     nb_batches = len(train_batch)
-    sample_size = max(1, nb_batches // 10)
+    sample_size = max(1, nb_batches // 1) # divide by 10 for 10%
     random_batches = random.sample(list(train_batch), sample_size)
 
     # Stack the gradients computed on each batch

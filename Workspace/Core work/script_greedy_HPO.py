@@ -3,16 +3,16 @@ save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
-                      "num_tasks" : 2,
-                      "train_percentage" : 0.2,
-                      "num_val_benchmarks" : 1,
+                      "num_tasks" : 10,
+                      "train_percentage" : 0.8,
+                      "num_val_benchmarks" : 10,
                       "batch_size" : 128}
 
 # Parameters specific to the method
 method_settings = {"method_name" : "GroHess",
                    "grow_from" : "output",
-                   "hessian_percentile" : 92,
-                   "grad_percentile" : 92,
+                   "hessian_percentile" : 96,
+                   "grad_percentile" : 96,
                    "num_inputs" : 28*28,
                    "num_hidden_root" : 200,
                    "num_outputs" : 10,
@@ -21,9 +21,9 @@ method_settings = {"method_name" : "GroHess",
 
 # Parameters specific to HPO
 HPO_settings = {"HPO_name" : "greedy_HPO",
-                "n_trials" : 2,
-                "lr" : (5e-5, 2e-3),
-                "num_epochs" : (1,3),
+                "n_trials" : 10,
+                "lr" : (1e-5, 2e-3),
+                "num_epochs" : (2,10),
                 #"ewc_lambda" : (400,400)
                 #"lwf_alpha" : (0.1, 0.9),
                 #"lwf_temperature" : (1, 3),

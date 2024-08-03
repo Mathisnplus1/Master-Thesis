@@ -1,4 +1,4 @@
-global_seed = 88
+global_seed = 89
 save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
@@ -11,17 +11,17 @@ benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
 # Parameters specific to the method
 method_settings = {"method_name" : "GroHess",
                    "grow_from" : "output",
-                   "hessian_percentile" : 96,
-                   "grad_percentile" : 96,
+                   "hessian_percentile" : 98,
+                   "grad_percentile" : 98,
                    "num_inputs" : 28*28,
-                   "num_hidden_root" : 200,
+                   "num_hidden_root" : 300,
                    "num_outputs" : 10,
                    "loss_name" : "CE",
                    "optimizer_name" : "Adam"}
 
 # Parameters specific to HPO
 HPO_settings = {"HPO_name" : "greedy_HPO",
-                "n_trials" : 10,
+                "n_trials" : 50,
                 "lr" : (1e-5, 2e-3),
                 "num_epochs" : (2,10),
                 #"ewc_lambda" : (400,400)
@@ -69,7 +69,7 @@ except :
 
 
 # SET DEVICE
-device = get_device(1)
+device = get_device(2)
 
 
 # GET BENCHMARKS
@@ -211,6 +211,11 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         for j in range(num_tasks) :
             test_accs_matrix[task_number,j] = round(test(model, test_loaders_list[j], device),2)
         
+        with open(f'logs/test_accs_matrix.pkl', 'wb') as f:
+            pickle.dump(test_accs_matrix, f)
+        with open(f'logs/best_params_list.pkl', 'wb') as f:
+            pickle.dump(best_params_list, f)
+
     return test_accs_matrix, best_params_list
 
 

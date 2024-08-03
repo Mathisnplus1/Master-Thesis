@@ -132,7 +132,7 @@ partial_objective = partial(objective, benchmark_settings, model, task_number, H
 study.optimize(partial_objective,
                 n_jobs=1,
                 n_trials=HPO_settings["n_trials"],
-                timeout=3600)
+                timeout=7200)
 
 best_params = study.best_trial.params
 

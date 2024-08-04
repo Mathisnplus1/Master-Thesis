@@ -1,6 +1,6 @@
 import os
 from pMNIST_via_torch_for_script import get_task_loaders, get_train_and_val_loaders
-from pMNIST_via_avalanche import PermutedMNIST
+from pMNIST_via_avalanche_for_script import PermutedMNIST, train_and_val_PermutedMNIST
 
 
 def get_benchmarks (benchmark_settings, global_seed) :
@@ -63,11 +63,9 @@ def get_loaders_for_trial(benchmark_settings, task_number, global_seed) :
     path = os.path.dirname(os.path.abspath("__file__"))
     data_path = path + "/data"
 
-    #if benchmark_name == "pMNIST_via_avalanche" :
-    #    random_seed_list = [i for i in range(num_val_benchmarks+1)]
-    #    for i in range(num_val_benchmarks+1) :
-    #        benchmark = PermutedMNIST(n_experiences=num_tasks, train_percentage=train_percentage, difficulty=difficulty, batch_size=batch_size, seed=random_seed_list[i], global_seed=global_seed)
-    #        benchmarks_list += [benchmark]
+    if benchmark_name == "pMNIST_via_avalanche" :
+        train_loaders_list, val_loaders_list = train_and_val_PermutedMNIST(n_experiences=num_tasks, train_percentage=train_percentage, difficulty=difficulty, batch_size=batch_size, seed=0, global_seed=global_seed)
+        return train_loaders_list.train_stream[task_number], val_loaders_list
     
     if benchmark_name == "pMNIST_via_torch" :
         permutation_random_seeds = list(range(num_tasks))

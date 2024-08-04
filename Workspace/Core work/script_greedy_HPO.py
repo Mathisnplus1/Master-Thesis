@@ -3,9 +3,9 @@ save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
-                      "num_tasks" : 10,
-                      "train_percentage" : 0.8,
-                      "num_val_benchmarks" : 10,
+                      "num_tasks" : 2,
+                      "train_percentage" : 0.2,
+                      "num_val_benchmarks" : 1,
                       "batch_size" : 128}
 
 # Parameters specific to the method
@@ -14,17 +14,17 @@ method_settings = {"method_name" : "GroHess",
                    "hessian_percentile" : 98,
                    "grad_percentile" : 98,
                    "num_inputs" : 28*28,
-                   "num_hidden_root" : 300,
+                   "num_hidden_root" : 200,
                    "num_outputs" : 10,
                    "loss_name" : "CE",
                    "optimizer_name" : "Adam"}
 
 # Parameters specific to HPO
 HPO_settings = {"HPO_name" : "greedy_HPO",
-                "n_trials" : 50,
+                "n_trials" : 2,
                 "lr" : (1e-5, 2e-3),
-                "num_epochs" : (2,10),
-                #"ewc_lambda" : (400,400)
+                "num_epochs" : (2,4),
+                #"ewc_lambda" : (300,400)
                 #"lwf_alpha" : (0.1, 0.9),
                 #"lwf_temperature" : (1, 3),
                 }
@@ -69,7 +69,7 @@ except :
 
 
 # SET DEVICE
-device = get_device(2)
+device = get_device(0)
 
 
 # GET BENCHMARKS
@@ -190,7 +190,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         if method_settings["method_name"] == "GroHess" :
             best_params = call_script_task(hessian_masks, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
         else :
-            best_params = call_script_task(task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
+            best_params = call_script_task(None, None, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
         
         print("Voici les best params :", best_params)
         best_params = ast.literal_eval(best_params)

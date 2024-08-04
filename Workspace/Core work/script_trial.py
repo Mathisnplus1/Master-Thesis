@@ -9,8 +9,11 @@ import pickle
 import json
 
 
+with open("logs/method_settings.pkl", "rb") as f :
+    method_settings = pickle.load(f)
 
-sys.path.append("Methods/" + "GroHess")
+
+sys.path.append("Methods/" + method_settings["method_name"])
 sys.path.append("HPO_lib")
 sys.path.append("HPO_lib/benchmark_loaders")
 

@@ -38,6 +38,11 @@ def greedy_objective(model, task_number, HPO_settings, params, method_settings, 
         HPs["lwf_temperature"] = lwf_temperature
     except :
         pass
+    try :
+        tau = trial.suggest_float("tau", HPO_settings["tau"][0], HPO_settings["tau"][1])
+        HPs["tau"] = tau
+    except : 
+        pass
      
 
     # Copy the model to perform HPO

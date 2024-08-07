@@ -55,16 +55,11 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
         best_HPs["lwf_temperature"] = lwf_temperature
     except :
         pass
-    try :
-        tau = best_params["tau"]
-        best_HPs["tau"] = tau
-    except :
-        pass
 
     # Train
     if method_settings["method_name"] == "GroHess" :
-        diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
-        return diag_hessians, overall_masks
+        hessian_masks, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
+        return hessian_masks, overall_masks
     if method_settings["method_name"] == "EWC" :
         ewc = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return ewc
@@ -87,7 +82,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
     # Intialize HPO
     if method_settings["method_name"] == "GroHess" :
-        diag_hessians, overall_masks = initialize_training(model, method_settings)
+        hessian_masks, overall_masks = initialize_training(model, method_settings)
     best_params_list = []
     num_tasks = benchmark_settings["num_tasks"]
     test_accs_matrix = np.zeros((num_tasks, num_tasks))
@@ -111,9 +106,9 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         train_loader = train_loaders_list[task_number]
         if method_settings["method_name"] == "GroHess" :
             if output is not None :
-                diag_hessians, overall_masks = output
+                hessian_masks, overall_masks = output
             is_first_task = True if task_number==0 else False
-            params = {"diag_hessians" : diag_hessians, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
+            params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
         if method_settings["method_name"] in ["EWC", "LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
         partial_objective = partial(objective, model, task_number, HPO_settings, params, method_settings, train_loader, val_loaders_list, device, global_seed)
@@ -127,9 +122,9 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         best_params_list += [best_params]
         if method_settings["method_name"] == "GroHess" :
             if output is not None :
-                diag_hessians, overall_masks = output
+                hessian_masks, overall_masks = output
             is_first_task = True if task_number==0 else False
-            params = {"diag_hessians" : diag_hessians, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
+            params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
         if method_settings["method_name"] in ["EWC", "LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
         output = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loader, device, global_seed) 

@@ -43,7 +43,7 @@ def retrain_one_task (model, params, method_settings, best_params, train_loader,
         pass
 
     # Train
-    if method_settings["method_name"] == "GroHess" :
+    if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
         diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return diag_hessians, overall_masks
     elif method_settings["method_name"] == "EWC" :
@@ -64,7 +64,7 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
         train_loaders_list = benchmark[0].train_stream
     except :
         train_loaders_list = benchmark[0]
-    if method_settings["method_name"] == "GroHess" :
+    if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
         diag_hessians, overall_masks = initialize_training(benchmark_model, method_settings)
     elif method_settings["method_name"] == "EWC" :
         output = initialize_training(benchmark_model, method_settings, benchmark_settings, device)
@@ -78,7 +78,7 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
         # Retrain and save a model with the best params
         params = {}
         train_loader = train_loaders_list[task_number]
-        if method_settings["method_name"] == "GroHess" :
+        if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
             if output is not None :
                 diag_hessians, overall_masks = output
             is_first_task = True if task_number==0 else False

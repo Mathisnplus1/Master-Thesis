@@ -101,19 +101,15 @@ def get_grad_vs_hessian_mask(layer, num_layer, num_neurons_layer_2, num_neurons_
     return mask
 
 def get_overall_mask(layer, grow_from, overall_mask, overlap_mask, device):
-    if grow_from == "input" :
-        num_neurons = (overlap_mask.sum(axis=1) != 0).sum()
-        overall_mask = torch.cat(((overall_mask*(-1*(overlap_mask-1))), torch.ones((num_neurons, layer.in_features)).to(device)), dim=0)
-    else :
-        num_neurons = (overlap_mask.sum(axis=0) != 0).sum()
-        overall_mask = torch.cat(((overall_mask*(-1*(overlap_mask-1))), torch.ones((layer.out_features, num_neurons)).to(device)), dim=1)
+    num_neurons = 0
+    overall_mask = (overall_mask*(-1*(overlap_mask-1)))
     
     return overall_mask, num_neurons
 
 
 def should_we_grow (loss_hist) :
     diff = np.mean(loss_hist[-40:-20]) - np.mean(loss_hist[-20])
-    return 0 < diff and diff < 0.0002
+    return 0 < diff and diff < 0.02 #0.0002
 
 
 def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
@@ -132,6 +128,11 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
 
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+    # Verbose
+    if verbose > 0 :
+        print("Non frozen params in layer 1 :", overall_masks[0].sum())
+        print("Non frozen params in layer 2 :", overall_masks[1].sum())
 
     # Get layer we want to use to perform the growth
     layer_names = ["fc1", "fc2"] if grow_from=="input" else ["fc2", "fc3"]
@@ -204,14 +205,14 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
 
                     # Update overall mask
                     overall_masks[0], num_neurons = get_overall_mask(layers[0], grow_from, overall_masks[0], overlap_mask, device)
-                    if grow_from == "input":
-                        overall_masks[1] = torch.cat((overall_masks[1], torch.ones((layers[1].out_features, num_neurons)).to(device)), dim=1)
+                    #if grow_from == "input":
+                    #    overall_masks[1] = torch.cat((overall_masks[1], torch.ones((layers[1].out_features, num_neurons)).to(device)), dim=1)
 
                     # Remove existing hooks
                     hook_handles[0].remove()
 
                     # Add new neurons
-                    model.add_neurons(overlap_mask, "fc1", grow_from, device)
+                    #model.add_neurons(overlap_mask, "fc1", grow_from, device)
     
 
                 # LEFT LAYER GROWTH
@@ -235,13 +236,14 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
 
                     # Update overall mask
                     overall_masks[1], num_neurons = get_overall_mask(layers[1], grow_from, overall_masks[1], overlap_mask, device)
-                    if grow_from != "input" :
-                        overall_masks[0] = torch.cat((overall_masks[0], torch.ones((num_neurons, layers[0].in_features)).to(device)), dim=0)
+                    #if grow_from != "input" :
+                        #overall_masks[0] = torch.cat((overall_masks[0], torch.ones((num_neurons, layers[0].in_features)).to(device)), dim=0)
+                        #overall_masks[0] = overall_masks[0]
                     # Remove existing hooks
                     hook_handles[1].remove()
 
                     # Add new neurons
-                    model.add_neurons(overlap_mask, "fc2", grow_from, device)
+                    #model.add_neurons(overlap_mask, "fc2", grow_from, device)
 
 
                 # END OF GROWTH

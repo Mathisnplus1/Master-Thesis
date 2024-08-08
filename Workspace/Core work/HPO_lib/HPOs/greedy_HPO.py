@@ -62,7 +62,7 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
         pass
 
     # Train
-    if method_settings["method_name"] == "GroHess" :
+    if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
         diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return diag_hessians, overall_masks
     elif method_settings["method_name"] == "EWC" :
@@ -86,7 +86,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
     model = initialize_model(method_settings, global_seed).to(device)
 
     # Intialize HPO
-    if method_settings["method_name"] == "GroHess" :
+    if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
         diag_hessians, overall_masks = initialize_training(model, method_settings)
     best_params_list = []
     num_tasks = benchmark_settings["num_tasks"]
@@ -109,7 +109,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
                                     direction = "maximize")
         params = {}
         train_loader = train_loaders_list[task_number]
-        if method_settings["method_name"] == "GroHess" :
+        if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
             if output is not None :
                 diag_hessians, overall_masks = output
             is_first_task = True if task_number==0 else False
@@ -125,7 +125,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         # Retrain and save a model with the best params
         best_params = study.best_trial.params
         best_params_list += [best_params]
-        if method_settings["method_name"] == "GroHess" :
+        if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
             if output is not None :
                 diag_hessians, overall_masks = output
             is_first_task = True if task_number==0 else False

@@ -80,7 +80,6 @@ def greedy_objective(model, task_number, HPO_settings, params, method_settings, 
 
     all_vars = [var for var in locals().keys() if var[0] != '_']
     for var in all_vars :
-        #print(var)
         del (locals()[var])
     
     # Run garbage collection

@@ -267,7 +267,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     axs[1].plot([1.15,1.15], [mean + std -delta, mean + std], color=(0.6,0.6,0.6), linewidth=2)
     # Middle
     axs[1].plot([1,1], [mean - std, mean + std], color=(0.6,0.6,0.6), linewidth=2)
-    axs[1].fill_between([0.85,1.15], mean - std, mean + std, color="black", alpha=0.2)
+    axs[1].fill_between([0.855,1.145], mean - std, mean + std, color="black", alpha=0.2)
     # - Std
     axs[1].plot([0.85,1.15], 2*[mean - std], color=(0.6,0.6,0.6), linewidth=2)
     axs[1].plot([0.85,0.85], [mean - std, mean - std +delta], color=(0.6,0.6,0.6), linewidth=2)

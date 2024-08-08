@@ -65,10 +65,10 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
     if method_settings["method_name"] == "GroHess" :
         diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return diag_hessians, overall_masks
-    if method_settings["method_name"] == "EWC" :
+    elif method_settings["method_name"] == "EWC" :
         ewc = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return ewc
-    if method_settings["method_name"] in ["EWC", "LwF", "Naive baseline"] :
+    else :
         train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
 
 

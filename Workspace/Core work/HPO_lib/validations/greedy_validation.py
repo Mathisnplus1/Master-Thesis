@@ -46,10 +46,10 @@ def retrain_one_task (model, params, method_settings, best_params, train_loader,
     if method_settings["method_name"] == "GroHess" :
         diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return diag_hessians, overall_masks
-    if method_settings["method_name"] == "EWC" :
+    elif method_settings["method_name"] == "EWC" :
         ewc = train (model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=0)
         return ewc
-    if method_settings["method_name"] in ["LwF", "Naive baseline"] :
+    else :
         train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
 
 

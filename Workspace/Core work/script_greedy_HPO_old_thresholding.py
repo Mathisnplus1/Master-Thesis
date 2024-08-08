@@ -1,18 +1,18 @@
-global_seed = 88
+global_seed = 91
 save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
                       "difficulty" : "standard",
                       "num_tasks" : 10,
                       "train_percentage" : 0.8,
-                      "num_val_benchmarks" : 5,
+                      "num_val_benchmarks" : 10,
                       "batch_size" : 128}
 
 # Parameters specific to the method
 method_settings = {"method_name" : "GroHess",
                    "grow_from" : "output",
-                   #"hessian_percentile" : 98,
-                   #"grad_percentile" : 98,
+                   "hessian_percentile" : 98,
+                   "grad_percentile" : 98,
                    "num_inputs" : 28*28,
                    "num_hidden_root" : 300,
                    "num_outputs" : 10,
@@ -21,10 +21,9 @@ method_settings = {"method_name" : "GroHess",
 
 # Parameters specific to HPO
 HPO_settings = {"HPO_name" : "greedy_HPO",
-                "n_trials" : 30,
+                "n_trials" : 50,
                 "lr" : (1e-5, 2e-3),
                 "num_epochs" : (2,10),
-                "tau" : (0.999, 1),
                 #"ewc_lambda" : (300,400)
                 #"lwf_alpha" : (0.1, 0.9),
                 #"lwf_temperature" : (1, 3),
@@ -132,16 +131,13 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
         best_HPs["lwf_temperature"] = lwf_temperature
     except :
         pass
-    try :
-        tau = best_params["tau"]
-        best_HPs["tau"] = tau
-    except :
-        pass
+
+    print(best_HPs)
 
     # Train
     if method_settings["method_name"] == "GroHess" :
-        diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
-        return diag_hessians, overall_masks
+        hessian_masks, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
+        return hessian_masks, overall_masks
     if method_settings["method_name"] == "EWC" :
         ewc = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return ewc
@@ -163,7 +159,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
     # Intialize HPO
     if method_settings["method_name"] == "GroHess" :
-        diag_hessians, overall_masks = initialize_training(model, method_settings)
+        hessian_masks, overall_masks = initialize_training(model, method_settings)
     best_params_list = []
     num_tasks = benchmark_settings["num_tasks"]
     test_accs_matrix = np.zeros((num_tasks, num_tasks))
@@ -173,7 +169,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
         train_loader = train_loaders_list[task_number]
         
-        def call_script_task(diag_hessians, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device):
+        def call_script_task(hessian_masks, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device):
             signature = inspect.signature(call_script_task)
             names = [param.name for param in signature.parameters.values()]
             values = locals()
@@ -192,7 +188,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
             return best_params.stdout
         
         if method_settings["method_name"] == "GroHess" :
-            best_params = call_script_task(diag_hessians, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
+            best_params = call_script_task(hessian_masks, overall_masks, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
         else :
             best_params = call_script_task(None, None, task_number, global_seed, method_settings, output, benchmark_settings, model, HPO_settings, device).decode()
         
@@ -203,9 +199,9 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
         best_params_list += [best_params]
         if method_settings["method_name"] == "GroHess" :
             if output is not None :
-                diag_hessians, overall_masks = output
+                hessian_masks, overall_masks = output
             is_first_task = True if task_number==0 else False
-            params = {"diag_hessians" : diag_hessians, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
+            params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
         if method_settings["method_name"] in ["EWC", "LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
         output = retrain_and_save_with_best_HPs(model, params, method_settings, best_params, train_loader, device, global_seed) 

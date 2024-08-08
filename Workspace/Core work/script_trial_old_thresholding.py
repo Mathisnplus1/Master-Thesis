@@ -72,7 +72,7 @@ names_to_retrieve = ["benchmark_settings",
                     "global_seed",
                     "HPs"]
 
-#names_to_retrieve = json.loads(sys.stdin.read())
+names_to_retrieve = json.loads(sys.stdin.read())
 
 for name in names_to_retrieve :
     try :

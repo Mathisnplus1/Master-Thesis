@@ -40,14 +40,14 @@ except :
 names = ["benchmark_settings",
          "device",
          "global_seed",
-         "diag_hessians",
+         "hessian_masks",
          "HPO_settings",
          "method_settings",
          "model",
          "output",
          "overall_masks",
          "task_number"]
-#names = json.loads(sys.stdin.read())
+names = json.loads(sys.stdin.read())
 
 
 #model = torch.load(f'logs/model.pt')
@@ -94,11 +94,6 @@ def objective(benchmark_settings, model, task_number, HPO_settings, params, meth
         HPs["lwf_temperature"] = lwf_temperature
     except :
         pass
-    try :
-        tau = trial.suggest_int("tau", HPO_settings["tau"][0], HPO_settings["tau"][1])
-        HPs["tau"] = tau
-    except :
-        pass
     
     names_to_retrieve = ["benchmark_settings", "model", "task_number", "HPO_settings", "params", "method_settings", "device", "global_seed", "HPs"]
     
@@ -130,7 +125,7 @@ if method_settings["method_name"] == "GroHess" :
     if output is not None :
         hessian_masks, overall_masks = output
     is_first_task = True if task_number==0 else False
-    params = {"diag_hessians" : diag_hessians, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
+    params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
 if method_settings["method_name"] in ["EWC", "LwF"] :
     params = {"batch_size" : benchmark_settings["batch_size"]}
 

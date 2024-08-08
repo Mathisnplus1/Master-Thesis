@@ -138,7 +138,7 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
         param_values = [float(params[param_name]) for params in best_params_list]
         ax.plot(param_values)
         ax.set_xticks(range(len(param_values)))
-        ax.set_yticks(param_values, format_float(param_values))
+        #ax.set_yticks(param_values, format_float(param_values))
         ax.set_ylabel(f"Best {param_name}")
         ax.set_xlabel("Task index")
     plt.tight_layout()
@@ -240,11 +240,11 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     x = np.arange(combined_val_accs_matrix.shape[1])
 
     # Plotting the mean results and out of HPO result
-    axs[0].plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='r')
-    axs[0].plot(x, mean_results, label=f'Mean val benchmarks', color='b')
+    axs[0].plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='black')
+    axs[0].plot(x, mean_results, label=f'Mean val benchmarks', color='black', linestyle='--')
 
     # Shaded area for standard deviation
-    axs[0].fill_between(x, mean_results - std_dev_results, mean_results + std_dev_results, color='b', alpha=0.2)
+    axs[0].fill_between(x, mean_results - std_dev_results, mean_results + std_dev_results, color='black', alpha=0.2)
 
     # Adding labels and title
     axs[0].set_xlabel('Task index')
@@ -253,12 +253,32 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     axs[0].legend()
 
     # Creating the violin plot
-    violin = plt.violinplot(combined_val_accs_matrix[1:].mean(axis=0), widths=0.4, showmeans=True, showextrema=False)
-    violin['bodies'][0].set_facecolor("b")
-    violin['bodies'][0].set_alpha(0.2)
-    violin['cmeans'].set_color('b')
+    #violin = plt.violinplot(combined_val_accs_matrix[1:].mean(axis=0), widths=0.4, showmeans=True, showextrema=False)
+    #violin['bodies'][0].set_facecolor("b")
+    #violin['bodies'][0].set_alpha(0.2)
+    #violin['cmeans'].set_color('b')
     #violin['cmeans'].set_linewidth(10)
-    axs[1].plot([0.9,1.1], 2*[combined_val_accs_matrix[0].mean()], color='r')
+    mean = combined_val_accs_matrix[1:].mean(axis=0).mean()
+    std = combined_val_accs_matrix[1:].mean(axis=0).std()
+    delta = 0.03*(axs[1]._get_view()["ylim"][1] - axs[1]._get_view()["ylim"][0])# Pour taille des crochets
+    # + Std
+    axs[1].plot([0.85,1.15], 2*[mean + std], color=(0.6,0.6,0.6), linewidth=2)
+    axs[1].plot([0.85,0.85], [mean + std -delta, mean + std], color=(0.6,0.6,0.6), linewidth=2)
+    axs[1].plot([1.15,1.15], [mean + std -delta, mean + std], color=(0.6,0.6,0.6), linewidth=2)
+    # Middle
+    axs[1].plot([1,1], [mean - std, mean + std], color=(0.6,0.6,0.6), linewidth=2)
+    axs[1].fill_between([0.85,1.15], mean - std, mean + std, color="black", alpha=0.2)
+    # - Std
+    axs[1].plot([0.85,1.15], 2*[mean - std], color=(0.6,0.6,0.6), linewidth=2)
+    axs[1].plot([0.85,0.85], [mean - std, mean - std +delta], color=(0.6,0.6,0.6), linewidth=2)
+    axs[1].plot([1.15,1.15], [mean - std, mean - std +delta], color=(0.6,0.6,0.6), linewidth=2)
+    # Means
+    axs[1].plot([0.9,1.1], 2*[combined_val_accs_matrix[0].mean()], color='black')
+    axs[1].plot([0.9,1.1], 2*[mean], color='black', linestyle='--')
+
+    
+
+    axs[1].set_xlim(0.7, 1.3)
 
     # Adding labels and title
     axs[1].set_xticks(ticks=[1], labels=["Mean"])

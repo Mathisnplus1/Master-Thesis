@@ -1,4 +1,4 @@
-from lib.train import train as train_model
+from lib.train_old_thresholding import train as train_model
 from lib.models import ANN
 import numpy as np
 

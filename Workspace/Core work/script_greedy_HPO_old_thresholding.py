@@ -1,4 +1,4 @@
-global_seed = 91
+global_seed = 93
 save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
@@ -56,20 +56,20 @@ data_path = path + "/data"
 
 from HPO_lib.abstract_torch import get_device
 from HPO_lib.get_benchmarks_for_script import get_benchmarks
-from HPO_lib.validation import validate
+from HPO_lib.validation_old_thresholding import validate
 from HPO_lib.save_and_load_results import save
 
-from lib.method import initialize_model
-from lib.method import train
+from lib.method_old_thresholding import initialize_model
+from lib.method_old_thresholding import train
 from test_model import test
 try :
-    from lib.method import initialize_training
+    from lib.method_old_thresholding import initialize_training
 except :
     pass
 
 
 # SET DEVICE
-device = get_device(3)
+device = get_device(2)
 
 
 # GET BENCHMARKS
@@ -181,7 +181,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
                 except :
                     torch.save(value, f'logs/{key}.pt')
                     
-            best_params = subprocess.run(["python", "script_task.py"], 
+            best_params = subprocess.run(["python", "script_task_old_thresholding.py"], 
                             input=json.dumps(names).encode(),
                             capture_output=True,
                             check=True)

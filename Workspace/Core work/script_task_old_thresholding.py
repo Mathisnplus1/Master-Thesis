@@ -28,11 +28,11 @@ from HPO_lib.get_benchmarks import get_benchmarks
 from HPO_lib.validation import validate
 from HPO_lib.save_and_load_results import save
 
-from lib.method import initialize_model
-from lib.method import train
+from lib.method_old_thresholding import initialize_model
+from lib.method_old_thresholding import train
 from test_model import test
 try :
-    from lib.method import initialize_training
+    from lib.method_old_thresholding import initialize_training
 except :
     pass
 
@@ -100,7 +100,7 @@ def objective(benchmark_settings, model, task_number, HPO_settings, params, meth
     with open(f'logs/HPs.pkl', 'wb') as f:
         pickle.dump(HPs, f)
     
-    trial_result = subprocess.run(["python", "script_trial.py"], 
+    trial_result = subprocess.run(["python", "script_trial_old_thresholding.py"], 
                             input=json.dumps(names_to_retrieve).encode(),
                             capture_output=True,
                             check=True)

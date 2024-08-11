@@ -128,7 +128,7 @@ params = {}
 
 if method_settings["method_name"] == "GroHess" :
     if output is not None :
-        hessian_masks, overall_masks = output
+        diag_hessians, overall_masks = output
     is_first_task = True if task_number==0 else False
     params = {"diag_hessians" : diag_hessians, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
 if method_settings["method_name"] in ["EWC", "LwF"] :

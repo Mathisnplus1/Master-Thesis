@@ -113,7 +113,7 @@ def get_overall_mask(layer, grow_from, overall_mask, overlap_mask, device):
 
 def should_we_grow (loss_hist) :
     diff = np.mean(loss_hist[-40:-20]) - np.mean(loss_hist[-20])
-    return 0 < diff and diff < 0.02 # 0.0002
+    return 0 < diff and diff < 0.0002 # 0.0002
 
 
 def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
@@ -132,11 +132,6 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
 
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
-    # Verbose
-    if verbose > 0 :
-        print("Non frozen params in layer 1 :", overall_masks[0].sum())
-        print("Non frozen params in layer 2 :", overall_masks[1].sum())
 
     # Get layer we want to use to perform the growth
     layer_names = ["fc1", "fc2"] if grow_from=="input" else ["fc2", "fc3"]
@@ -161,6 +156,8 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
         # Verbose
         if verbose > 0 :
             get_number_of_neurons(model)
+            print("Non frozen params in layer 1 :", overall_masks[0].sum())
+            print("Non frozen params in layer 2 :", overall_masks[1].sum())
 
         # Initialize epoch
         train_batch = iter(train_loader)

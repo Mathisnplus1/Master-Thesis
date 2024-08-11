@@ -1,8 +1,8 @@
-from lib.method import initialize_model
-from lib.method import train
+from lib.method_old_thresholding import initialize_model
+from lib.method_old_thresholding import train
 from test_model import test
 try :
-    from lib.method import initialize_training
+    from lib.method_old_thresholding import initialize_training
 except :
     pass
 import numpy as np

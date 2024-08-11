@@ -1,4 +1,4 @@
-global_seed : 88
+global_seed : 92
 save_results : True
 # Parameters specfific to the benchmark
 benchmark_settings : {"benchmark_name" : "pMNIST_via_torch",

@@ -45,7 +45,7 @@ def greedy_objective(model, task_number, HPO_settings, params, method_settings, 
     params_copy = copy.deepcopy(params)
 
     # Train
-    _ = train(model_copy, method_settings, params_copy, HPs, train_loader, device, global_seed)
+    _ = train(model_copy, method_settings, params_copy, HPs, train_loader, device, global_seed, verbose=0)
 
     if method_settings["method_name"] == "EWC" :
         model_copy = params_copy["ewc"].model

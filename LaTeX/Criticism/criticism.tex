@@ -9,6 +9,8 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 %========================================================
 \usepackage{tabularx}
 \usepackage{multirow}
@@ -137,55 +139,112 @@ Another important approach is \textit{replay-based learning}, which involves sto
 \noindent
 Finaly, \textit{architectural approaches} modify the model's structure to accommodate new tasks while preserving knowledge from previous ones. Methods like Progressive Neural Networks (PNN) [REFLA] add new subnetworks for each task, allowing forward knowledge transfer from old tasks dedicated subnetworks, while keeping the new ones isolated. Conversely, Mixture of Expert Models [REFLA] leverage a gating system which is designed to identify and distribute tasks to expert subnetworks.
 
+\vspace{2mm}
+\noindent
+However, these categories do not constitute a proper partition of the litterature as they are not mutually exclusive. Approaches such as Architectural and Regularization 1 (AR1) [REFLA] fall both in regularization-based and architectural categories. Additionally, these categories do not encompass certain methods such as adversarial approaches [REFLA].
+
 
 \subsection{Our specific framework}
 
 
-Given the variety of frameworks and approaches, we need to narrow down and specify ours. In previous subsections, we introduced frameworks and approaches to continual learning through categories. However, these categories does not constitute a proper partition of the litterature as they are not mutually exclusive. Approaches such as Architectural and Regularization 1 (AR1)[REFLA] fall both in regularization-based and architectural categories. Additionally, these categories do not encompass certain methods such as adversarial approaches [REFLA]. But beyond these categories that are useful for a quick overview of the litterature, what truly matters is the specific assumptions under which we operate.
+Given the variety of frameworks and approaches, we need to narrow down and specify ours. In previous subsections, we introduced frameworks and approaches to continual learning through categories. But beyond these categories, which provide a useful overview of the literature, what truly matters are the specific assumptions under which we operate.
 
-First
-
-
-
-
-
-
-\subsection{Unconstrained and memoryless strategies}
-
-Litterature identifies various strategies and offer various classification in groups, such as gradient-based solutions, replay-based solutions, regularization-based solutions, etc.
-
-\vspace{1mm}
+\vspace{2mm}
 \noindent
-Unconstrained strategies are strategies that do not impose any constraint on the learning process that could allow the processing or implicit remembering of the specificities of the past task. This could be achieved through the a priori knowledge of the meaningful features of all the tasks at hand, of through a parametrizations of the differences between the tasks. 
+First, we will focus on classification tasks involving the same set of classes. We assume that the model is notified when transitioning to the training of a new task. Each task must be handled strictly sequentially, meaning we do not permit any use of data from previous tasks. Additionally, we assume the total number of tasks is unknown and cannot be leveraged during the learning process.
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
-Memoryless strategies are strategies that do not use any memory of the past tasks. 
+As for the methods, our approach will be \textit{modular}, meaning it will break down the learning process into subproblems and explicitly leverage dedicated modules to address these subproblems. These modules may consist of independent subnetworks, subnetworks that share some parameters, or groups of neurons distributed within the entirer network.
 
-\subsection{Modularity}
-
-Another category of strategies that we did not mentioned in the previous section is the modular strategies. Modular strategies are strategies that decompose the learning process into subproblems. These subproblems might be solved independently, they might consist in processing different features. 
-
-\vspace{1mm}
+\vspace{2mm}
 \noindent
-In addition to the processing of the subproblem, modular approaches require to solve two challenge. First, after deployement, when given a sample belonging to one of the tasks the model has been trained on comes, it has to flow properly trhough the modular components. Secondly, the solutions of the subproblems $\it{i.e.}$ the outputs of each modular component, have then to be combined meaningfully to form the solution of the original problem.
+On the top of the modularity of our approach, we make to additional assumptions regarding the way we will process information. First, we will work with \textit{unconstrained} architectures, meaning that we will not impose any architectural constraint on the model that could allow the processing or implicit remembering of the specificities of the past task. To this regard, convolutional or graph neural networks are out of our scope. We will also work with \textit{memoryless} strategies, meaning that in addition to banning the use of data from previous tasks, we will not allow to leverage a replay buffer or generative rehearsal module.
+
+%focus on unconstrained and memoryless strategies. This means that we will not impose any constraint on the learning process that could allow the processing or implicit remembering of the specificities of the past task, and that we will not use any memory of the past tasks. Finally, we will decompose the learning process into subproblems, which will be solved independently. This will allow us to focus on the processing of the subproblems and the merging of the solutions of the subproblems to form the solution of the original problem.
 
 
 
-\subsection{Unconstrained Memoryless Modular Strategies in Continual Learning}
-
-Now we have all the tools to define the object of our criticism. Unconstrained Memoryless Modular Strategies in Continual Learning are strategies that do not impose any constraint on the learning process that could allow the processing or implicit remembering of the specificities of the past task, that do not use any memory of the past tasks, and that decompose the learning process into subproblems. Unconstrained property imposes that these subproblems can't task specific pre-defined a priori by human. They have to be built implicitly through the learning process by the model itself.
-
-\vspace{1mm}
-\noindent
-This includes the following strategies such as Elastic Weight Consolidation (EWC), 
-
-
-\section{Litterature reviews on state of the art}
+\section{Our approach : GroHess}
 
 
 
-Litterature reviews on continual learning are mostly descriptive and not critical enough.
+\subsection{Motivation}
+
+
+To address the problem of Continual Learning, one approach is to train independent specialized modules and a gating system that learns to recognize tasks, similar to Mixture of Experts Models [REFLA]. However, the tasks to be learned often have redundant features that we would like to leverage, so that only the new features of a task are learned without forgetting the old ones. The emergence of such features relies on constraints, starting with imposing small size of the model. Therefore, we would prefer to start training with a model of moderate size and expand it as more tasks are introduced.
+
+
+Une telle approche présente plusieurs challenges. D'abord, il faut déterminer quelles sont les caractéristiques importantes à conserver. Ensuite, il faut déterminer comment les conserver. Enfin, il faut déterminer comment les utiliser pour traiter les nouvelles tâches.
+- Et l'objectif quand on ajoute des neurones à notre architecture est alors de savoir lesquels sont important et lesquels ne le sont pas.
+Pour cela, on introduit GroHess, une nouvelle approche de croissance d'architecture dans le cadre du continual learning. 
+
+
+\subsection{Description}
+
+
+
+\begin{algorithm}
+    \caption{LoRA for continual learning}
+    \begin{algorithmic}[1]
+    \State \textbf{Input:} A list of $n$ tasks $L = [(D_1,L_1), (D_2,L_2), \ldots, (D_n,Ln)]$
+    \State \textbf{Output:} A model $\phi$ able to solve each task
+    \State
+    
+    \State \textbf{Step 1:} Initialize the core model $\phi$ and train it on $(D_1,L_1)$
+    \For{each task $(D_i,L_i)$ in the list}
+        \State \textbf{Step 2:} Freeze parameters of $\phi$ and initialize LoRA parameters $\mathbb{L}_i$.
+        \State \textbf{Step 3:} Train LoRA parameters on task $(D_i,L_i)$ using $\phi$ for forward propagation.
+        \State \textbf{Step 4:} Update $\phi$ by adding $\mathbb{L}_i$ parameters.
+    \EndFor
+    \State \textbf{Step 5:} The core model $\phi$ is now trained on each task
+    \end{algorithmic}
+    \end{algorithm}
+
+
+\subsection{Baselines}
+
+
+
+\section{Experiments}
+
+
+
+\section{Results}
+% Critique
+
+
+\section{Critical comparison to litterature}
+
+
+\subsection{Geometrical argument}
+% introduire les points nécessaires des méthodes que cet argument critique
+
+
+\subsection{Combinatorial argument}
+% introduire les points nécessaires des méthodes que cet argument critique
+
+
+
+\section{Paradigmatic discussion}
+
+
+
+\subsection{Validation}
+
+
+\subsection{Hyperparameters optimizations}
+
+
+
+\section{Additional remarks and opening}
+% GradMax
+% Usecases
+% DANN
+
+
+
+\section{Conclusion}
 
 
 

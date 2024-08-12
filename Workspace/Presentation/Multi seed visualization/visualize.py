@@ -23,7 +23,8 @@ mpl.rcParams['legend.fontsize'] = 12
 
 
 
-def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, savefig) :
+def visualize_accs_matrix(test_accs_matrix_list, best_params_list_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, savefig) :
+    HPO_settings, method_settings, benchmark_settings = HPO_settings_list[0], method_settings_list[0], benchmark_settings_list[0]
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -43,8 +44,9 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
 
     # Plot
-    num_tasks = len(test_accs_matrix)
-    plt.imshow(test_accs_matrix, cmap='viridis', interpolation='nearest')
+    mean_test_accs_matrix = np.mean(test_accs_matrix_list, axis=0)
+    num_tasks = len(mean_test_accs_matrix)
+    plt.imshow(mean_test_accs_matrix, cmap='viridis', interpolation='nearest')
     plt.xticks(np.arange(num_tasks), np.arange(num_tasks))
     plt.yticks(np.arange(num_tasks), np.arange(num_tasks))
     plt.xlabel("Accuracy on task j...")
@@ -62,7 +64,8 @@ def visualize_accs_matrix(test_accs_matrix, best_params_list, HPO_settings, meth
 
 
 
-def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, savefig) :
+def visualize_avg_acc_curve(test_accs_matrix_list, best_params_list_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, savefig) :
+    HPO_settings, method_settings, benchmark_settings = HPO_settings_list[0], method_settings_list[0], benchmark_settings_list[0]
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -82,9 +85,12 @@ def visualize_avg_acc_curve(test_accs_matrix, best_params_list, HPO_settings, me
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
 
     # Plot
-    num_tasks = len(test_accs_matrix)
-    mean_accs = [np.array(test_accs_matrix[i][:i+1]).sum() / (i+1) for i in range(num_tasks)]
+    mean_test_accs_matrix = np.mean(test_accs_matrix_list, axis=0)
+    num_tasks = len(mean_test_accs_matrix)
+    mean_accs = np.array([np.array(mean_test_accs_matrix[i][:i+1]).sum() / (i+1) for i in range(num_tasks)])
+    std_accs = np.array([np.array(mean_test_accs_matrix[i][:i+1]).std() for i in range(num_tasks)])
     plt.plot(range(num_tasks), mean_accs, color="black")
+    plt.fill_between(range(num_tasks), mean_accs - std_accs, mean_accs + std_accs, color='black', alpha=0.2)
     plt.xlabel("Number of tasks trained")
     plt.ylabel("Test accuracy", fontsize=18)
     plt.xticks(np.arange(num_tasks), np.arange(num_tasks))
@@ -109,7 +115,8 @@ def format_float(values):
     
 
 
-def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, savefig) :
+def visualize_best_params(test_accs_matrix_list, best_params_list_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, savefig) :
+    HPO_settings, method_settings, benchmark_settings = HPO_settings_list[0], method_settings_list[0], benchmark_settings_list[0]
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -129,15 +136,17 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
 
     # Create a subplot for each param
-    num_params = len(best_params_list[0])
+    num_params = len(best_params_list_list[0][0])
     fig, axs = plt.subplots(nrows=1, ncols=num_params, figsize=(5*num_params, 5))
     plt.subplots_adjust(wspace=0.35)
 
     # Plot
-    for ax, param_name in zip(axs, best_params_list[0].keys()) :
-        param_values = [float(params[param_name]) for params in best_params_list]
-        ax.plot(param_values)
-        ax.set_xticks(range(len(param_values)))
+    for ax, param_name in zip(axs, best_params_list_list[0][0].keys()) :
+        mean_param_values = np.mean([[float(params[param_name]) for params in best_params_list] for best_params_list in best_params_list_list],axis=0)
+        std_param_values = np.std([[float(params[param_name]) for params in best_params_list] for best_params_list in best_params_list_list],axis=0)
+        ax.plot(mean_param_values, c="black")
+        ax.fill_between(range(len(mean_param_values)), mean_param_values - std_param_values, mean_param_values + std_param_values, color='black', alpha=0.2)
+        ax.set_xticks(range(len(mean_param_values)))
         #ax.set_yticks(param_values, format_float(param_values))
         ax.set_ylabel(f"Best {param_name}")
         ax.set_xlabel("Task index")
@@ -153,14 +162,19 @@ def visualize_best_params(test_accs_matrix, best_params_list, HPO_settings, meth
 
 
 
-def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder=None) :
-    if HPO_settings["HPO_name"] == "greedy_HPO" :
-        functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
-    if HPO_settings["HPO_name"] == "cheated_HPO" :
-        functions_list = [visualize_accs_matrix, visualize_avg_acc_curve]
+def visualize_HPO(test_accs_matrix_list, best_params_list_list, 
+                  visualization_settings, HPO_settings_list, 
+                  method_settings_list, benchmark_settings_list, 
+                  method_name=None) :
+    folder = None
+    if method_name :
+        folder = f"Results/{method_name}/"
+    
+    functions_list = [visualize_accs_matrix, visualize_avg_acc_curve, visualize_best_params]
+    
     for function in functions_list :
         if visualization_settings[function.__name__] :
-            function(test_accs_matrix, best_params_list, HPO_settings, method_settings, benchmark_settings, folder, visualization_settings["savefig"])
+            function(test_accs_matrix_list, best_params_list_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, visualization_settings["savefig"])
 
 
 
@@ -170,7 +184,8 @@ def visualize_HPO(test_accs_matrix, best_params_list, visualization_settings, HP
 
 
 
-def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, folder, savefig=False):
+def visualize_val_accs_matrix(combined_val_accs_matrix_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, savefig=False):
+    HPO_settings, method_settings, benchmark_settings = HPO_settings_list[0], method_settings_list[0], benchmark_settings_list[0]
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -192,7 +207,7 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
         print("One or more of the required settings to visualize are missing. Please check the benchmark_settings.")
 
     fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(6, 5))
-    im = axs.imshow(combined_val_accs_matrix, cmap='viridis', interpolation='nearest')
+    im = axs.imshow(np.mean(combined_val_accs_matrix_list, axis=0), cmap='viridis', interpolation='nearest')
     axs.set_yticks(np.arange(1+num_val_benchmarks), ["HPO"]+[f"Val {i}" for i in range(1,num_val_benchmarks+1)])
     axs.set_xticks(np.arange(num_tasks), np.arange(num_tasks))
     axs.set_xlabel("Task index")
@@ -209,7 +224,8 @@ def visualize_val_accs_matrix(combined_val_accs_matrix, HPO_settings, method_set
 
 
 
-def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, folder, savefig=False) :
+def visualize_accuracy_through_benchmarks (combined_val_accs_matrix_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, savefig=False) :
+    HPO_settings, method_settings, benchmark_settings = HPO_settings_list[0], method_settings_list[0], benchmark_settings_list[0]
     # Check if all required settings are present
     try :
         HPO_name = HPO_settings["HPO_name"]
@@ -233,14 +249,14 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     plt.subplots_adjust(wspace=0.35)
 
     # Calculate the mean and standard deviation along the axis of experiments
-    mean_results = np.mean(combined_val_accs_matrix[1:], axis=0)
-    std_dev_results = np.std(combined_val_accs_matrix[1:], axis=0)
+    mean_results = np.mean(np.mean(combined_val_accs_matrix_list, axis=0)[1:], axis=0)
+    std_dev_results = np.std(np.mean(combined_val_accs_matrix_list, axis=0)[1:], axis=0)
 
     # X-axis values
-    x = np.arange(combined_val_accs_matrix.shape[1])
+    x = np.arange(combined_val_accs_matrix_list[0].shape[1])
 
     # Plotting the mean results and out of HPO result
-    axs[0].plot(x, combined_val_accs_matrix[0], label="HPO benchmark", color='black')
+    axs[0].plot(x, np.mean(combined_val_accs_matrix_list, axis=0)[0], label="HPO benchmark", color='black')
     axs[0].plot(x, mean_results, label=f'Mean val benchmarks', color='black', linestyle='--')
 
     # Shaded area for standard deviation
@@ -252,14 +268,9 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     axs[0].set_ylabel('Test Accuracy')
     axs[0].legend()
 
-    # Creating the violin plot
-    #violin = plt.violinplot(combined_val_accs_matrix[1:].mean(axis=0), widths=0.4, showmeans=True, showextrema=False)
-    #violin['bodies'][0].set_facecolor("b")
-    #violin['bodies'][0].set_alpha(0.2)
-    #violin['cmeans'].set_color('b')
-    #violin['cmeans'].set_linewidth(10)
-    mean = combined_val_accs_matrix[1:].mean(axis=0).mean()
-    std = combined_val_accs_matrix[1:].mean(axis=0).std()
+    # Second plot
+    mean = np.mean(combined_val_accs_matrix_list, axis=0)[1:].mean(axis=0).mean()
+    std = np.mean(combined_val_accs_matrix_list, axis=0)[1:].mean(axis=0).std()
     delta = 0.03*(axs[1]._get_view()["ylim"][1] - axs[1]._get_view()["ylim"][0])# Pour taille des crochets
     # + Std
     axs[1].plot([0.85,1.15], 2*[mean + std], color=(0.6,0.6,0.6), linewidth=2)
@@ -273,7 +284,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     axs[1].plot([0.85,0.85], [mean - std, mean - std +delta], color=(0.6,0.6,0.6), linewidth=2)
     axs[1].plot([1.15,1.15], [mean - std, mean - std +delta], color=(0.6,0.6,0.6), linewidth=2)
     # Means
-    axs[1].plot([0.9,1.1], 2*[combined_val_accs_matrix[0].mean()], color='black')
+    axs[1].plot([0.9,1.1], 2*[np.mean(combined_val_accs_matrix_list, axis=0)[0].mean()], color='black')
     axs[1].plot([0.9,1.1], 2*[mean], color='black', linestyle='--')
 
     
@@ -289,6 +300,7 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
     # Save plot
     if savefig and folder is not None :
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        print(folder)
         plt.savefig(folder + f"/accuracy_through_benchmarks_{HPO_name}_{method_name}_from_{grow_from}_{benchmark_name}_{difficulty}_{current_time}.png")
 
     # Show plot
@@ -296,9 +308,19 @@ def visualize_accuracy_through_benchmarks (combined_val_accs_matrix, HPO_setting
    
 
 
-def visualize_validation(val_accs_matrix, test_accs_matrix, visualization_settings, HPO_settings, method_settings, benchmark_settings, folder=None) :
-    combined_val_accs_matrix = np.concatenate((np.reshape(test_accs_matrix[-1], (1,test_accs_matrix.shape[1])), val_accs_matrix), axis=0)
+def visualize_validation(val_accs_matrix_list, test_accs_matrix_list,
+                         visualization_settings, HPO_settings_list,
+                         method_settings_list, benchmark_settings_list,
+                         method_name=None) :
+    folder = None
+    if method_name :
+        folder = f"Results/{method_name}/"
+    combined_val_accs_matrix_list = []
+    for test_accs_matrix, val_accs_matrix in zip(test_accs_matrix_list, val_accs_matrix_list) :
+        combined_val_accs_matrix = np.concatenate((np.reshape(test_accs_matrix[-1], (1,test_accs_matrix.shape[1])), val_accs_matrix), axis=0)
+        combined_val_accs_matrix_list.append(combined_val_accs_matrix)
+    
     functions_list = [visualize_val_accs_matrix, visualize_accuracy_through_benchmarks]
     for function in functions_list :
         if visualization_settings[function.__name__] :
-            function(combined_val_accs_matrix, HPO_settings, method_settings, benchmark_settings, folder, visualization_settings["savefig"])
+            function(combined_val_accs_matrix_list, HPO_settings_list, method_settings_list, benchmark_settings_list, folder, visualization_settings["savefig"])

@@ -28,13 +28,22 @@ from HPO_lib.get_benchmarks import get_benchmarks
 from HPO_lib.validation import validate
 from HPO_lib.save_and_load_results import save
 
-from lib.method_old_thresholding import initialize_model
-from lib.method_old_thresholding import train
-from test_model import test
 try :
-    from lib.method_old_thresholding import initialize_training
+    from lib.method_old_thresholding import initialize_model
+    from lib.method_old_thresholding import train
+    try :
+        from lib.method_old_thresholding import initialize_training
+    except :
+        pass
 except :
-    pass
+    from lib.method import initialize_model
+    from lib.method import train
+    try :
+        from lib.method import initialize_training
+    except :
+        pass
+    
+from test_model import test
 
 
 names = ["benchmark_settings",

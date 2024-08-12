@@ -1,4 +1,7 @@
-from validations.greedy_validation_old_thresholding import greedy_validate
+try :
+    from validations.greedy_validation_old_thresholding import greedy_validate
+except :
+    from validations.greedy_validation import greedy_validate
 from validations.cheated_validation import cheated_validate
 
 

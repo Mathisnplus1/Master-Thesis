@@ -41,10 +41,10 @@ def retrain_one_task (model, params, method_settings, best_params, train_loader,
     if method_settings["method_name"] == "GroHess" :
         hessian_masks, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return hessian_masks, overall_masks
-    if method_settings["method_name"] == "EWC" :
+    elif method_settings["method_name"] == "EWC" :
         ewc = train (model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=0)
         return ewc
-    if method_settings["method_name"] in ["LwF", "Naive baseline"] :
+    else :# method_settings["method_name"] in ["LwF", "Naive baseline"] :
         train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
 
 
@@ -78,9 +78,9 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
                 hessian_masks, overall_masks = output
             is_first_task = True if task_number==0 else False
             params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
-        if method_settings["method_name"] in ["EWC"] :
+        elif method_settings["method_name"] in ["EWC"] :
             params = {"ewc" : output}
-        if method_settings["method_name"] in ["LwF"] :
+        else :# method_settings["method_name"] in ["LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
         output = retrain_one_task(benchmark_model, params, method_settings, best_params_list[task_number], train_loader, device, global_seed) 
     

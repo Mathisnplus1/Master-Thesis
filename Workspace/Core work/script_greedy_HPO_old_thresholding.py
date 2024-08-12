@@ -1,4 +1,9 @@
-global_seed = 92
+import sys
+import json
+
+global_seed = json.loads(sys.stdin.read())
+#global_seed = 88
+
 save_results = True
 # Parameters specfific to the benchmark
 benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
@@ -9,7 +14,7 @@ benchmark_settings = {"benchmark_name" : "pMNIST_via_torch",
                       "batch_size" : 128}
 
 # Parameters specific to the method
-method_settings = {"method_name" : "GroHess",
+method_settings = {"method_name" : "MLP-fixed-size",
                    "grow_from" : "output",
                    "hessian_percentile" : 98,
                    "grad_percentile" : 98,
@@ -59,13 +64,23 @@ from HPO_lib.get_benchmarks_for_script import get_benchmarks
 from HPO_lib.validation_old_thresholding import validate
 from HPO_lib.save_and_load_results import save
 
-from lib.method_old_thresholding import initialize_model
-from lib.method_old_thresholding import train
-from test_model import test
 try :
-    from lib.method_old_thresholding import initialize_training
+    from lib.method_old_thresholding import initialize_model
+    from lib.method_old_thresholding import train
+    try :
+        from lib.method_old_thresholding import initialize_training
+    except :
+        pass
 except :
-    pass
+    from lib.method import initialize_model
+    from lib.method import train
+    try :
+        from lib.method import initialize_training
+    except :
+        pass
+
+from test_model import test
+
 
 
 # SET DEVICE
@@ -138,10 +153,10 @@ def retrain_and_save_with_best_HPs (model, params, method_settings, best_params,
     if method_settings["method_name"] == "GroHess" :
         hessian_masks, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return hessian_masks, overall_masks
-    if method_settings["method_name"] == "EWC" :
+    elif method_settings["method_name"] == "EWC" :
         ewc = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
         return ewc
-    if method_settings["method_name"] in ["EWC", "LwF", "Naive baseline"] :
+    else : #method_settings["method_name"] in ["EWC", "LwF", "Naive baseline"] :
         train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
 
 
@@ -197,6 +212,7 @@ def call_greedy_HPO(HPO_settings, method_settings, benchmark_settings, benchmark
 
         # Retrain and save a model with the best params
         best_params_list += [best_params]
+        params = None
         if method_settings["method_name"] == "GroHess" :
             if output is not None :
                 hessian_masks, overall_masks = output

@@ -1,5 +1,5 @@
-method_name : "GroHess"
-result_number : 10
+method_name : "MLP-fixed-size"
+result_number : -1
 
 # Parameters specific to the visualization
 visualization_settings : {"savefig" : True,

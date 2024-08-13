@@ -47,9 +47,16 @@ def train (model, method_settings, params, HPs, experience, device, global_seed,
     # Get HPs
     try :
         ewc_lambda = HPs["ewc_lambda"]
+    except :
+        pass
+    try :
         num_epochs = HPs["num_epochs"]
-    except ValueError:
-        print("One or more of the required HPs to train the model are missing. Please check the HPs.")
+    except :
+        pass
+    try :
+        lr = HPs["lr"]
+    except :
+        pass
     # Get params
     try :
         ewc = params["ewc"]
@@ -61,6 +68,7 @@ def train (model, method_settings, params, HPs, experience, device, global_seed,
     #ewc.optimizer = get_optimizer(method_settings["optimizer_name"], model)
     ewc.plugins[0].ewc_lambda = ewc_lambda
     ewc.train_epochs = num_epochs
+    ewc.optimizer.param_groups[0]['lr'] = lr
 
     ewc.train(experience)
 

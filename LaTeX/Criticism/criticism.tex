@@ -13,6 +13,7 @@
 \usepackage{algpseudocode}
 %========================================================
 \usepackage{tabularx}
+\usepackage{hhline}
 \usepackage{multirow}
 \usepackage{diagbox}
 \usepackage{slashbox}
@@ -172,6 +173,13 @@ On the top of the modularity of our approach, we make to additional assumptions 
 \subsection{Motivation}
 
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.40\textwidth]{images/motivation_GroHess.png}
+    \caption{Illustration of our sense of importance of weights. When the second derivative of the loss with respect to a weight is high, the weight is considered important as modifying even a little bit would lead to a significant change in the loss. However, when the second derivative is low, modify the weight has little impact on the loss.}
+    \label{fig:motivation_GroHess}
+\end{figure}
+
 To address the problem of Continual Learning, one approach is to train independent specialized modules and a gating system that learns to recognize tasks, similar to Mixture of Experts Models [REFLA]. However, the tasks to be learned often have redundant features that we would like to leverage, so that only the new features of a task are learned without forgetting the old ones. The emergence of such features relies on constraints, starting with imposing small size of the model. Therefore, we would prefer to start training with a model of moderate size and expand it as more tasks are introduced.
 
 
@@ -183,11 +191,14 @@ Pour cela, on introduit GroHess, une nouvelle approche de croissance d'architect
 \subsection{Description}
 
 
+We control the growth of the model through two percentiles : the gradient percentile and the Hessian percentile. These percentiles allow us to define what is considered to be "high", relatively to the other weights first and second derivative. When the gradient of a given weight falls above the gradient percentile, comparatively to the other gradients, it means that according to backpropagation, this weight has to be strongly updated. Conversely, when the second derivative of a given weight with respect to the loss falls above the hessian percentile, comparatively to the second derivate of the other weights, it means that modifying this weight will strongly disturb the what has been learnt on the task. As a consequence, when both the first and the second derivatives of a weight are high, we grow a new neuron, to accodmodate both backpropagation and the preservation of the knowledge of the task. See OOOOOOOOOOOOOOOOOOOO for illustration.
+
 
 \begin{algorithm}
-    \caption{LoRA for continual learning}
+    \caption{Training GroHess on $n$ tasks}
     \begin{algorithmic}[1]
-    \State \textbf{Input:} A list of $n$ tasks $L = [(D_1,L_1), (D_2,L_2), \ldots, (D_n,Ln)]$
+    \State \textbf{Input:} \\ 
+    - A list of $n$ classification tasks $L = [(X_1,Y_1), (X_2,Y_2), \ldots, (X_n,Y_n)]$
     \State \textbf{Output:} A model $\phi$ able to solve each task
     \State
     
@@ -205,13 +216,112 @@ Pour cela, on introduit GroHess, une nouvelle approche de croissance d'architect
 \subsection{Baselines}
 
 
+Our method is based on two ideas : a hessian-inspired mechanism to define weights importance and a growth mechanism to add new neurons to the model. To evaluate the relevance of these ideas, we introduce several baselines.
 
-\section{Experiments}
+% Doing nothing initial size
+% Doing nothing mean final size
+% Growing without GroHess
+% Using GroHess to freeze important weights without growing
+
+To evaluate the effectiveness of our method, which incorporates a Hessian-inspired mechanism for determining weight importance and a growth mechanism for adding new neurons to the model, we introduce four baselines.
+
+\vspace{2mm}
+\noindent
+In a first "vanilla" baseline, we define a model in the same initial configuration as the one used optimized with GroHess. During the training procedure through the tasks, no additional neurons are added, and no special mechanism is used to adjust or freeze weights according to their importance for the tasks. The model remains at its original size throughout the training process.
+
+\vspace{2mm}
+\noindent
+We also train a second "vanilla" baseline, but the initial size of its hidden layers is that of the average final hidden layer sizes when training with GroHess. So, from the beginning, this baseline is in the average configuration of a model trained with GroHess. 
+
+\vspace{2mm}
+\noindent
+We also design a third baseline, where perform growth without GroHess, during the training procedure. This baseline involves starting the training process on the first task with a model of the same size as the one used with GroHess. However, everytime the model moves to training on a new task, it blindly adds new neurons to each layer, randomly initialezed, and without freezing any weight. This baseline helps evaluate the benefits of our approach of defining weights importance through Hessian coefficients. 
+
+\vspace{2mm}
+\noindent
+Finally, our fourth and last baseline uses GroHess to freeze important weights without triggering the growing mechanism.This baseline is initialized in the same way as the second one, however, we leverage GroHess to freeze important weights during the training process, but without growing new neurons as GroHess would normaly do. This baseline is supposed to isolate the effectiveness of the growing mechanism to improve perfomances.
+
+\vspace{2mm}
+\noindent
+These baselines allow us to thoroughly analyze the contribution of the two main mechanisms of our approach, namely the Hessian-inspired weight importance mechanism and the growth mechanism, independently and in combination.
+
+
+
+\section{Main experiment}
+
+
+
+\subsection{Permuted MNIST}
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.65\textwidth]{images/p-MNIST.png}
+    \caption{Illustration of the process of creating a p-MNIST benchmark.}
+    \label{fig:p-MNIST}
+\end{figure*}
+
+A permuted MNIST (p-MNIST) dataset [REFLA] is a variant of the classic MNIST dataset where images are transformed through a fixed random permutation of pixel positions, creating a shuffled version of each original image. The label associated with each image remains the same, meaning the digits themselves are unchanged, but their visual structure is modified. Then, a p-MNIST task is define as solving the classification problem associated to a p-MNIST dataset. As each p-MNIST dataset is generated by a different permutation of MNIST dataset, there are $784!$ possible p-MNIST datasets and as many p-MNIST tasks. Finally, a p-MNIST benchmark is created by selecting a subset of these tasks. See \ref{fig:p-MNIST} for illustration.
+
+\vspace{2mm}
+\noindent
+Permuted MNIST is particularly significant in the context of continual learning as it offers the opportunity to generate arbitrary long sequences of tasks with a fixed number of classes and a fixed number of samples per class. Additionally, users have a great control over the difficulty of a benchmark, which is directly associated with the similarity of the permutations used to generate the tasks of the benchmark. Finally, the p-MNIST benchmark is a well-established benchmark in the continual learning literature, which allows for comparison of different approaches.
+
+\vspace{2mm}
+\noindent
+On the other hand, litterature has come with a lot of criticism about the p-MNIST benchmarks. First, they are rather simple benchmarks, which do not reflect the complexity of real-world tasks. Second, the random permutations break the spatial structure of images we can find in the real world, which means that the p-MNIST benchmarks are not well-suited to evaluate method that require spatial reasoning on tasks such as object detection or segmentation. In particular, the permutations of pixels disrupt with the assumption of locality and translation invariance which are at the basis of convolutional neural networks. As a consequence, approaches leveraging convolutional neural networks are disadvantaged on p-MNIST benchmarks.
+
+\vspace{2mm}
+\noindent
+Despite this criticism, we have chosen to use p-MNIST benchmarks. They are relevant for our study of GroHess as their very simplicity allows to understand the fundamental principles of our exploratory method. Additionally, the ability to generate not only several tasks, but also several comparable benchmarks will allow us to motivate and introduce a validation paradigm in continual learning.
+
+
+\subsection{Training protocol}
+
+
+We train our models following GroHess algorithm on a sequence of $10$ p-MNIST tasks, each with the usual $10$ MNISTS classes. For each task $80\%$ of the train set is used for training, $20\%$ is used for validation and $100\%$ of the test set is used to test the model. We train GroHess the Adam optimizer and the cross-entropy loss. For each task, the number of epochs and the learning rate are left as optimizable hyperparameters. We use a batch size of $128$. See \ref{table:HPs} for the complete list of hyperparameters.
+
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|c|}
+    \hline
+    \multicolumn{2}{|c|}{\textbf{Hyperparameters (HPs)}} \\
+    \hline
+    \textbf{Fixed HPs} & \textbf{Value}\\
+    \hline
+    Number of Layers & 3 \\
+    Initial hidden layers size & 300 \\
+    Batch Size & 128 \\
+    Optimizer & Adam \\
+    Loss & Cross-entropy \\
+    Growth happens from & Output \\
+    Gradient percentile & 0.98 \\
+    Hessian percentile & 0.98 \\
+    \hline
+    \hline
+    \textbf{Optimized HPs} & \textbf{Range}\\
+    \hline
+    Learning Rate & 1e-5 - 2e-3 \\
+    Number of epochs & 2 - 10 \\
+    \hline
+    \end{tabular}
+    \caption{Hyperparameters value or range}
+    \label{table:HPs}
+\end{table}
+
+Our model consist in a multi layer perceptron with 2 hidden layers (or 3 layers in total). Input and output sizes are 784 and 10 respectively. Each hidden layer contains initialy contains 300 neurons. The growth of the model happens from the output layer, which means that when a weight has both a high first and second derivative, we grow a neuron on the layer preceeding it (in the forward sense). We control the growth of the model through two percentiles : the gradient percentile and the Hessian percentile. When both first and second derivative of the loss with respect to a weight are above the gradient and Hessian percentiles, respectively, we grow a new neuron. 
+
+
+is considered important and a new neuron is added to the output layer. 
+
 
 
 
 \section{Results}
 % Critique
+% Expliquer comment sont construits les plots
+We evaluate the model on each task after training, and we report the average accuracy over all tasks. We repeat this process $10$ times with different random seeds and we report the average accuracy over all runs.
 
 
 \section{Critical comparison to litterature}
@@ -295,18 +405,21 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
     P^{i\rightarrow j} = \frac{1}{L+1}\sum_{l=1}^{L+1}{\frac{1}{N_l}\sum_{n=1}^{N_l}{p_{l,n}^{i\rightarrow j}}}
 \end{align}
 
-
+\begin{table}
 \begin{tabular}{|c|c|c|}
     \hline
     \diagbox{{\footnotesize Tested}}{{\footnotesize Trained}} & Taks 1 & Task 2 \\ \hline
     Task 1 & \includegraphics[width=2.5cm]{images/pollution_11.png} & \includegraphics[width=2.5cm]{images/pollution_12.png} \\ \hline
     Task 2 & \notableentry & \includegraphics[width=2.5cm]{images/pollution_21.png} \\ \hline
 \end{tabular}
+\caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
+\label{table:pollution}
+\end{table}
 
 
 \vspace{1mm}
 \noindent
-The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{fig:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
+The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
 
 \vspace{1mm}
 \noindent

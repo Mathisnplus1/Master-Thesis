@@ -19,7 +19,7 @@ method_settings = {"method_name" : "MLP-fixed-size",
                    "hessian_percentile" : 98,
                    "grad_percentile" : 98,
                    "num_inputs" : 28*28,
-                   "num_hidden_root" : 300,
+                   "num_hidden_root" : 1500,
                    "num_outputs" : 10,
                    "loss_name" : "CE",
                    "optimizer_name" : "Adam"}

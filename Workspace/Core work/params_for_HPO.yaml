@@ -6,7 +6,7 @@ benchmark_settings : {"benchmark_name" : "pMNIST_via_avalanche",
                       "num_tasks" : 10,
                       "train_percentage" : 0.8,
                       "num_val_benchmarks" : 10,
-                      "batch_size" : 128}
+                      "batch_size" : 64}
 
 # Parameters specific to the method
 method_settings : {"method_name" : "EWC",

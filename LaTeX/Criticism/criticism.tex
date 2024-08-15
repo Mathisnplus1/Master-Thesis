@@ -15,7 +15,6 @@
 %========================================================
 \usepackage{tabularx}
 \usepackage{hhline}
-\usepackage{hhline}
 \usepackage{multirow}
 \usepackage{diagbox}
 \usepackage{slashbox}
@@ -119,9 +118,8 @@
 
 
 
-
-
 \twocolumn[
+\maketitle
 \begin{abstract}
     %This paper is a critique of unconstrained memoryless modular strategies in continual learning. We argue that these strategies are not well-suited for the problem of continual learning, as they certainly don't solve it but at best, solve specific benchmarks. These approaches do not deal with the core challenges of distributing inputs to modules and merging outputs from modules. More fundamentally, we show that these strategies are inherently unable to tackle these challenges and that they mainly mitigate pollution between tasks. We also discuss the management of hyperparameters in continual learning, which is often unfair and can lead to overfitting on benchmarks. Finally, we propose a naive approach that reaches state-of-the-art performance on two benchmarks, highlighting the limitations of unconstrained memoryless modular strategies.
     Starting with a critical review of Elastic Weight Consolidation method (EWC), we argue that unconstrained memoryless modular strategies does not account for all dimensions of pollution which is an inherent limitation to solve continual learning. So why does the litterature seem to show positive results? The reason lies in the introduction of hyperparameters (HPs) that create trade-offs between the tasks. Therefore, we argue that EWC should not perform any better than any other approach that makes similar trade-offs. To verify this, we present naive baselines along with a more elaborated method that only make trade-offs and show that, with the same amount of hyperparameters, they achieve similar performance to EWC. Additionally, we study how performances are impacted by the amount of hyperparameters, from $O(1)$ to $O(n^2)$. However, with all these HPs, we are essentially overfitting on the benchmarks, which we demonstrate through the introduction of validation benchmarks.
@@ -129,8 +127,8 @@
 \vspace{1cm}
 
 
-
 \tableofcontents]
+
 
 
 
@@ -224,24 +222,20 @@ On the top of the modularity of our approach, we make to additional assumptions 
     \label{fig:motivation_GroHess}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.40\textwidth]{images/motivation_GroHess.png}
-    \caption{Illustration of our sense of importance of weights. When the second derivative of the loss with respect to a weight is high, the weight is considered important as modifying even a little bit would lead to a significant change in the loss. However, when the second derivative is low, modify the weight has little impact on the loss.}
-    \label{fig:motivation_GroHess}
-\end{figure}
-
 To address the problem of Continual Learning, one approach is to train independent specialized modules and a gating system that learns to recognize tasks, similar to Mixture of Experts Models [REFLA]. However, the tasks to be learned often have redundant features that we would like to leverage, so that only the new features of a task are learned without forgetting the old ones. The emergence of such features relies on constraints, starting with imposing small size of the model. Therefore, we would prefer to start training with a model of moderate size and expand it as more tasks are introduced.
+
 
 \vspace{2mm}
 \noindent
 Such an approach presents several challenges. First, it requires to determine which important features to retain. Then, we must figure out how to retain them. Finally, we need to determine how to use them to handle new tasks. To achieve this, we introduce GroHess, a new approach to architecture growth in the context of continual learning. GroHess is based on the idea of growing the model by adding new neurons to the model when the importance of a weight is high, as determined by the second derivative of the loss with respect to the weight. This is illustrated in \ref{fig:motivation_GroHess}. When the second derivative of the loss with respect to a weight is high - such as in $w_1$ - the weight is considered important as modifying it even a little bit would lead to a significant change in the loss. Conversely, when the second derivative is low - such as in $w_2$ - modifying the weight has little impact on the loss. This allows us to determine which weights are important and which are not, and to grow the model accordingly.
 
 
+
 \subsection{Description}
 
 
 More specifically, We control the growth of the model through two percentiles : the gradient percentile and the Hessian percentile. These percentiles allow us to define what is considered to be "high", relatively to the other weights first and second derivatives.
+
 
 \vspace{2mm}
 \noindent
@@ -254,10 +248,7 @@ Everytime one grows a neuron, this neuron has to be initialized, which means tha
 
 \begin{algorithm}
     \caption{Training GroHess on $n$ tasks}
-    \caption{Training GroHess on $n$ tasks}
     \begin{algorithmic}[1]
-    \State \textbf{Input:} \\ 
-    - A list of $n$ classification tasks $L = [(X_1,Y_1), (X_2,Y_2), \ldots, (X_n,Y_n)]$
     \State \textbf{Input:} \\ 
     - A list of $n$ classification tasks $L = [(X_1,Y_1), (X_2,Y_2), \ldots, (X_n,Y_n)]$
     \State \textbf{Output:} A model $\phi$ able to solve each task
@@ -278,6 +269,11 @@ Everytime one grows a neuron, this neuron has to be initialized, which means tha
 
 
 Our method is based on two ideas : a hessian-inspired mechanism to define weights importance and a growth mechanism to add new neurons to the model. To evaluate the relevance of these ideas, we introduce several baselines.
+
+% Doing nothing initial size
+% Doing nothing mean final size
+% Growing without GroHess
+% Using GroHess to freeze important weights without growing
 
 To evaluate the effectiveness of our method, which incorporates a Hessian-inspired mechanism for determining weight importance and a growth mechanism for adding new neurons to the model, we introduce four baselines.
 
@@ -378,8 +374,6 @@ is considered important and a new neuron is added to the output layer.
 % Critique
 % Expliquer comment sont construits les plots
 We evaluate the model on each task after training, and we report the average accuracy over all tasks. We repeat this process $10$ times with different random seeds and we report the average accuracy over all runs.
-% Expliquer comment sont construits les plots
-We evaluate the model on each task after training, and we report the average accuracy over all tasks. We repeat this process $10$ times with different random seeds and we report the average accuracy over all runs.
 
 
 \section{Critical comparison to litterature}
@@ -464,7 +458,6 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
 \end{align}
 
 \begin{table}
-\begin{table}
 \begin{tabular}{|c|c|c|}
     \hline
     \diagbox{{\footnotesize Tested}}{{\footnotesize Trained}} & Taks 1 & Task 2 \\ \hline
@@ -474,14 +467,10 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
 \caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
 \label{table:pollution}
 \end{table}
-\caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
-\label{table:pollution}
-\end{table}
 
 
 \vspace{1mm}
 \noindent
-The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
 The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
 
 \vspace{1mm}

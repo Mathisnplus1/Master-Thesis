@@ -15,6 +15,7 @@
 %========================================================
 \usepackage{tabularx}
 \usepackage{hhline}
+\usepackage{hhline}
 \usepackage{multirow}
 \usepackage{diagbox}
 \usepackage{slashbox}
@@ -223,6 +224,13 @@ On the top of the modularity of our approach, we make to additional assumptions 
     \label{fig:motivation_GroHess}
 \end{figure}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.40\textwidth]{images/motivation_GroHess.png}
+    \caption{Illustration of our sense of importance of weights. When the second derivative of the loss with respect to a weight is high, the weight is considered important as modifying even a little bit would lead to a significant change in the loss. However, when the second derivative is low, modify the weight has little impact on the loss.}
+    \label{fig:motivation_GroHess}
+\end{figure}
+
 To address the problem of Continual Learning, one approach is to train independent specialized modules and a gating system that learns to recognize tasks, similar to Mixture of Experts Models [REFLA]. However, the tasks to be learned often have redundant features that we would like to leverage, so that only the new features of a task are learned without forgetting the old ones. The emergence of such features relies on constraints, starting with imposing small size of the model. Therefore, we would prefer to start training with a model of moderate size and expand it as more tasks are introduced.
 
 \vspace{2mm}
@@ -246,7 +254,10 @@ Everytime one grows a neuron, this neuron has to be initialized, which means tha
 
 \begin{algorithm}
     \caption{Training GroHess on $n$ tasks}
+    \caption{Training GroHess on $n$ tasks}
     \begin{algorithmic}[1]
+    \State \textbf{Input:} \\ 
+    - A list of $n$ classification tasks $L = [(X_1,Y_1), (X_2,Y_2), \ldots, (X_n,Y_n)]$
     \State \textbf{Input:} \\ 
     - A list of $n$ classification tasks $L = [(X_1,Y_1), (X_2,Y_2), \ldots, (X_n,Y_n)]$
     \State \textbf{Output:} A model $\phi$ able to solve each task
@@ -367,6 +378,8 @@ is considered important and a new neuron is added to the output layer.
 % Critique
 % Expliquer comment sont construits les plots
 We evaluate the model on each task after training, and we report the average accuracy over all tasks. We repeat this process $10$ times with different random seeds and we report the average accuracy over all runs.
+% Expliquer comment sont construits les plots
+We evaluate the model on each task after training, and we report the average accuracy over all tasks. We repeat this process $10$ times with different random seeds and we report the average accuracy over all runs.
 
 
 \section{Critical comparison to litterature}
@@ -451,6 +464,7 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
 \end{align}
 
 \begin{table}
+\begin{table}
 \begin{tabular}{|c|c|c|}
     \hline
     \diagbox{{\footnotesize Tested}}{{\footnotesize Trained}} & Taks 1 & Task 2 \\ \hline
@@ -460,10 +474,14 @@ Finally, we can define the pollution of task $i$ by protected weights for task $
 \caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
 \label{table:pollution}
 \end{table}
+\caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
+\label{table:pollution}
+\end{table}
 
 
 \vspace{1mm}
 \noindent
+The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
 The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
 
 \vspace{1mm}

@@ -1,4 +1,4 @@
-\documentclass[twocolumn]{article}
+\documentclass[11pt]{article}
 \setlength{\columnsep}{0.5cm}
 \usepackage[margin=1.5cm]{geometry}
 \usepackage{amsmath}
@@ -119,7 +119,7 @@
 
 
 \twocolumn[
-\maketitle
+
 \begin{abstract}
     %This paper is a critique of unconstrained memoryless modular strategies in continual learning. We argue that these strategies are not well-suited for the problem of continual learning, as they certainly don't solve it but at best, solve specific benchmarks. These approaches do not deal with the core challenges of distributing inputs to modules and merging outputs from modules. More fundamentally, we show that these strategies are inherently unable to tackle these challenges and that they mainly mitigate pollution between tasks. We also discuss the management of hyperparameters in continual learning, which is often unfair and can lead to overfitting on benchmarks. Finally, we propose a naive approach that reaches state-of-the-art performance on two benchmarks, highlighting the limitations of unconstrained memoryless modular strategies.
     Starting with a critical review of Elastic Weight Consolidation method (EWC), we argue that unconstrained memoryless modular strategies does not account for all dimensions of pollution which is an inherent limitation to solve continual learning. So why does the litterature seem to show positive results? The reason lies in the introduction of hyperparameters (HPs) that create trade-offs between the tasks. Therefore, we argue that EWC should not perform any better than any other approach that makes similar trade-offs. To verify this, we present naive baselines along with a more elaborated method that only make trade-offs and show that, with the same amount of hyperparameters, they achieve similar performance to EWC. Additionally, we study how performances are impacted by the amount of hyperparameters, from $O(1)$ to $O(n^2)$. However, with all these HPs, we are essentially overfitting on the benchmarks, which we demonstrate through the introduction of validation benchmarks.
@@ -236,33 +236,62 @@ Such an approach presents several challenges. First, it requires to determine wh
 
 More specifically, We control the growth of the model through two percentiles : the gradient percentile and the Hessian percentile. These percentiles allow us to define what is considered to be "high", relatively to the other weights first and second derivatives.
 
-
 \vspace{2mm}
 \noindent
 Once the training procedure on a task is done, we compute the second derivative of the loss with respect to each weight through all the data batches of the task. When the second derivative of a given weight with respect to the loss falls above the hessian percentile, comparatively to the second derivate of the other weights, it means that modifying this weight will strongly disturb what has been learnt on the task. Thus, we compute a bianry mask recording which weights are important for the task according to the second derivative. Conversely, when training on a task, if the loss start to stagnate, we take a look at the last computed gradient with backpropagation. If the gradient of a given weight falls above the gradient percentile, comparatively to the other gradients, it means that according to backpropagation, this weight has to be strongly updated. As a consequence, when both the first and the second derivatives of a given weight are high, we have a tension that leads us into growing a new neuron, to accodmodate both backpropagation and the preservation of the knowledge of the task. The weight we grow from is then frozen, it wont be updated ever again, but we will keep backpropagating gradients through it. 
 
 \vspace{2mm}
 \noindent
-Everytime one grows a neuron, this neuron has to be initialized, which means that 6 choices have to be made : the value of its bias, the value of the incoming weights, and the value of the outgoing weights and their respective gradients. The meaning of a growth is allow both the preservation of the knowledge of the task and the learning of the new task. As a consequence, we mostly copy the neuron we are growing from, and we only set the outgoing weights whose first and second derivatives were not high to zero. This choice is motivated by the fact that we don't want the new neuron to disturb the learning process.
+Everytime one grows a neuron, this neuron has to be initialized, which means that 6 choices have to be made : the value of its bias, the value of the incoming weights, and the value of the outgoing weights and their respective gradients. The meaning of a growth is allow both the preservation of the knowledge of the task and the learning of the new task. As a consequence, we mostly copy the neuron we are growing from, and we only set the outgoing weights whose first and second derivatives were not both high to zero. This choice is motivated by the fact that we don't want the new neuron to disrupt the learning process.
 
 
-\begin{algorithm}
+\begin{algorithm*}
     \caption{Training GroHess on $n$ tasks}
     \begin{algorithmic}[1]
-    \State \textbf{Input:} \\ 
-    - A list of $n$ classification tasks $L = [(X_1,Y_1), (X_2,Y_2), \ldots, (X_n,Y_n)]$
-    \State \textbf{Output:} A model $\phi$ able to solve each task
+    \State \textbf{Input:} \\
+    - Model $\Sigma_{ini}$ \\ 
+    - List of $n$ tasks $L = [(X_1,Y_1), \ldots, (X_n,Y_n)]$\\
+    - Hessian percentile $\tau_{hessian}$ \\
+    - Gradient percentile $\tau_{gradient}$
+    \State \textbf{Output:} Trained model $\Sigma_{fin}$ solving each task
     \State
     
-    \State \textbf{Step 1:} Initialize the core model $\phi$ and train it on $(D_1,L_1)$
-    \For{each task $(D_i,L_i)$ in the list}
-        \State \textbf{Step 2:} Freeze parameters of $\phi$ and initialize LoRA parameters $\mathbb{L}_i$.
-        \State \textbf{Step 3:} Train LoRA parameters on task $(D_i,L_i)$ using $\phi$ for forward propagation.
-        \State \textbf{Step 4:} Update $\phi$ by adding $\mathbb{L}_i$ parameters.
+    \State \textbf{Step 1:} Train $\Sigma_{ini}$ on $(X_1,Y_1)$
+    \State \textbf{Step 2:} Compute $\nabla^2_{\Sigma_{ini}} \mathcal{L}_{(X_1,Y_1)}$ for each weight and define the binary mask $\mathcal{M}_{hessian}$ using $\tau_{hessian}$  
+    \For{each reamining task $(X_i,Y_i)$}
+        \For{each batch $(x_i,y_i)$ in $(X_i,Y_i)$}
+            \State \textbf{Step 3:} Perform training step on $(x_i,y_i)$
+            \If{loss stagnates}
+                \State \textbf{Step 4:} Compute $\nabla_{\Sigma_{ini}} \mathcal{L}_{(x_i,y_i)}$ and define the binary mask $\mathcal{M}_{gradient}$ using $\tau_{gradient}$
+                \State \textbf{Step 5:} Compute the binary mask $\mathcal{M}_{overlap}$ as the element-wise product of $\mathcal{M}_{hessian}$ and $\mathcal{M}_{gradient}$
+                \State \textbf{Step 6:} Grow as many neurons on $\Sigma_{ini}$ as $\mathcal{M}_{grow}$ has column with at least a $1$
+                \State \textbf{Step 7:} Freeze the weights we just grew from
+            \EndIf
+        \EndFor
+        \State \textbf{Step 8:} Compute $\nabla^2_{\Sigma_{ini}} \mathcal{L}_{(x_i,y_i)}$ and update $\mathcal{M}_{hessian}$ using $\tau_{hessian}$
     \EndFor
-    \State \textbf{Step 5:} The core model $\phi$ is now trained on each task
     \end{algorithmic}
-    \end{algorithm}
+\end{algorithm*}
+
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/GroHess_explication_1.png}
+        \caption{Hessian mask is computed at the end of training on task $n-1$ and Gradient mask is computed during training on task $n$.}
+        \label{fig:GroHess_explication_1}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/GroHess_explication_2.png}
+        \caption{The important weight is frozen and a new neuron is grown from it.}
+        \label{fig:GroHess_explication_2}
+    \end{subfigure}
+    \caption{Illustration of the GroHess procedure.}
+\end{figure*}
+
 
 
 \subsection{Baselines}

@@ -61,44 +61,6 @@ def get_grad_mask(layer, percentile) :
 
     return grad_mask
 
-def get_grad_vs_hessian_mask(layer, num_layer, num_neurons_layer_2, num_neurons_layer_3, diag_hessian, d1, d2, tau):
-
-    grad = layer.weight.grad.detach().cpu().numpy()[:d1,:d2]
-    #grad_clone = grad.clone().detach().cpu().numpy()
-    hessian = diag_hessian
-    threshold = 1 - tau
-    if num_layer == "1" :
-        threshold /= num_neurons_layer_2/num_neurons_layer_3
-
-    # Ensure the matrices have the same shape
-    assert grad.shape == hessian.shape, "Matrices must have the same shape"
-    
-    # Flatten the matrices to make the ranking easier
-    flat1 = grad.flatten()
-    flat2 = hessian.flatten()
-    
-    # Get the rank indices of each element
-    rank1 = np.argsort(np.argsort(-flat1))  # Ranking in descending order
-    rank2 = np.argsort(np.argsort(-flat2))  # Ranking in descending order
-    
-    # Sum the rank indices
-    sum_ranks = rank1 + rank2
-
-    # Determine the number of top elements to select (10% of the total elements)
-    num_elements = flat1.size
-    top_percent_count = int(np.ceil(threshold * num_elements))
-    
-    # Get the indices of the top 10% elements based on the summed ranks
-    top_indices = np.argsort(sum_ranks)[:top_percent_count]
-    
-    # Create a mask with the same shape as the original matrices
-    mask = np.zeros_like(flat1, dtype=bool)
-    mask[top_indices] = True
-    
-    # Reshape the mask to the original matrix shape
-    mask = mask.reshape(grad.shape)
-    
-    return mask
 
 def get_overall_mask(layer, grow_from, overall_mask, overlap_mask, device):
     if grow_from == "input" :
@@ -112,13 +74,13 @@ def get_overall_mask(layer, grow_from, overall_mask, overlap_mask, device):
 
 
 def should_we_grow (loss_hist) :
-    diff = np.mean(loss_hist[-40:-20]) - np.mean(loss_hist[-20])
-    return 0 < diff and diff < 0.0002 # 0.0002
+    diff = np.mean(loss_hist[-40:-20]) - np.mean(loss_hist[-20:])
+    return 0 < diff and diff < 0.01
 
 
-def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
+def train (model, grow_from, hessian_masks, overall_masks, growth_record, is_first_task,
            loss_name, optimizer_name, lr, num_epochs,
-           tau, #hessian_percentile, grad_percentile,
+           hessian_percentile, grad_percentile,
            train_loader,
            device, random_seed,
            num_classes=10, verbose=0) :
@@ -142,9 +104,11 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
     optimizer = get_optimizer(optimizer_name, model, lr)
     loss_hist = []
     growth_indices = []
-    delay_growth = 30
+    delay_growth = 50
     overall_masks = [torch.tensor(overall_masks[0]).to(device), torch.tensor(overall_masks[1]).to(device)]
     layer_to_grow = "fc1" #if grow_from == "input" else "fc2"
+    growth_record[0].append([])
+    growth_record[1].append([])
 
     # Instantiate hook to freeze weights
     hook_handles = [layers[0].weight.register_hook(lambda grad: apply_mask(grad, overall_masks[0])),
@@ -156,8 +120,6 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
         # Verbose
         if verbose > 0 :
             get_number_of_neurons(model)
-            print("Non frozen params in layer 1 :", overall_masks[0].sum())
-            print("Non frozen params in layer 2 :", overall_masks[1].sum())
 
         # Initialize epoch
         train_batch = iter(train_loader)
@@ -191,18 +153,16 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
                     # here "fc1" means "left". It is the layer fc1 if we grow from input, but fc2 if we grow from output
 
                     # Get hessian mask
-                    diag_hessian = diag_hessians[0]
+                    hessian_mask = hessian_masks[0]
 
                     # Compute grad mask
-                    #grad_mask = get_grad_mask(layers[0], grad_percentile)
-                    grad = layers[0].weight.grad.detach().cpu().numpy()
+                    grad_mask = get_grad_mask(layers[0], grad_percentile)
 
                     # Compute overlap mask
-                    d1,d2 = diag_hessian.shape
-                    comb = torch.tensor(get_grad_vs_hessian_mask(layers[0], "1", int(model.fc2.out_features), int(model.fc3.out_features), diag_hessian, d1, d2, tau).astype(int))
-                    #comb = torch.tensor((hessian_mask & grad_mask[:d1,:d2]).astype(int))
-                    overlap_mask = torch.cat((comb, torch.tensor(np.zeros_like(grad[:d1,d2:]))), dim=1)
-                    overlap_mask = torch.cat((overlap_mask, torch.tensor(np.zeros_like(grad[d1:]))), dim=0).to(device)
+                    d1,d2 = hessian_mask.shape
+                    comb = torch.tensor((hessian_mask & grad_mask[:d1,:d2]).astype(int))
+                    overlap_mask = torch.cat((comb, torch.tensor(grad_mask[:d1,d2:])), dim=1)
+                    overlap_mask = torch.cat((overlap_mask, torch.tensor(grad_mask[d1:])), dim=0).to(device)
 
                     # Update overall mask
                     overall_masks[0], num_neurons = get_overall_mask(layers[0], grow_from, overall_masks[0], overlap_mask, device)
@@ -215,24 +175,32 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
                     # Add new neurons
                     model.add_neurons(overlap_mask, "fc1", grow_from, device)
     
+                    # Keep track of growth
+                    try :
+                        growth_record[0][-1].append(layers[0].in_features.detach().cpu().numpy())
+                    except :
+                        growth_record[0][-1].append(np.array(layers[0].in_features))
+                    try :
+                        growth_record[1][-1].append(layers[1].in_features.detach().cpu().numpy())
+                    except :
+                        growth_record[1][-1].append(np.array(layers[1].in_features))
+    
 
                 # LEFT LAYER GROWTH
                 else :
                     # here "fc1" means "left". It is the layer fc1 if we grow from input, but fc2 if we grow from output
 
                     # Compute hessian mask
-                    diag_hessian = diag_hessians[1]
+                    hessian_mask = hessian_masks[1]
 
                     # Compute grad mask
-                    #grad_mask = get_grad_mask(layers[1], grad_percentile)
-                    grad = layers[1].weight.grad.detach().cpu().numpy()
+                    grad_mask = get_grad_mask(layers[1], grad_percentile)
 
                     # Compute overlap mask
-                    d1,d2 = diag_hessian.shape
-                    comb = torch.tensor(get_grad_vs_hessian_mask(layers[1], "2", int(model.fc2.out_features), int(model.fc3.out_features), diag_hessian, d1, d2, tau).astype(int))
-                    #comb = torch.tensor((hessian_mask & grad_mask[:d1,:d2]).astype(int))
-                    overlap_mask = torch.cat((comb, torch.tensor(np.zeros_like(grad[:d1,d2:]))), dim=1)
-                    overlap_mask = torch.cat((overlap_mask, torch.tensor(np.zeros_like(grad[d1:]))), dim=0).to(device)
+                    d1,d2 = hessian_mask.shape
+                    comb = torch.tensor((hessian_mask & grad_mask[:d1,:d2]).astype(int))
+                    overlap_mask = torch.cat((comb, torch.tensor(grad_mask[:d1,d2:])), dim=1)
+                    overlap_mask = torch.cat((overlap_mask, torch.tensor(grad_mask[d1:])), dim=0).to(device)
                     #overlap_mask = torch.tensor((hessian_mask & grad_mask).astype(int)).to(device)
 
                     # Update overall mask
@@ -245,6 +213,16 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
                     # Add new neurons
                     model.add_neurons(overlap_mask, "fc2", grow_from, device)
 
+                    # Keep track of growth
+                    try :
+                        growth_record[0][-1].append(layers[0].in_features.detach().cpu().numpy())
+                    except :
+                        growth_record[0][-1].append(np.array(layers[0].in_features))
+                    try :
+                        growth_record[1][-1].append(layers[1].in_features.detach().cpu().numpy())
+                    except :
+                        growth_record[1][-1].append(np.array(layers[1].in_features))
+    
 
                 # END OF GROWTH
 
@@ -270,7 +248,7 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
 
     # COMPUTE HESSIAN MASK
 
-    diag_hessians = []
+    hessian_masks = []
     optimizer.zero_grad()
 
     # Get 100% of the batches
@@ -287,13 +265,13 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
         loss_val.backward(create_graph=True)
 
     # Compute hessian masks (which relies on the gradients computed above)
-    diag_hessian = get_diag_hessians(layers[0]).detach().cpu().numpy()
-    #hessian_mask_fc1 = get_hessian_mask(diag_hessian, hessian_percentile)
-    diag_hessians.append(diag_hessian)
+    diag_hessian = get_diag_hessians(layers[0])
+    hessian_mask_fc1 = get_hessian_mask(diag_hessian, hessian_percentile)
+    hessian_masks.append(hessian_mask_fc1)
 
-    diag_hessian = get_diag_hessians(layers[1]).detach().cpu().numpy()
-    #hessian_mask_fc2 = get_hessian_mask(diag_hessian, hessian_percentile)
-    diag_hessians.append(diag_hessian)
+    diag_hessian = get_diag_hessians(layers[1])
+    hessian_mask_fc2 = get_hessian_mask(diag_hessian, hessian_percentile)
+    hessian_masks.append(hessian_mask_fc2)
 
 
     # Clean memory
@@ -303,4 +281,4 @@ def train (model, grow_from, diag_hessians, overall_masks, is_first_task,
     torch.cuda.empty_cache()
 
 
-    return diag_hessians, overall_masks, loss_hist, growth_indices
+    return hessian_masks, overall_masks, growth_record, loss_hist, growth_indices

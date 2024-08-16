@@ -36,20 +36,15 @@ def retrain_one_task (model, params, method_settings, best_params, train_loader,
         best_HPs["lwf_temperature"] = lwf_temperature
     except :
         pass
-    try :
-        tau = best_params["tau"]
-        best_HPs["tau"] = tau
-    except :
-        pass
 
     # Train
-    if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
-        diag_hessians, overall_masks, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
-        return diag_hessians, overall_masks
+    if method_settings["method_name"] == "GroHess" :
+        hessian_masks, overall_masks, growth_record, _, _ = train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
+        return hessian_masks, overall_masks, growth_record
     elif method_settings["method_name"] == "EWC" :
         ewc = train (model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=0)
         return ewc
-    else :
+    else :# method_settings["method_name"] in ["LwF", "Naive baseline"] :
         train(model, method_settings, params, best_HPs, train_loader, device, global_seed, verbose=2)
 
 
@@ -64,8 +59,8 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
         train_loaders_list = benchmark[0].train_stream
     except :
         train_loaders_list = benchmark[0]
-    if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
-        diag_hessians, overall_masks = initialize_training(benchmark_model, method_settings)
+    if method_settings["method_name"] == "GroHess" :
+        hessian_masks, overall_masks, growth_record = initialize_training(benchmark_model, method_settings)
     elif method_settings["method_name"] == "EWC" :
         output = initialize_training(benchmark_model, method_settings, benchmark_settings, device)
 
@@ -78,18 +73,19 @@ def train_with_best_params (method_settings, benchmark_settings, best_params_lis
         # Retrain and save a model with the best params
         params = {}
         train_loader = train_loaders_list[task_number]
-        if method_settings["method_name"] in ["GroHess", "GroHess_without_growing"] :
+        if method_settings["method_name"] == "GroHess" :
             if output is not None :
-                diag_hessians, overall_masks = output
+                hessian_masks, overall_masks, growth_record = output
             is_first_task = True if task_number==0 else False
-            params = {"diag_hessians" : diag_hessians, "overall_masks" : overall_masks, "is_first_task" : is_first_task}
-        if method_settings["method_name"] in ["EWC"] :
+            params = {"hessian_masks" : hessian_masks, "overall_masks" : overall_masks, "growth_record" : growth_record, "is_first_task" : is_first_task}
+        elif method_settings["method_name"] in ["EWC"] :
             params = {"ewc" : output}
-        if method_settings["method_name"] in ["LwF"] :
+        else :# method_settings["method_name"] in ["LwF"] :
             params = {"batch_size" : benchmark_settings["batch_size"]}
         output = retrain_one_task(benchmark_model, params, method_settings, best_params_list[task_number], train_loader, device, global_seed) 
     
-    return benchmark_model
+    growth_record = output[2] if method_settings["method_name"] == "GroHess" else None
+    return benchmark_model, growth_record
 
 
 def greedy_validate(benchmarks_list, benchmark_settings, method_settings, best_params_list, device, global_seed) :
@@ -100,6 +96,9 @@ def greedy_validate(benchmarks_list, benchmark_settings, method_settings, best_p
     # Initialize the matrix to store the validation accuracies
     val_accs_matrix = np.zeros((num_val_benchmarks, num_tasks))
 
+    # Initialize storage for growth_record
+    growth_records = []
+
     # Train on each benchmark
     for i in range(1, num_val_benchmarks+1) :
 
@@ -109,11 +108,12 @@ def greedy_validate(benchmarks_list, benchmark_settings, method_settings, best_p
 
         # Train model with best params obtained through HPO on benchmark 0
         benchmark = benchmarks_list[i]
-        benchmark_model = train_with_best_params(method_settings, benchmark_settings, best_params_list, benchmark, num_tasks, device, global_seed+1)
+        benchmark_model, growth_record = train_with_best_params(method_settings, benchmark_settings, best_params_list, benchmark, num_tasks, device, global_seed+1)
+        growth_records += [growth_record]
 
         # Test on each task
         test_loaders_list = benchmarks_list[i][2]
         for j in range(num_tasks) :
             val_accs_matrix[i-1,j] = round(test(benchmark_model, test_loaders_list[j], device),2)
 
-    return val_accs_matrix
+    return val_accs_matrix, growth_records

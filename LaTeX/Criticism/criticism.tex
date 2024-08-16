@@ -709,12 +709,49 @@ Remarkably, all the papers reporting results above or equal to $90\%$ accuracy o
 \subsection{Validation}
 
 
-Actually, what we refere to as "cheated HPO" where a single HPO is performed through all the tasks at the same time, could be just fine if one was performing the HPO on a benchmark, and then show the performances of the approach on another benchmark with the same hyperparameters. But this is not the case, as authors report performance on the benchmarks they performed hyperparameter optimization on. As we mentioned earlier, the role of these hyperparameters is to perform trade-offs between how much the model remembers of each task. So, $a priori$, we argue that there is no reason to believe that the hyperparameters that are good for a benchmark are good for another benchmark as they encapsulate the relative differences of the tasks within the benchmark. This benchmark-specificity of hyperparameters is the source of what we refere to as "overfitting on benchmark". Additionnaly, one should note that the cheated HPO implicitly exploit the number tasks, so the values of the hyperparameters obtained through this HPO would only be suited for benchmarks containing the same amout of tasks, which offers very narrow deployement opportunities. 
+Actually, what we refere to as "cheated HPO" where a single HPO is performed through all the tasks at the same time, could be just fine if one was performing the HPO on a benchmark, and then showing the performances of the approach on another benchmark with the same hyperparameters. But this is not the case, as authors report performance on the benchmarks they performed hyperparameter optimization on. As we mentioned earlier, the role of these hyperparameters is to perform trade-offs between how much the model remembers of each task. So, $a priori$, we argue that there is no reason to believe that the hyperparameters that are good for a benchmark are good for another benchmark as they encapsulate the relative differences of the tasks within the benchmark. This benchmark-specificity of hyperparameters is the source of what we refere to as "overfitting on benchmark". Additionnaly, one should note that the cheated HPO implicitly exploit the number tasks, so the values of the hyperparameters obtained through this HPO would only be suited for benchmarks containing the same amout of tasks, which offers very narrow deployement opportunities. 
 
 \vspace{1mm}
 \noindent
 A relevant inquiry would be to quantify this overfitting. An approach to do so is to perform HPO on a benchmark and then measure the drop of performance on another benchmark. Our hypothesis is that we should observe very little drop of performance between two benchmarks made of 10 different p-mnist task. However, if we decide of the hyperparameters on a benchmark made of 10 p-MNIST tasks and then test the strategy on a benchmark made of 10 soft $8\times8$-p-MNIST task, as defined in \cite{EWC}, we expect a drop in perfomances. This drop should be even more visible if test benchmark is derived from a different dataset, such as CIFAR-100. Note that, with the willingness to be very careful and precise, a proper quantification of overfitting of a strategy should be considered in relation to the similarity between benchmarks. Indeed, it is reasonnable that two very different benchmarks require two different sets to of hyperparameters. Unfortunately, this requires to define and quantify similarity between tasks, and it is a subtle inquiry to build a relevent metric that is versatile enough.
 
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/val_accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
+    \caption{2 ellipses as depicted in EWC-like papers}
+    \label{fig:best_params}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/accuracy_through_benchmarks_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
+        \caption{2 ellipses as depicted in EWC-like papers}
+        \label{fig:val_accs_matrix}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{images/violin_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-01.png}
+        \caption{A more realistic view of parameters space}
+        \label{fig:graph_test_vs_val}
+    \end{subfigure}
+    \caption{Representations of the parameters space}
+\end{figure*}
+
+
+
+
+
+
+\section{Critical comparison to litterature}
+
+
+
+\subsection{Tradeoffs in continual learning}
 
 
 
@@ -724,14 +761,6 @@ A relevant inquiry would be to quantify this overfitting. An approach to do so i
     \caption{Best params}
     \label{fig:best_params}
 \end{figure}
-
-
-
-\section{Critical comparison to litterature}
-
-
-
-\subsection{Tradeoffs in continual learning}
 
 
 \subsection{Geometrical argument}
@@ -979,47 +1008,6 @@ Overcomplexification : In AFEC: Active Forgetting of Negative Transfer in Contin
 
 There is no doubt that EWC is capable of solving benchmarks, but with all these inaccuracies and uncertainties, it certainly does not solve continual learning by "overcoming catastrophic forgetting". At best, it mitigates it, and the purpose of the following section is to attempt to quantify how much EWC is able to mitigate catastrophic forgetting.
 
-
-
-\section{Methods}
-
-
-
-\subsection{EWC}
-
-EWC presents several reproducibility issues.
-Most paper "reuse" the results of the original paper without reprocuing them
-Some paper tried to reproduce the result but obtain much lower results
-Other papers show very inconsistant results
-And finally, papers trying to apply EWC to new benchmarks show that it is not working well, or even terribly bad. It is likely that these results are significantly poorer because authors don't spend as much energy trying to specificly tune hyperparameters as EWC authors did.
-
-
-
-
-\begin{figure*}
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/val_accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
-    \caption{2 ellipses as depicted in EWC-like papers}
-    \label{fig:best_params}
-\end{figure*}
-
-\begin{figure*}
-    \centering
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/accuracy_through_benchmarks_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:val_accs_matrix}
-    \end{subfigure}
-    \hspace{-0mm}
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.3\textwidth]{images/violin_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-01.png}
-        \caption{A more realistic view of parameters space}
-        \label{fig:graph_test_vs_val}
-    \end{subfigure}
-    \caption{Representations of the parameters space}
-\end{figure*}
 
 
 \section{Discussion}

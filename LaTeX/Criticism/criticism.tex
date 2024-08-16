@@ -360,7 +360,11 @@ Despite this criticism, we have chosen to use p-MNIST benchmarks. They are relev
 \subsection{Training protocol}
 
 
-We train our models following GroHess algorithm on a sequence of $10$ p-MNIST tasks, each with the usual $10$ MNISTS classes. For each task $80\%$ of the train set is used for training, $20\%$ is used for validation and $100\%$ of the test set is used to test the model. We train GroHess the Adam optimizer and the cross-entropy loss. For each task, the number of epochs and the learning rate are left as optimizable hyperparameters. We use a batch size of $128$. See \ref{table:HPs} for the complete list of hyperparameters.
+Our model consist in a multi layer perceptron with 2 hidden layers (or 3 layers in total). Input and output sizes are 784 and 10 respectively. Each hidden layer contains initialy contains 300 neurons. The growth of the model happens from the output layer, which means that when a weight has both a high first and second derivatives, we grow a neuron on the layer preceeding it (in the forward sense). We control the growth of the model through two percentiles : the gradient percentile and the Hessian percentile. When both first and second derivative of the loss with respect to a weight are above the gradient and Hessian percentiles, respectively, we grow a new neuron. 
+
+\vspace{2mm}
+\noindent
+We train our models following GroHess algorithm on a sequence of $10$ p-MNIST tasks, each with the usual $10$ MNISTS classes. For each task $80\%$ of the train set is used for training, $20\%$ is used for validation and $100\%$ of the test set is used to test the model. We train GroHess with the Adam optimizer and the cross-entropy loss. For each task, the number of epochs and the learning rate are left as optimizable hyperparameters. We use a batch size of $128$. See \ref{table:HPs} for the complete list of hyperparameters.
 
 
 \begin{table}[h!]
@@ -391,29 +395,63 @@ We train our models following GroHess algorithm on a sequence of $10$ p-MNIST ta
     \label{table:HPs}
 \end{table}
 
-Our model consist in a multi layer perceptron with 2 hidden layers (or 3 layers in total). Input and output sizes are 784 and 10 respectively. Each hidden layer contains initialy contains 300 neurons. The growth of the model happens from the output layer, which means that when a weight has both a high first and second derivative, we grow a neuron on the layer preceeding it (in the forward sense). We control the growth of the model through two percentiles : the gradient percentile and the Hessian percentile. When both first and second derivative of the loss with respect to a weight are above the gradient and Hessian percentiles, respectively, we grow a new neuron. 
 
-
-is considered important and a new neuron is added to the output layer. 
-
+As the training loop is called once for each task, it means that a learning rate and number of epoch have to be found through hyperparameter optimization (HPO) for each task. HPO is performed using the Optuna library [REFLA] with the Tree Parzen Estimator (TPE) algorithm. We use the validation set to evaluate the performance of the model and to optimize the hyperparameters. We use the average accuracy over all tasks as the metric to optimize. We perform HPO for each task sequentially, meaning that once the best hyperparameter values for a task are found, we retrain the model with them before moving to the next task. We repeat this process $10$ times with random seeds 88 to 92 and we report the average test accuracy over all runs.
 
 
 
 \section{Results}
-% Critique
-% Expliquer comment sont construits les plots
-We evaluate the model on each task after training, and we report the average accuracy over all tasks. We repeat this process $10$ times with different random seeds and we report the average accuracy over all runs.
 
 
-\section{Critical comparison to litterature}
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+        \caption{Test accuracy on each task as GroHess move forward through the tasks}
+        \label{fig:test_accs_matrix}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{images/avg_acc_curve_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+        \caption{Average test accuracy on tasks trained so far}
+        \label{fig:classic_plot}
+    \end{subfigure}
+    \caption{Evolution of the average test accuracy during training. The plots show the average test accuracy over all runs on seed 88 to 92. \ref{fig:classic_plot} also represents the standard deviation over runs.}
+\end{figure*}
+
+In \ref{fig:test_accs_matrix}, we show the test accuracy on each task as GroHess move forward through the tasks. This visualization provides a better insight than aggregated metrics as it allows us to inspect directly the performance of the model on each task during training. An interested feature of our method is that the coefficients below the diagonal of the matrix, on the same line are relatively equal, which means that our GroHess is able to retain knowledge of the previous tasks without completely overwritting them. Additionally, we observe that column-wise, the accuracy is decreasing, which is reasonnable : as the model learns tasks, it has to remember more past tasks, which makes the learning process harder.
+
+\vspace{2mm}
+\noindent
+Additionnaly, \ref{fig:classic_plot} shows the average test accuracy on tasks trained so far. In other words, the value associated to abscisse $i$ is the average of the coefficients below the diagonal of the $i^{th}$ line of the matrix in \ref{fig:test_accs_matrix}. This plot is a more classical way to represent the performance of the model as it moves forward through the tasks, as it shows the ability of the approach to learn the first tasks of the benchmark. The last point of this plot represent the average test accuracy over all tasks, once the model has been trained on all of them.
 
 
-\subsection{Geometrical argument}
-% introduire les points nécessaires des méthodes que cet argument critique
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=0.75\textwidth]{images/cat.jpg}
+        \caption{Our results, along with results collected in the litterature on the 10 tasks p-MNIST benchmark [REFLA].}
+        \label{fig:results}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=0.75\textwidth]{images/cat.jpg}
+        \caption{Same results as in \ref{fig:results}, but grouped by type of approach.}
+        \label{fig:results_grouped}
+    \end{subfigure}
+    \caption{Results}
+\end{figure*}
 
+Additionally, we present the results obtained with GroHess along with a comparison to litterature in \ref{fig:results}. We also compare our approach to the baselines we introduced in the previous section. Each dot in this plot represent the average accuracy over all tasks of a p-MNIST benchmark after training on all of them sequentially. For both our methods and the methods reproduced, the error bars represent the standard deviation over runs on seed 88 to 92. The permutations used to generate the p-MNIST tasks are the same for all the methods we ran, namely the first permutation as suggested by the random module of numpy when provide seeds 1 to 10.
 
-\subsection{Combinatorial argument}
-% introduire les points nécessaires des méthodes que cet argument critique
+\vspace{2mm}
+\noindent
+Then, we group the results by type of approach in \ref{fig:results_grouped}. We identify detached groups. The methods relying on replay-based learning or rehearsal are performing much better than the other methods. The performances of the regularization methods are more spread, but they are generally better than our baselines and GroHess.
 
 
 
@@ -421,124 +459,38 @@ We evaluate the model on each task after training, and we report the average acc
 
 
 
-\subsection{Validation}
-
-
 \subsection{Hyperparameters optimizations}
 
 
+In the section in which the training protocol is introduced, we suggested to have only two hyperparameters, the number of epochs and the learning rate. However, as we mentionned, we performed one HPO for each task we train our model on. As consequence, despite having two hyperparameters, we end up with $10$ values for each of them, which means that the whole training procedure on the benchmark carries $20$ hyperparameters. 
 
-\section{Additional remarks and opening}
-% GradMax
-% Usecases
-% DANN
-
-
-
-\section{Conclusion}
-
-
-
-\section{Our criticism}
-
-
-
-\subsection{Pollutions}
-
-
+\vspace{2mm}
 \noindent
-As a very general principle, the problem with these approaches in the context of continual learning is that
-\begin{quote}
-    \itshape
-    \centering
-    Improving on task 2 means deteriorating on task 1, and reciprocally.
-\end{quote}
-
-\noindent
-It does not mean that the more tasks there are to solve, the harder it gets to solve them all, which is true. But this statement is stronger, it means that tasks are inhrently put in a competition setting with each other. This implies that performing continual learning in such a way requires to perform trade-offs. And the most convenient way one performs trade-offs in deep learning is through hyperparameters.
+Continual learning enables several ways to manipulate hyperparameters. In this subsection, we will discuss various approaches to manipulate them. 
 
 \vspace{1mm}
 \noindent
-Let's assume we are given $I$ tasks indexed in increasing order by the set $\intset{1}{I}$. We define a neural network as the set of its parameters
-\begin{align}
-    \phi = \left\{\left\{ w_{l,m,n} \in \mathbb{R} | m,n \in \llbracket 1, N_{l-1} \rrbracket \times \llbracket 1, N_{l} \rrbracket \right\} | l \in \llbracket 1, L+1 \rrbracket \right\}
-\end{align}
-where $L$ is the number of hidden layers and $N_l$ is the number of neurons on layer $l$.
+Let's introduce a hyperparameter $\lambda$. One could set this hyperparameter to be the same for all the tasks, which would result in a total of $1$ hyperparameter. To set the value of this hyperparameter, one could perform a single HPO on the first task, and keep using the same value for the forecoming task. However, when proceeding that way, the hyperparameter is not optimized for each task, only for the first one. Therefor, this way of performing HPO is not suited for our continual learning framework. In order to keep $\lambda$ to only one value while optimizing it on all the tasks, one could perform a single HPO on the whole benchmark. That means that once a value for $\lambda$ is suggested by the HPO algorithm, we would train through all the tasks using this value. At the end of the HPO, we would end up with a single value of $\lambda$ that would be tuned for all the tasks. However, optimizing in such a way require to have access to all the tasks at the same time, which breaks the continual learning framework. Indeed the value of $\lambda$ used when training on the first task as to be decided before accessing data from the latter tasks. This way of performing HPO is highly problematic as it causes data leakage. That is why we refere to it as a cheated HPO with respect to continual learning framework. See [\ref{tab:HPOs}] top-left.
 
 \vspace{1mm}
 \noindent
-Let's define $\mathbb{W}_{l,n}^i$ to be the set of protected weights for task $i$ with respect to neuron $n$ of layer $l$, for any $i \in \intset{1}{I}$, $l \in \intset{1}{L+1}$ and $n \in \intset{1}{N_l}$:
-\begin{align}
-    \mathbb{W}_{l,n}^i = \left\{ w_{l,m,n}, m \in \intset{1}{N_{l-1}} | w_{l,m,n} \text{ protected} \right\}
-\end{align}
+Alternatively, one could set this hyperparameter to a specific value $\lambda_i$ for each task $i$, this would require to perform an HPO on each task and would result in a total of $n$ hyperparameters. This way of performing HPO is suited for continual learning framework, as tasks are treated strictly sequentially. This is how we proceeding when training with GroHess and it is also the most common approach to HPO in the litterature. See [\ref{tab:HPOs}] bottom-center. As optimizing for the value of $\lambda_{i+1}$ requires to have the value of $\lambda_i$, we refere to this approach as greedy HPO.
 
 \vspace{1mm}
 \noindent
-which allows to define the pollution of task $i$ by protected weights for task $j$ on neuron $n$ of layer $l$ as
-\begin{align}
-    p_{l,n}^{i\rightarrow j} = \mathbb{E}_{x \sim D_i}\left[\frac{\sum_{w \in \mathbb{W}_{l,n}^j}{w(x)}}{\sum_{w \in \mathbb{W}_{l,n}^i}{w(x)}}\right]
-\end{align}
+Remarkably, one could merge both of the previous approaches is a cheated HPO with $n$ parameters. This would require to perform a single HPO on the whole benchmark, but instead of suggesting a single value of $\lambda$ at each trial, the HPO algorithm would suggest values $\lambda_1,...,\lambda_n$, one for each task $i$. This way of performing HPO is even more problematic than the first way as it combines data leakage and a rather high number of hyperparameters. See [\ref{tab:HPOs}] top-center.
 
 \vspace{1mm}
 \noindent
-Finally, we can define the pollution of task $i$ by protected weights for task $j$ on the whole network as
-\begin{align}
-    P^{i\rightarrow j} = \frac{1}{L+1}\sum_{l=1}^{L+1}{\frac{1}{N_l}\sum_{n=1}^{N_l}{p_{l,n}^{i\rightarrow j}}}
-\end{align}
+Finally, some methods in the literature introduce a hyperparameter $\lambda$ that is explicitly used to make tradeoffs between how much the model should learn from the new task versus how much it shoud retain from the previous tasks [REFLA]. Such a hyperparameter can be optimized as describded above, but it may also be used to perform tradeoffs directly between tasks. For instance, when training on task 2, one could have a $\lambda_{2,1}$ that would be used to make tradeoffs between how much the model should learn from task 2 and how much it should remember from task 1. When moving to task 3, one could have a $\lambda_{3,1}$, to tune how much the model should learn from task 3 and how much it should remember from task 1 along with a $\lambda_{3,2}$ for how much the model should learn from task 3 versus how much it should remember from task 2. More generally, one could even set a different value for this hyperparameter for each pair of tasks, meaning that one could introduce $\lambda_{i,j}$ for mitigating catastrophic forgetting of task $j<i$ when learning task $i>1$. Ultimately, this would result in a total of $\frac{(n-1)n}{2}$ hyperparameters. Similarly to the HPO with $n$ hyperparameters, this way of performing HPO could fit the continual learning framework, see [\ref{tab:HPOs}] bottom-right, but it could also be done is a cheated way, see [\ref{tab:HPOs}] top-right.
 
-\begin{table}
-\begin{tabular}{|c|c|c|}
-    \hline
-    \diagbox{{\footnotesize Tested}}{{\footnotesize Trained}} & Taks 1 & Task 2 \\ \hline
-    Task 1 & \includegraphics[width=2.5cm]{images/pollution_11.png} & \includegraphics[width=2.5cm]{images/pollution_12.png} \\ \hline
-    Task 2 & \notableentry & \includegraphics[width=2.5cm]{images/pollution_21.png} \\ \hline
-\end{tabular}
-\caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
-\label{table:pollution}
-\end{table}
+%The perspective of most papers is to introduce a hyperparameter at the task-level, generaly in the loss used to train on a task. That is, they write the loss used while training on task 1 and the loss used for training on task 2, where they introduce the hyperparameter. This hyperparameter appears as an attempt to control the trade-off between the importance of the new task and the importance of the old tasks. However, they remain fuzzy about what happen to this hyperparameter on the latter tasks and the way to choose the value for the hyperparameter. 
 
+%hyperparameters $\it{i.e.}$ $O(n^2)$ hyperparameters. Thus, it appears that the fuzziness of authors about the precise number of hyperparameters is not a minor issue as it can lead to very different hyperparameters manipulation. 
 
-\vspace{1mm}
-\noindent
-The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
+%Not only is the number of hyperparameters introduced by the authors not clear, but also the way they are chosen. If they introduce only $1$ hyperparameter, that is the same for all tasks, then in the best case, it is chosen by hand, which is a very bad practice. In this case, the authors should at least explain why they chose this value or provide a heuristic, which is often not the case. In the worst case, they choose this hyperparameter through a hyperparameter optimization over all the tasks $-$ see [\ref{tab:HPOs}] top-left $-$ which is highly problematic due to data leakage. This breaks the continual learning framework as, after deployement, one has to decide the value of the hyperparameter when training on task $2$ without accessing data from the latter tasks to help deciding. This is considered cheating in the context of continual learning. However, it seems that several papers are doing so. The same could be performed with in the $O(n)$ and $O(n^2)$ hyperparameters scenarios $-$ see [\ref{tab:HPOs}] top-middle and top-right $-$ which would be even more problematic, but as it looks even more obviously problematic, it seems that no one had the idea to do so.
 
-\vspace{1mm}
-\noindent
-More boradly, the challenge is to deal with $P^{i\rightarrow j}$ for $j \neq i$, which requires to learn data from task $i$ without being polluted by data from task $j$. Regularization approaches such as EWC claim to solve pollution of task $j$ over task $i$ $(P^{i\rightarrow j}=0)$ for $j<i$. While they can't really overcome it, they can at least mitigate it by penalizing the distance between the weights of the model after training on task $i$ and the weights of the model after training on task $j$. However, they do not tackle the minimization of $P^{i\rightarrow j}$ for $j>i$. But they have a good reason no to tackle it : this is a fundamental limitation of this familly approaches, as it is inherently not possible to deal with it. Indeed, without contraints or some form of memory of the previous tasks, when provided a sample from task $i$, the model has no discrimination power of weights updated for task $j$ from the ones the approach identified as specific for task $i$ when training on task $j$, for $j>i$. So it can't know how to react to a sample from task $i$ after training on task $j>i$.
-
-\vspace{1mm}
-\noindent
-Conversely, allowing some form of memorization of previous data distribution may enable to discriminate between samples features. This is has been attempted through replay memory approaches \cite{replay1}, \cite{replay2} and rehearsal methods \cite{rehearsal}. Alternatively, it can also be achieved through gating mechanisms such as mixture of expert models \cite{moe}, \cite{dmoe}. These approaches are not memoryless. However, in memoryless approaches we have no direct control over the way the neurons specialized to task $j$ will react when fed with samples from task $i<j$. So the very last hopes without memory is that the weights are such that they implicitly encode information about the task's specificities. This can be performed with constrained models, such as CNN, through which one could enforce convolution kernels associated to one task to be orthogonal to the convolution kernels associated to another task. And with additional contraints, this would prevent the model from using the same features for two different tasks while selecting for the most relevant features for each task. But, we considere unconstrained approaches, so the model has no reason to encourage such behavior.
-
-
-\subsection{Hyperparameters (mis)manipulations in continual learning}
-
-
-Continual learning enables several ways to manipulate hyperparameters. In this subsection, we will discuss various approaches to manipulate them. The perspective of most papers is to introduce a hyperparameter at the task-level, generaly in the loss used to train on a task. That is, they write the loss used while training on task 1 and the loss used for training on task 2, where they introduce the hyperparameter. This hyperparameter appears as an attempt to control the trade-off between the importance of the new task and the importance of the old tasks. However, they remain fuzzy about what happen to this hyperparameter on the latter tasks and the way to choose the value for the hyperparameter. 
-
-\vspace{1mm}
-\noindent
-Let's introduce a hyperparameter $\lambda$. One could set this hyperparameter to be the same for all the tasks, which would result in a total of $1$ hyperparameter. Alternatively, one could set this hyperparameter to a specific value $\lambda_i$ for each task $i>1$, which would result in a total of $n-1$ hyperparameters. Or one could even set a different value for this hyperparameter for each pair of tasks, meaning that one could introduce $\lambda_{i,j}$ for mitigating catastrophic forgetting of task $j<i$ when learning task $i>1$. This would result in a total of $\frac{(n-1)n}{2}$ hyperparameters $\it{i.e.}$ $O(n^2)$ hyperparameters. Thus, it appears that the fuzziness of authors about the precise number of hyperparameters is not a minor issue as it can lead to very different hyperparameters manipulation. 
-
-\vspace{1mm}
-\noindent
-Not only is the number of hyperparameters introduced by the authors not clear, but also the way they are chosen. If they introduce only $1$ hyperparameter, that is the same for all tasks, then in the best case, it is chosen by hand, which is a very bad practice. In this case, the authors should at least explain why they chose this value or provide a heuristic, which is often not the case. In the worst case, they choose this hyperparameter through a hyperparameter optimization over all the tasks $-$ see [\ref{tab:HPOs}] top-left $-$ which is highly problematic due to data leakage. This breaks the continual learning framework as, after deployement, one has to decide the value of the hyperparameter when training on task $2$ without accessing data from the latter tasks to help deciding. This is considered cheating in the context of continual learning. However, it seems that several papers are doing so. The same could be performed with in the $O(n)$ and $O(n^2)$ hyperparameters scenarios $-$ see [\ref{tab:HPOs}] top-middle and top-right $-$ which would be even more problematic, but as it looks even more obviously problematic, it seems that no one had the idea to do so.
-
-\vspace{1mm}
-\noindent
-In the three cases discussed above, we considered a single HPO performed on the training through all tasks simultaneously, which we regard as unfair. An alternative approach is to perform an HPO for each task individually, in a greedy fashion. This approach assumes at least one hyperparameter by task, so $O(1)$ hyperparameters is not suited $-$ see [\ref{tab:HPOs}] bottom-left. This approach enables defining $O(n^2)$ hyperparameters $\lambda_{i,j}$ for mitigating catastrophic forgetting of task $j<i$ when learning task $i>1$, where one performs an HPO on task $i$ once the model is already trained on tasks $j<i$, before moving to task $i+1$ $-$ see [\ref{tab:HPOs}] bottom-right. However, we argue that it represents to many parameters, and makes questionnable the sacalability of this approach. Additionnaly, it is likely to lead to an overfitting on benchmark through over-specificity of tradeoffs. Finally the most reasonable approach seems to perform an HPO on each task individually, in a greedy fashion, but with only $O(n)$ hyperparameters, one for each task $-$ see [\ref{tab:HPOs}] bottom-middle. This approach is compatible with the continual learning framework, as setting the hyperparameter for training on task $i$ can be done without accessing data from the latter tasks.
-
-\vspace{1mm}
-\noindent
-Actually, what we refere to as "cheated HPO" where a single HPO is performed through all the tasks at the same time, could be just fine if one was performing the HPO on a benchmark, and then show the performances of the approach on another benchmark with the same hyperparameters. But this is not the case, as authors report performance on the benchmarks they performed hyperparameter optimization on. As we mentioned earlier, the role of these hyperparameters is to perform trade-offs between how much the model remembers of each task. So, $a priori$, we argue that there is no reason to believe that the hyperparameters that are good for a benchmark are good for another benchmark as they encapsulate the relative differences of the tasks within the benchmark. This benchmark-specificity of hyperparameters is the source of what we refere to as "overfitting on benchmark". Additionnaly, one should note that the cheated HPO implicitly exploit the number tasks, so the values of the hyperparameters obtained through this HPO would only be suited for benchmarks containing the same amout of tasks, which offers very narrow deployement opportunities. 
-
-\vspace{1mm}
-\noindent
-A relevant inquiry would be to quantify this overfitting. An approch to do so is to perform HPO on a benchmark and then measure the drop of performance on another benchmark. Our hypothesis is that we should observe very little drop of performance between two benchmarks made of 10 different p-mnist task. However, if we decide of the hyperparameters on a benchmark made of 10 p-MNIST tasks and then test the strategy on a benchmark made of 10 soft $8\times8$-p-MNIST task, as defined in \cite{EWC}, we expect a drop in perfomances. This drop should be even more visible if test benchmark is derived from a different dataset, such as CIFAR-100. Note that, with the willingness to be very careful and precise, a proper quantification of overfitting of a strategy should be considered in relation to the similarity between benchmarks. Indeed, it is reasonnable that two very different benchmarks require two different sets to of hyperparameters. Unfortunately, this requires to define and quantify similarity between tasks, and it is a subtle inquiry to build a relevent metric that is versatile enough.
-
-\vspace{1mm}
-\noindent
-Finally, it appears that manipulation of hyperparameters in the context of continual learning is subtle, and we encourage more care in their management. Additionnaly, hyperparameters keep being thought at the scale of tasks, but instead of task-wise hyperparameters, a  with thinking hyperparameters at the scale of the entire benchmark could be an interesting new perspective, more aligned with the continual learning framework. However, this would require to conducts HPOs on one or multiple benchmarks and evaluate the performance on a different benchmark using the same set of hyperparameters, to prevent overfitting on benchmarks.
+%In the three cases discussed above, we considered a single HPO performed on the training through all tasks simultaneously, which we regard as unfair. An alternative approach is to perform an HPO for each task individually, in a greedy fashion. This approach assumes at least one hyperparameter by task, so $O(1)$ hyperparameters is not suited $-$ see [\ref{tab:HPOs}] bottom-left. This approach enables defining $O(n^2)$ hyperparameters $\lambda_{i,j}$ for mitigating catastrophic forgetting of task $j<i$ when learning task $i>1$, where one performs an HPO on task $i$ once the model is already trained on tasks $j<i$, before moving to task $i+1$ $-$ see [\ref{tab:HPOs}] bottom-right. However, we argue that it represents to many parameters, and makes questionnable the sacalability of this approach. Additionnaly, it is likely to lead to an overfitting on benchmark through over-specificity of tradeoffs. Finally the most reasonable approach seems to perform an HPO on each task individually, in a greedy fashion, but with only $O(n)$ hyperparameters, one for each task $-$ see [\ref{tab:HPOs}] bottom-middle. This approach is compatible with the continual learning framework, as setting the hyperparameter for training on task $i$ can be done without accessing data from the latter tasks.
 
 \begin{table*}[h!]
     \centering
@@ -715,29 +667,171 @@ Finally, it appears that manipulation of hyperparameters in the context of conti
     \label{tab:HPOs}
 \end{table*}
 
+\vspace{1mm}
+\noindent
+Despite hyperparameters manipulation being critical, it seems that some confusion remains in the litterature. The overwhelming majority of paper do not report the report their way of performing HPO or remain fuzzy about the management and values of certain hyperparameters [REFLA]. On the other hand, among the papers that do report their HPO procedure, some fall into the cheated HPO category, which calls into question the legitimacy of their results [REFLA].
+
+\vspace{1mm}
+\noindent
+For instance the original Elastic Weight Consolidation (EWC) paper [REFLA] seems to suffer from this issue. EWC is a regularisation method that attempts to tackle catastrophic forgetting by penalizing changes in important weights. The weights that are important for a task are the ones that updating would cause the model to move away from the solution of the task. Authors leverage the Fisher Information Matrix to define this importance and enforce the update of important weights to be performed in a direction that does not hurt the knowledge on the tasks already learnt. As introduced in the original paper, training on task $2$ the loss used by EWC can be written as $\mathcal{L} = \mathcal{L}_{2} + \lambda\mathcal{L}_{reg}$, where $\mathcal{L}_{2}$ accounts for maximizing the performance on task 2, $\lambda$ is a positive scalar and $\mathcal{L}_{reg}$ accounts for the regularization between task 1 and 2.
+
+\vspace{1mm}
+\noindent
+However, in this paper, authors do not explain how this regularization term scales with the number of tasks. It could be the case that the same value of $\lambda$ is used for all the tasks, which would lead to write the loss used while training on task $m$ as 
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{m} + \lambda{L}_{reg,m}
+\end{equation}
+or it could be the case that a different value of $\lambda$ is used for each task, which would lead to write the loss used while training on task $m$ as
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{m} + \lambda_{m}{L}_{reg,m}
+\end{equation}
+or the authors might want to make tradeoffs between each pair of tasks, introducing a loss of the following form when training on task $m$
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{m} + \sum_{i=1}^{m-1}\lambda_{m,i}\mathcal{L}_{reg,m,i}
+\end{equation}
+
+\vspace{1mm}
+\noindent
+Each of these $3$ possible ways of proceeding would result in a total of $O(1)$, $O(n)$ or $O(n^2)$ hyperparameters, respectively. However, the authors do not provide any information about the way they proceeded, which is highly problematic. Additionally, authors do not report the value of the hyperparameter they introduced nor the process of optimizing it and they do not provide their code. This lack of clarity is a major issue as it makes it impossible to reproduce the results of the paper. Despite the fact that the community reimplemented the method, the method itself does not include the manipulation of hyperparameters made by athors. As a consequence, attempts to reproduce these methods are very disparate and yield contrasted results. See [\ref{fig:EWCs}] for a summary of the results we identified in the litterature.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.40\textwidth]{images/cat.jpg}
+    \caption{Summary of the results we identified in the litterature about EWC on 10 tasks p-MNIST benchmarks [REFLA].}
+    \label{fig:EWCs}
+\end{figure}
+
+\vspace{1mm}
+\noindent
+Remarkably, all the papers reporting results above or equal to $90\%$ accuracy on the 10 tasks p-MNIST benchmark are either performing a cheated HPO or not explaining their HPO procedure. In particular, the original paper mention that the size of the hidden layers is an optimizable hyperparameter. However, the size of the model does not change when training on the benchmark. This suggests that the HPO performed by the authors of the original paper covers the entire benchmark, that is, the HPO is very likely cheated and include $O(n)$ hyperparameters. See \ref{tab:HPOs} top-center.
+
+
+\subsection{Validation}
+
+
+Actually, what we refere to as "cheated HPO" where a single HPO is performed through all the tasks at the same time, could be just fine if one was performing the HPO on a benchmark, and then show the performances of the approach on another benchmark with the same hyperparameters. But this is not the case, as authors report performance on the benchmarks they performed hyperparameter optimization on. As we mentioned earlier, the role of these hyperparameters is to perform trade-offs between how much the model remembers of each task. So, $a priori$, we argue that there is no reason to believe that the hyperparameters that are good for a benchmark are good for another benchmark as they encapsulate the relative differences of the tasks within the benchmark. This benchmark-specificity of hyperparameters is the source of what we refere to as "overfitting on benchmark". Additionnaly, one should note that the cheated HPO implicitly exploit the number tasks, so the values of the hyperparameters obtained through this HPO would only be suited for benchmarks containing the same amout of tasks, which offers very narrow deployement opportunities. 
+
+\vspace{1mm}
+\noindent
+A relevant inquiry would be to quantify this overfitting. An approach to do so is to perform HPO on a benchmark and then measure the drop of performance on another benchmark. Our hypothesis is that we should observe very little drop of performance between two benchmarks made of 10 different p-mnist task. However, if we decide of the hyperparameters on a benchmark made of 10 p-MNIST tasks and then test the strategy on a benchmark made of 10 soft $8\times8$-p-MNIST task, as defined in \cite{EWC}, we expect a drop in perfomances. This drop should be even more visible if test benchmark is derived from a different dataset, such as CIFAR-100. Note that, with the willingness to be very careful and precise, a proper quantification of overfitting of a strategy should be considered in relation to the similarity between benchmarks. Indeed, it is reasonnable that two very different benchmarks require two different sets to of hyperparameters. Unfortunately, this requires to define and quantify similarity between tasks, and it is a subtle inquiry to build a relevent metric that is versatile enough.
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/best_params_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+    \caption{Best params}
+    \label{fig:best_params}
+\end{figure}
+
+
+
+\section{Critical comparison to litterature}
+
+
+
+\subsection{Tradeoffs in continual learning}
+
+
+\subsection{Geometrical argument}
+% introduire les points nécessaires des méthodes que cet argument critique
+
+
+\subsection{Combinatorial argument}
+% introduire les points nécessaires des méthodes que cet argument critique
+
+
+
+
+
+
+
+\section{Additional remarks and opening}
+% GradMax
+% Usecases
+% DANN
+
+
+
+\section{Conclusion}
+
+
+
+\section{Our criticism}
+
+
+
+\subsection{Pollutions}
+
+
+\noindent
+As a very general principle, the problem with these approaches in the context of continual learning is that
+\begin{quote}
+    \itshape
+    \centering
+    Improving on task 2 means deteriorating on task 1, and reciprocally.
+\end{quote}
+
+\noindent
+It does not mean that the more tasks there are to solve, the harder it gets to solve them all, which is true. But this statement is stronger, it means that tasks are inhrently put in a competition setting with each other. This implies that performing continual learning in such a way requires to perform trade-offs. And the most convenient way one performs trade-offs in deep learning is through hyperparameters.
+
+\vspace{1mm}
+\noindent
+Let's assume we are given $I$ tasks indexed in increasing order by the set $\intset{1}{I}$. We define a neural network as the set of its parameters
+\begin{align}
+    \phi = \left\{\left\{ w_{l,m,n} \in \mathbb{R} | m,n \in \llbracket 1, N_{l-1} \rrbracket \times \llbracket 1, N_{l} \rrbracket \right\} | l \in \llbracket 1, L+1 \rrbracket \right\}
+\end{align}
+where $L$ is the number of hidden layers and $N_l$ is the number of neurons on layer $l$.
+
+\vspace{1mm}
+\noindent
+Let's define $\mathbb{W}_{l,n}^i$ to be the set of protected weights for task $i$ with respect to neuron $n$ of layer $l$, for any $i \in \intset{1}{I}$, $l \in \intset{1}{L+1}$ and $n \in \intset{1}{N_l}$:
+\begin{align}
+    \mathbb{W}_{l,n}^i = \left\{ w_{l,m,n}, m \in \intset{1}{N_{l-1}} | w_{l,m,n} \text{ protected} \right\}
+\end{align}
+
+\vspace{1mm}
+\noindent
+which allows to define the pollution of task $i$ by protected weights for task $j$ on neuron $n$ of layer $l$ as
+\begin{align}
+    p_{l,n}^{i\rightarrow j} = \mathbb{E}_{x \sim D_i}\left[\frac{\sum_{w \in \mathbb{W}_{l,n}^j}{w(x)}}{\sum_{w \in \mathbb{W}_{l,n}^i}{w(x)}}\right]
+\end{align}
+
+\vspace{1mm}
+\noindent
+Finally, we can define the pollution of task $i$ by protected weights for task $j$ on the whole network as
+\begin{align}
+    P^{i\rightarrow j} = \frac{1}{L+1}\sum_{l=1}^{L+1}{\frac{1}{N_l}\sum_{n=1}^{N_l}{p_{l,n}^{i\rightarrow j}}}
+\end{align}
+
+\begin{table}
+\begin{tabular}{|c|c|c|}
+    \hline
+    \diagbox{{\footnotesize Tested}}{{\footnotesize Trained}} & Taks 1 & Task 2 \\ \hline
+    Task 1 & \includegraphics[width=2.5cm]{images/pollution_11.png} & \includegraphics[width=2.5cm]{images/pollution_12.png} \\ \hline
+    Task 2 & \notableentry & \includegraphics[width=2.5cm]{images/pollution_21.png} \\ \hline
+\end{tabular}
+\caption{After training on task 1, there is no pollution (top left). After training on task $2$, there is $P^{1\rightarrow 2}$, pollution from task-2-specific weights when forwarding task 1 samples (top right) and $P^{2\rightarrow 1}$, pollution from task-1-specific weights when forwarding task $2$ samples (bottom right).}
+\label{table:pollution}
+\end{table}
+
+
+\vspace{1mm}
+\noindent
+The notion of pollution $P^{i\rightarrow j}$ encapsulates how much neurons specialized for a task $j$ interfere whith neurons specialized for a task $i$ when provided a sample from task $i$, after training on the first $\max(i,j)$ tasks at least. See \ref{table:pollution} for a simple illustration. Once the model is trained on task 1, we can test it on data from task 1 (top left cell) but we can't expect it to perform well on data from the next tasks (bottom left cell), so no pollution is occuring. Once the model is trained on task 2, we expect it to perform well on task 1 and 2, so the pollutions that can occur are $P^{2\rightarrow 1}$ (top right cell) and $P^{1\rightarrow 2}$ (bottom right cell). $P^{2\rightarrow 1}$ is generally handled by regularization approaches that keep certain weights of the model close to the weights of the model after training on task 1. The training process on task 2 take into consideration these dedicated weights, and the model learns to forward samples from task 2 through all the weights. However, $P^{1\rightarrow 2}$ is not handled by these approaches, as the model can't learn how to forward samples from task 1 through the undedicated weights retrained on task 2.
+
+\vspace{1mm}
+\noindent
+More boradly, the challenge is to deal with $P^{i\rightarrow j}$ for $j \neq i$, which requires to learn data from task $i$ without being polluted by data from task $j$. Regularization approaches such as EWC claim to solve pollution of task $j$ over task $i$ $(P^{i\rightarrow j}=0)$ for $j<i$. While they can't really overcome it, they can at least mitigate it by penalizing the distance between the weights of the model after training on task $i$ and the weights of the model after training on task $j$. However, they do not tackle the minimization of $P^{i\rightarrow j}$ for $j>i$. But they have a good reason no to tackle it : this is a fundamental limitation of this familly approaches, as it is inherently not possible to deal with it. Indeed, without contraints or some form of memory of the previous tasks, when provided a sample from task $i$, the model has no discrimination power of weights updated for task $j$ from the ones the approach identified as specific for task $i$ when training on task $j$, for $j>i$. So it can't know how to react to a sample from task $i$ after training on task $j>i$.
+
+\vspace{1mm}
+\noindent
+Conversely, allowing some form of memorization of previous data distribution may enable to discriminate between samples features. This is has been attempted through replay memory approaches \cite{replay1}, \cite{replay2} and rehearsal methods \cite{rehearsal}. Alternatively, it can also be achieved through gating mechanisms such as mixture of expert models \cite{moe}, \cite{dmoe}. These approaches are not memoryless. However, in memoryless approaches we have no direct control over the way the neurons specialized to task $j$ will react when fed with samples from task $i<j$. So the very last hopes without memory is that the weights are such that they implicitly encode information about the task's specificities. This can be performed with constrained models, such as CNN, through which one could enforce convolution kernels associated to one task to be orthogonal to the convolution kernels associated to another task. And with additional contraints, this would prevent the model from using the same features for two different tasks while selecting for the most relevant features for each task. But, we considere unconstrained approaches, so the model has no reason to encourage such behavior.
+
+
 
 \subsection{An example of specious paper}
-
-
-A good example of paper that encapsulate all these issues :
-\begin{itemize}
-    \item No code available. Even though the community reimplemented the method, the fact that atuhors do not publicly release the code is still an issue because when reproducing the code, one introduces the hyperparameters but cannot replicate the way have been manipulated by authors.
-    \item Authors introduce the method and even explain it in greate details \cite{EWC_nuts_and_bolts} for 2 tasks, but they don't discuss the challenges of scaling it to more tasks. AS a consequence, we don't know what is the loss used for training on latter tasks. They simply write, without more details
-    \begin{quote}
-        \itshape
-        "This can be enforced either with two separate penalties, or as one by noting that the sum of two quadratic penalties is itself a quadratic penalty"
-    \end{quote}
-    which is ambiguous and insufficient to be clear about the number of hyperparameters introduced by their method over the entire continual learning process.
-    \item In appendix, authors provide a table containing the value of hyperparameters. The table is quite exhaustive, except when it comes to $\lambda$, which is the hyperparameter they introduced through their method.
-    \item As we demonstrated above, it is not enough to declare the values of the hyperparameters. However, when it comes to explain why or how these values were chosen, authors are fuzzy once again. They write
-    \begin{quote}
-        \itshape
-        When random hyperparameter search was used, 50 combinations of parameters were attempted for each number experiment
-    \end{quote}
-    which does not enables to identify which of the 5 approaches to HPO they used, of if they used another approach.
-    \item Despite this paper having 14 authors, it contains several inconsistencies in the name of its tables and figures. In section 4.1, about MNIST experiments, authors refere to Figure 3, which summarizes results of the reinforcement learning experiment. Conversely, Table 2, containing the value of hyperparameters for the reinforcement learning experiment, is entitled "Hyperparameters for each of the MNIST figures".
-\end{itemize}
-
 
 \vspace{1mm}
 \noindent
@@ -900,36 +994,7 @@ Other papers show very inconsistant results
 And finally, papers trying to apply EWC to new benchmarks show that it is not working well, or even terribly bad. It is likely that these results are significantly poorer because authors don't spend as much energy trying to specificly tune hyperparameters as EWC authors did.
 
 
-\subsection{Our new approach (GroHess or naive)}
 
-We will also introduce an obviously bad method (or GroHess) that reaches state of the art on 2 benchmarks.
-
-
-
-\begin{figure*}
-    \centering
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:test_accs_matrix}
-    \end{subfigure}
-    \hspace{-0mm}
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/avg_acc_curve_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
-        \caption{Average test accuracy for tasks trained so far}
-        \label{fig:classic_plot}
-    \end{subfigure}
-    \caption{Representations of the parameters space}
-\end{figure*}
-
-\begin{figure*}
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/best_params_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
-    \caption{2 ellipses as depicted in EWC-like papers}
-    \label{fig:best_params}
-\end{figure*}
 
 \begin{figure*}
     \centering
@@ -998,6 +1063,11 @@ In the end, this efforts put in writting this paper beautifully illustrate Brand
     The amount of energy needed to refute bullshit is an order of magnitude bigger than that needed to produce it
 \end{quote}
 We corrected the work subsequent to two small mistakes, namely, that could have been avoided by a more careful preliminary analysis of the problem. The fact that a method relies on an attempt to balance how much we hurt the learning process on each task naturally introduces trade-offs. These trade-offs are performed through hyperparameters in the loss that set the relative importance of the task, which can easily be mismanipulated or lead to overfitting on the benchmarks at hand.
+
+
+\vspace{1mm}
+\noindent
+Finally, it appears that manipulation of hyperparameters in the context of continual learning is subtle, and we encourage more care in their management.
 
 
 

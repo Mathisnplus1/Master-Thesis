@@ -408,14 +408,14 @@ As the training loop is called once for each task, it means that a learning rate
     \centering
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+        \includegraphics[width=0.95\textwidth]{images/accs_matrix.png}
         \caption{Test accuracy on each task as GroHess move forward through the tasks}
         \label{fig:test_accs_matrix}
     \end{subfigure}
     \hspace{-0mm}
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/avg_acc_curve_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
+        \includegraphics[width=0.95\textwidth]{images/avg_acc_curve.png}
         \caption{Average test accuracy on tasks trained so far}
         \label{fig:classic_plot}
     \end{subfigure}
@@ -468,19 +468,19 @@ In the section in which the training protocol is introduced, we suggested to hav
 \noindent
 Continual learning enables several ways to manipulate hyperparameters. In this subsection, we will discuss various approaches to manipulate them. 
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 Let's introduce a hyperparameter $\lambda$. One could set this hyperparameter to be the same for all the tasks, which would result in a total of $1$ hyperparameter. To set the value of this hyperparameter, one could perform a single HPO on the first task, and keep using the same value for the forecoming task. However, when proceeding that way, the hyperparameter is not optimized for each task, only for the first one. Therefor, this way of performing HPO is not suited for our continual learning framework. In order to keep $\lambda$ to only one value while optimizing it on all the tasks, one could perform a single HPO on the whole benchmark. That means that once a value for $\lambda$ is suggested by the HPO algorithm, we would train through all the tasks using this value. At the end of the HPO, we would end up with a single value of $\lambda$ that would be tuned for all the tasks. However, optimizing in such a way require to have access to all the tasks at the same time, which breaks the continual learning framework. Indeed the value of $\lambda$ used when training on the first task as to be decided before accessing data from the latter tasks. This way of performing HPO is highly problematic as it causes data leakage. That is why we refere to it as a cheated HPO with respect to continual learning framework. See [\ref{tab:HPOs}] top-left.
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 Alternatively, one could set this hyperparameter to a specific value $\lambda_i$ for each task $i$, this would require to perform an HPO on each task and would result in a total of $n$ hyperparameters. This way of performing HPO is suited for continual learning framework, as tasks are treated strictly sequentially. This is how we proceeding when training with GroHess and it is also the most common approach to HPO in the litterature. See [\ref{tab:HPOs}] bottom-center. As optimizing for the value of $\lambda_{i+1}$ requires to have the value of $\lambda_i$, we refere to this approach as greedy HPO.
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 Remarkably, one could merge both of the previous approaches is a cheated HPO with $n$ parameters. This would require to perform a single HPO on the whole benchmark, but instead of suggesting a single value of $\lambda$ at each trial, the HPO algorithm would suggest values $\lambda_1,...,\lambda_n$, one for each task $i$. This way of performing HPO is even more problematic than the first way as it combines data leakage and a rather high number of hyperparameters. See [\ref{tab:HPOs}] top-center.
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 Finally, some methods in the literature introduce a hyperparameter $\lambda$ that is explicitly used to make tradeoffs between how much the model should learn from the new task versus how much it shoud retain from the previous tasks [REFLA]. Such a hyperparameter can be optimized as describded above, but it may also be used to perform tradeoffs directly between tasks. For instance, when training on task 2, one could have a $\lambda_{2,1}$ that would be used to make tradeoffs between how much the model should learn from task 2 and how much it should remember from task 1. When moving to task 3, one could have a $\lambda_{3,1}$, to tune how much the model should learn from task 3 and how much it should remember from task 1 along with a $\lambda_{3,2}$ for how much the model should learn from task 3 versus how much it should remember from task 2. More generally, one could even set a different value for this hyperparameter for each pair of tasks, meaning that one could introduce $\lambda_{i,j}$ for mitigating catastrophic forgetting of task $j<i$ when learning task $i>1$. Ultimately, this would result in a total of $\frac{(n-1)n}{2}$ hyperparameters. Similarly to the HPO with $n$ hyperparameters, this way of performing HPO could fit the continual learning framework, see [\ref{tab:HPOs}] bottom-right, but it could also be done is a cheated way, see [\ref{tab:HPOs}] top-right.
 
@@ -667,15 +667,15 @@ Finally, some methods in the literature introduce a hyperparameter $\lambda$ tha
     \label{tab:HPOs}
 \end{table*}
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
-Despite hyperparameters manipulation being critical, it seems that some confusion remains in the litterature. The overwhelming majority of paper do not report the report their way of performing HPO or remain fuzzy about the management and values of certain hyperparameters [REFLA]. On the other hand, among the papers that do report their HPO procedure, some fall into the cheated HPO category, which calls into question the legitimacy of their results [REFLA].
+Despite hyperparameters manipulation being critical, it seems that some confusion remains in the litterature. The overwhelming majority of papers do not report their way of performing HPO or remain fuzzy about the management and values of certain hyperparameters [REFLA]. On the other hand, among the papers that do report their HPO procedure, some fall into the cheated HPO category, which calls into question the legitimacy of their results [REFLA].
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 For instance the original Elastic Weight Consolidation (EWC) paper [REFLA] seems to suffer from this issue. EWC is a regularisation method that attempts to tackle catastrophic forgetting by penalizing changes in important weights. The weights that are important for a task are the ones that updating would cause the model to move away from the solution of the task. Authors leverage the Fisher Information Matrix to define this importance and enforce the update of important weights to be performed in a direction that does not hurt the knowledge on the tasks already learnt. As introduced in the original paper, training on task $2$ the loss used by EWC can be written as $\mathcal{L} = \mathcal{L}_{2} + \lambda\mathcal{L}_{reg}$, where $\mathcal{L}_{2}$ accounts for maximizing the performance on task 2, $\lambda$ is a positive scalar and $\mathcal{L}_{reg}$ accounts for the regularization between task 1 and 2.
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 However, in this paper, authors do not explain how this regularization term scales with the number of tasks. It could be the case that the same value of $\lambda$ is used for all the tasks, which would lead to write the loss used while training on task $m$ as 
 \begin{equation}
@@ -690,7 +690,7 @@ or the authors might want to make tradeoffs between each pair of tasks, introduc
     \mathcal{L} = \mathcal{L}_{m} + \sum_{i=1}^{m-1}\lambda_{m,i}\mathcal{L}_{reg,m,i}
 \end{equation}
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 Each of these $3$ possible ways of proceeding would result in a total of $O(1)$, $O(n)$ or $O(n^2)$ hyperparameters, respectively. However, the authors do not provide any information about the way they proceeded, which is highly problematic. Additionally, authors do not report the value of the hyperparameter they introduced nor the process of optimizing it and they do not provide their code. This lack of clarity is a major issue as it makes it impossible to reproduce the results of the paper. Despite the fact that the community reimplemented the method, the method itself does not include the manipulation of hyperparameters made by athors. As a consequence, attempts to reproduce these methods are very disparate and yield contrasted results. See [\ref{fig:EWCs}] for a summary of the results we identified in the litterature.
 
@@ -701,7 +701,7 @@ Each of these $3$ possible ways of proceeding would result in a total of $O(1)$,
     \label{fig:EWCs}
 \end{figure}
 
-\vspace{1mm}
+\vspace{2mm}
 \noindent
 Remarkably, all the papers reporting results above or equal to $90\%$ accuracy on the 10 tasks p-MNIST benchmark are either performing a cheated HPO or not explaining their HPO procedure. In particular, the original paper mention that the size of the hidden layers is an optimizable hyperparameter. However, the size of the model does not change when training on the benchmark. This suggests that the HPO performed by the authors of the original paper covers the entire benchmark, that is, the HPO is very likely cheated and include $O(n)$ hyperparameters. See \ref{tab:HPOs} top-center.
 
@@ -709,41 +709,33 @@ Remarkably, all the papers reporting results above or equal to $90\%$ accuracy o
 \subsection{Validation}
 
 
-Actually, what we refere to as "cheated HPO" where a single HPO is performed through all the tasks at the same time, could be just fine if one was performing the HPO on a benchmark, and then showing the performances of the approach on another benchmark with the same hyperparameters. But this is not the case, as authors report performance on the benchmarks they performed hyperparameter optimization on. As we mentioned earlier, the role of these hyperparameters is to perform trade-offs between how much the model remembers of each task. So, $a priori$, we argue that there is no reason to believe that the hyperparameters that are good for a benchmark are good for another benchmark as they encapsulate the relative differences of the tasks within the benchmark. This benchmark-specificity of hyperparameters is the source of what we refere to as "overfitting on benchmark". Additionnaly, one should note that the cheated HPO implicitly exploit the number tasks, so the values of the hyperparameters obtained through this HPO would only be suited for benchmarks containing the same amout of tasks, which offers very narrow deployement opportunities. 
+Actually, what we refere to as "cheated HPO" where a single HPO is performed through all the tasks at the same time, could be just fine if one was performing the HPO on a benchmark, and then showing the performances of the approach on another benchmark with the same hyperparameters. Such an approach wouln't even break the hypothesis according to which we do not know the number of tasks in advance. On would just have to perform the HPO on a benchmark with a huge number of tasks, and then show the performances of the approach on another benchmark, with less tasks, using only the hyperparameters computed for the first tasks of the HPO benchmark.
+
+\vspace{2mm}
+\noindent
+Therefor, we introduce a validation paradigm on benchmarks to measure overfitting on benchmarks. We perform HPO on a benchmark and then measure the drop of performance on another benchmark. However, one could argue that performing HPO on a benchmark like p-MNIST and validating the approach using optimized hyperparameters on a benchmark derivated from CIFAR, for instance, would not be fair. And in order to avoid defining a brittle and handcrafted metric complexity or similarity between benchmarks, we will stick to p-MNIST benchmarks. Indeed, this validation paradigm we are introducing is one of the reasons why we chose to use p-MNIST benchmarks in the first place. Just as we did in \ref{fig:p-MNIST}, we generate $10$ additional p-MNIST benchmarks, each with $10$ tasks. As a consequence, we have benchmarks that sahre the same complexity and similarity from a statistical point of view. We do not perform any HPO on these validation benchmarks. Instead, we reuse the hyperparameter found on the previous benchmark, and simply retrain GroHess with them on the validation benchmarks. See \ref{fig:val_accs_matrix} and \ref{fig:accuracy_through_benchmarks} for the results of this validation paradigm.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/val_accs_matrix.png}
+    \caption{Test accuracy on each task once training with GroHess is complete on all the tasks.}
+    \label{fig:val_accs_matrix}
+\end{figure}
+
+\vspace{2mm}
+\noindent
+For the HPO benchmark and each of the 10 validation benchmarks, \ref{fig:val_accs_matrix} shows the test accuracy on each task once training with GroHess is complete on all the tasks. These results are run and averaged over seeds 88 to 92. At first glance, it seems that the performance on old tasks are better for the HPO benchmark, suggesting that it is harder for the model to mitigate catastrophic forgetting if the hyperparameters have not been specifically tuned on the benchmark. To confirm this, for each task, we compute the average test accuracy through the validation benchmarks (column wise average) and report the results in \ref{fig:accuracy_through_benchmarks}. In addition, this figure shows the standard deviation for performances on the validation benchmarks, along with the performances obtained on the HPO benchmark (left plot). The right plot shows the same results, averaged out over all tasks. We observe that the average test accuracy over all the tasks of the HPO benchmark are greater by an amount up to $9\%$ than the averge one on the validation benchmarks. This figure confirms that, despite the fact all the benchmarks have the same complexity, performing an HPO on a benchmark is necessary to get the best performances. In other words, GroHess lack of versatility and is overfitting on the benchmark through the HPO process.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/accuracy_through_benchmarks.png}
+    \caption{Results from \ref{fig:val_accs_matrix} averaged over the valdiation benchmarks (left plot) and additionally averaged over all tasks (right plot).}
+    \label{fig:accuracy_through_benchmarks}
+\end{figure}
 
 \vspace{1mm}
 \noindent
-A relevant inquiry would be to quantify this overfitting. An approach to do so is to perform HPO on a benchmark and then measure the drop of performance on another benchmark. Our hypothesis is that we should observe very little drop of performance between two benchmarks made of 10 different p-mnist task. However, if we decide of the hyperparameters on a benchmark made of 10 p-MNIST tasks and then test the strategy on a benchmark made of 10 soft $8\times8$-p-MNIST task, as defined in \cite{EWC}, we expect a drop in perfomances. This drop should be even more visible if test benchmark is derived from a different dataset, such as CIFAR-100. Note that, with the willingness to be very careful and precise, a proper quantification of overfitting of a strategy should be considered in relation to the similarity between benchmarks. Indeed, it is reasonnable that two very different benchmarks require two different sets to of hyperparameters. Unfortunately, this requires to define and quantify similarity between tasks, and it is a subtle inquiry to build a relevent metric that is versatile enough.
-
-
-
-\begin{figure*}
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/val_accs_matrix_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
-    \caption{2 ellipses as depicted in EWC-like papers}
-    \label{fig:best_params}
-\end{figure*}
-
-\begin{figure*}
-    \centering
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/accuracy_through_benchmarks_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-00.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:val_accs_matrix}
-    \end{subfigure}
-    \hspace{-0mm}
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.3\textwidth]{images/violin_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-54-01.png}
-        \caption{A more realistic view of parameters space}
-        \label{fig:graph_test_vs_val}
-    \end{subfigure}
-    \caption{Representations of the parameters space}
-\end{figure*}
-
-
-
+These results show that the choice of hyperparameters is at the very core of the performances of our method. It means that catastrophic forgetting is mitigated through very specific arbitrations of how the model should learn from new tasks as they come, that is, it seems that our method relies on tradeoffs.
 
 
 
@@ -751,20 +743,99 @@ A relevant inquiry would be to quantify this overfitting. An approach to do so i
 
 
 
+In the following section, we will develop remarks about the methods fitting with our hypothesis. This will a opportunity to compare GroHess to other modular memoryless and unconstrained methods. 
+
+
 \subsection{Tradeoffs in continual learning}
 
 
+In the last section, we aknwoledged that the hyperparameter optimization performed in the context of continual learning yield numerous hyperparameters. This can be an implicit way to perform trade-offs between how much the model should learn from the new task versus how much it should remember from the previous tasks. This lead has been confirmed through validation experiments, where we have seen that the very subtle differences between p-MNIST benchmarks are enough to impact the perfomances by an amount of $9\%$. As a consequence, we hypothesize that the HPO procedure is performing tradeoffs between the tasks.
+
+\vspace{2mm}
+\noindent
+An interesting way to investigate this hypothesis is to have a look at the specific hyperparameters retained by the HPO. Figure \ref{fig:best_params} shows the best values of the hyperparameters found by the HPOs ran on each task of the HPO benchmark. We observe that the learning rate is decreasing by over an order of magnitude as the model moves forward through the tasks. Similarly, we note that the best number of epochs used to train on a task was the highest allowed for the first tasks, and then quickly decreased for the latter tasks. As a consequence, the model model is learning less and less of each tasks. Now we interpret this behavior as a attempt to keep track on previously acquired knowledge while learning on the new task. That is, our approach is mitigating catastrophic through tradeoffs between the specificities of the tasks. As the defenrences between the specifities of the tasks rely on the permutations used to generate the tasks, our interpretation provides an explanation why the model is overfitting on the HPO benchmark. Indeed, the tradeoffs necessary to perform well on a given validation benchmark would require other hyperparameters than the ones found on the HPO benchmark.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{images/best_params_greedy_HPO_GroHess_from_output_pMNIST_via_torch_standard_2024-07-16_20-41-35.png}
-    \caption{Best params}
+    \includegraphics[width=0.5\textwidth]{images/best_params.png}
+    \caption{Best values of the hyperparameters (learning rate on the left and number of epochs on the right) found by the HPOs ran on each task of the HPO benchmark.}
     \label{fig:best_params}
 \end{figure}
 
+\vspace{2mm}
+\noindent
+Furthermore, in addition to making tradeoffs between learning and memory for each pair of tasks, methods like GroHess and those based on regularization, such as EWC, SI, LwF or AFEC [REFLA], incorporate trade-offs within the optimization process. Indeed, the regularization term used in these methods is intended to perform tradeoffs between the importance of the new task and the importance of the old tasks. They are controlled by a scalar, which is a hyperparameter is optimized through the HPO procedure. Similarly, through the computation of the Hessian and Gradient masks of importance, GroHess is trading how much to update the weights that are the most crucial for the past tasks versus how much to update these weights for the benefit of the new task. 
+
+\vspace{2mm}
+\noindent
+Even though all these methods are performing tradeoffs, all the tradeoffs are not the same. From a method to another, the hyperparameters are not the same, which means that the tradeoffs that can be performed through HPO are not the same. This explain the disparities between the results of regularization methods gathered in \ref{fig:results_grouped}. Additionally, the tradeoffs perfomed by regularization methods are continuous, in the sense that they affect all the weights of the model more or less intensively. On the other hand, GroHess performs discrete tradeoffs, only impacting a few weights, leaving the other ones completely unchanged. Finally, to explain results obtained with GroHess that happen to be even poorer than the ones yielded by our baselines, we note that our growing procedure is not optimal. Indeed, it is not embedded in an optimization procedure, as it is the case for the baselines and regularization methods who are optimized through backpropagation only. Thus, it is likely that our growing procedure is simply disturbing the learning process done through backpropagation.
+
 
 \subsection{Geometrical argument}
-% introduire les points nécessaires des méthodes que cet argument critique
+
+
+In this subsection, we will discuss the geometrical motivation behind several regularization methods such as EWC [REFLA]. Very often, the method is motivated by the representation of a 2-dimensional parameter space, where two ellipses represent regions of low loss when provided data from task A or task B. See \ref{fig:ellipses_EWC}. Once training on task A is done, one assumes that the model is in a state close to the argument of minimum of the loss for data associated to task A, $\theta_A*$. Then, the intuition is that the regularization term introduced in the method will prevent the parameters from converging directly toward the argument of the minimum of the loss for task 2, $\theta_B*$, when learning on task B. Instead, the parameters should converge to an overlapping region where both loss on task A and loss on task B are small. However, this representation is misleading, does not reflect the complexity of the problem and, as a consequence, does not hold in practice. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/ellipse_overlap.png}
+    \caption{Representation of the parameters space as depicted in some regularization papers [REFLA]}
+    \label{fig:ellipses_EWC}
+\end{figure}
+
+\vspace{2mm}
+\noindent
+A first objection is that with a regularization method, the direction of parameters modifications does not aim for a minimum of the model trained on the combined data from tasks A and B, but rather towards the local minimum of the model on task B's data that is closest to the local minimum reached by the model trained solely on task A's data.
+
+\vspace{2mm}
+\noindent
+Second, the Fisher Information Matrix introduced in EWC is leveraged to approximate a metric that indicates what is considered to be the best path to move toward low loss on task $B$, compromising with increase of loss on task A. However, loss on task A is not directly leveraged, as when training on task B, samples from task A are not accessible anymore. As a consequence, authors says that in order to stay close to the region of low loss on task A, it is reasonable to try to update the parameters in a direction of high curvature of the ellipse associated to task A. Indeed, the part of the ellipse that has the highest curvature is also the one that is the furthest from $\theta_A*$, which makes it a direction in which updates of the parameters can be carried without increasing the loss on task A too much. However, contrary to the representaion in \ref{fig:ellipses_EWC}, this is not a guarantee that the model will converge to the center of the overlapping region. Indeed, the overlapping region might not be aligned with the axis passing through $\theta_A*$ and the point of ellipse associated with task A with the highest curvature. See \ref{fig:realistic_ellipses}. In these representation, the red arrow represent the update direction according to $\mathcal{L}_{B}$ and the blue arrow represent the update direction enforced by $\mathcal{L}_{reg}$. The actual update direction is then decided by the value of $\lambda$ and falls inside the cone generated by the two arrows, without covering the whole cone as the linear combination is done through a single scalar. Thus, what matters in the situations depicted in \ref{fig:ellipses_EWC} is the angle between the two arrows along with the orientation of the blue arrow relatively to the red ellipse. The orientation of the red ellipse relatively to the blue arrow accounts for the succes of the update : is the update going to land in a region where both loss on task A and on task B is low ? On the other hand, the angle between the red and the blue arrows accounts for how much $\mathcal{L}_{B}$ and $\mathcal{L}_{reg}$ are acting jointly. In the case depicted in \ref{fig:two_ellipses_45}, no matter what the value of $\lambda$ is, the update will be perfomed toward the overlapping region. This means that the configuration depicted in EWC papers is a really convenient scenario. On the other hand, looking at the configuration in \ref{fig:two_ellipses_90}, we see that the update will be perfomed toward the overlapping region only if the value of $\lambda$ is low enough, because $\mathcal{L}_{reg}$ is pulling the parameters away from the overlapping region. Ultimately, \ref{fig:two_ellipses_180} depicts an extreme scenario, where $\mathcal{L}_{reg}$ is actively acting against $\mathcal{L}_B$. In this configuration, any none zero value of $\lambda$ would make the update worse both with respect to task A and B.
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth]{images/ellipse_overlap_45.png}
+        \caption{Configuration depicted in EWC papers}
+        \label{fig:two_ellipses_45}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth]{images/ellipse_overlap_90.png}
+        \caption{A configuration less favorable where both the angle and the orientation of the red ellipse are not convenient}
+        \label{fig:two_ellipses_90}
+    \end{subfigure}
+    \hspace{-0mm}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth]{images/ellipse_overlap_180.png}
+        \caption{Extreme configuration where $\mathcal{L}_{reg}$ is actively acting against $\mathcal{L}_B$}
+        \label{fig:two_ellipses_180}
+    \end{subfigure}
+    \caption{Several possible configurations in the parameters space}
+\end{figure*}
+
+
+\vspace{2mm}
+\noindent
+Furthermore, these illustrations represent a 2-dimensional parameters space, however, in the experiments conducted in the litterature, the parameter space is $\mathbb{R}^n$ with $n \sim 10^5$ or even orders of magnitudes bigger. Additionally, as we already mentionned earlier, the number of tasks in a continual learning benchmark is generally above or equal to $10$, and the research community ultimately expects to be able to tackle as many as hundreds of tasks. As a consequence of these two remarks,the area (or volume) of the overlapping region tends doubly towards 0. On one hand, this representation accounts for two tasks, but in real life scenarios, there are many more. And as the number of tasks increases, the area of the overlapping region decreases, has 0 zero as a lower bound, so converges. But it has no reason to converge toward a non-zero value as the relative position of the low loss ellipses is a priori independant between the tasks, or at least, nobody has provided a better lower bound than 0, to the best of our knowledge. On the other hand, the previous remark implies that there exist a number of tasks for which the overlapping region of interest is small enough to fit within an Euclidean sphere whose radius is strictly smaller than 1, which volume, therefore, converges toward 0 as the dimension of the parameters space increases. 
+
+\vspace{2mm}
+\noindent
+So, an increase in the number of tasks makes it less likely to find a region where the loss is low for all the tasks, while an increase in the number of parameters of the model somewhat pulls the low loss regions appart from each other. These two remarks do not constitute a strict argument against the regularization methods but rather bring to light the fact the motivation behind them is somewhat flawed. Additionally, the explain why litterature report very poor performances of EWC on longer and harder benchmarks than p-MNIST [REFLA]. Overall, our remarks mostly point out the absence of guarantees. The absence of guaranty is not dramatic though, as deep learning tends to be able to perform well in practice without strong theoretical results. But what is more problematic is that authors of modular, memoryless and unconstrained methods generally do not even have control over the object of our remarks, such as the relative position of the ellipses.
+
+\vspace{2mm}
+\noindent
+Finally, the worse inherent limitations of modular, memoryless and unconstrained methods is beautifully captured on the \ref{fig:ellipses_EWC} :
+\begin{quote}
+    \itshape
+    \centering
+    Improving on task B means deteriorating on task A, and reciprocally.
+\end{quote}
+\vspace{2mm}
+\noindent
+It does not mean that the more tasks there are to solve, the harder it gets to solve them all, which is true. Our statement is stronger, it means that tasks are inhrently put in a competition setting with each other. This implies that performing continual learning with modular, memoryless and unconstrained methods inherently boils down to perform tradeoffs, which confirms our prior analysis of tradeoffs through HPOs. Ultimately, it imlpies that modular, memoryless and unconstrained methods are inherently limited when it comes to perform continual learning on numerous tasks. By contrast, we do not find this inherent limitation with in Mixture of Experts models [REFLA], where modules dedicated to each tasks are in parallel, and improving one particular module does not hurt another module as long as the gating system remains the same. And this gating system can be implemented using replay or rehearsal methods, or leveraging feature extractor such as CNN masks. But here we break one of our two assumptions: either we leverage some form of memory or we employ architectural constraints.
 
 
 \subsection{Combinatorial argument}
@@ -794,16 +865,9 @@ A relevant inquiry would be to quantify this overfitting. An approach to do so i
 \subsection{Pollutions}
 
 
-\noindent
-As a very general principle, the problem with these approaches in the context of continual learning is that
-\begin{quote}
-    \itshape
-    \centering
-    Improving on task 2 means deteriorating on task 1, and reciprocally.
-\end{quote}
 
-\noindent
-It does not mean that the more tasks there are to solve, the harder it gets to solve them all, which is true. But this statement is stronger, it means that tasks are inhrently put in a competition setting with each other. This implies that performing continual learning in such a way requires to perform trade-offs. And the most convenient way one performs trade-offs in deep learning is through hyperparameters.
+
+
 
 \vspace{1mm}
 \noindent
@@ -860,143 +924,12 @@ Conversely, allowing some form of memorization of previous data distribution may
 
 
 
-\subsection{An example of specious paper}
-
-\vspace{1mm}
-\noindent
-Authors of EWC provide a geometric intuition for their method that we reproduced in \ref{fig:ellipses_EWC}, explaining that, after training on task A, the regularization prevent parameters from converging toward the argument of the minimum of the loss for task B when learning on task B. On the contrary, the parameters shoud converge to an overlapping region where both loss for task and loss for task B are small.
-
-More precisely, the blue area represents a region of the parameter space where $\mathcal{L}_A$ is low - let's say, below a certain threshold. Similarly, the red area represents a region of the parameter space where $\mathcal{L}_B$ is low - let's say, below the same threshold. 
-
-However, the intuition suggested by this illustration is quite misleading and we argue that in practise, it doesn't hold.
-
-\vspace{1mm}
-\noindent
-First, no control over the distance between low loss regions for task A and task B. The illustration suggests that the low loss regions for task A and task B are close enough to overlap. But in practise, the distance between these regions is not controlled by the authors, and we have no reason to believe that the low loss regions for task A and task B are close enough to overlap. In fact, we have no reason to believe that the low loss regions for task A and task B overlap at all.
-
-\vspace{1mm}
-\noindent
-the area (or volume) of this overlapping region tends doubly towards 0.
-
-On one hand, this representation accounts for two tasks, but in real life scenarios, there are many more. And as the number of tasks increases, the area of the overlapping region decreases, has 0 zero as a lower bound, so converges. But it has no reason to converge toward a non-zero value or at least, nobody has provided a better lower bound than 0 so far.
-On the other hand, In the illustration, the parameter space is $\mathbb{R}^2$. However, in deep learning, the parameter space is $\mathbb{R}^n$ with $n \sim 100 000$ or even orders of magnitudes bigger. And the previous remark implies that there exist a number of tasks for which the overlapping region is small enough to fit within the Euclidean unit sphere, which volume converges toward 0 the dimension of the space increases. 
-
-These two remarks do not constitute a solid argument against the method as \ref{fig:ellipses_EWC} is an illustrative depiction to build an intuitive understanding. But the intuition it provides is misleading and does not reflect the complexity of the problem. Our remarks point out the absence of guaranty for the low loss regions to overlap. The absence of guaranty is not dramatic though, as deep learning tends to be able to perform without theoretical results in practice. But what is more problematic is that authors do not even have control over the overlapping, as they don't measure it.
-
-\vspace{1mm}
-\noindent
-In addition to this criticism, one should also note that the representation in \ref{fig:ellipses_EWC} depicts a very optimistic case scenario. When training on task $B$ the loss used by EWC can be written as $\mathcal{L} = \mathcal{L}_{B} + \lambda\mathcal{L}_{reg}$, where $\mathcal{L}_{B}$ accounts for the performance on task B, $\lambda$ is a positive scalar and $\mathcal{L}_{reg}$ accounts for the regularisation. As introduced by EWC, $\mathcal{L}_{reg}$ aims at encouraging updates of parameters. Indeed, we identify two independant parameters that makes a case hard or easy : the orientation of the ellipse associated to low loss region for task B and the direction of the angle between the goal directions according to $\mathcal{L}_{reg}$ and $\mathcal{L}_B$. Indeed, in \ref{fig:two_ellipses_45}, we see that the goal direction according to $\mathcal{L}_{reg}$ is aligned with the axis passing $\theta_A^*$ and the center of the overlap region, which is the most convenient scenario. By constrast, the low loss region associated to task B in \ref{fig:two_ellipses_45_hard} makes. Additionally, as we see in \ref{fig:two_ellipses_45}, the center of the overlap region might
-
-That is, the center of the overlapping region
-The term of the loss that accounts for mini
-And once again, authors have no guaranty on the relative orientation of the ellipses, because they don't control it, because they don't even measure it.
 
 
-\vspace{1mm}
-\noindent
-Le bail avec les élipses là : c'est joli, mais est ce qu'on a des garanties sur la distance des minimum de chaque tâche ? 
-Parce que donc ça représente le minimum du modèle sur données de task 1 uniquement, et sur données de task 2 uniquement. Mais quid du minimum sur données de task 1 et 2 à la fois (parce qu'au fond, c'est ce qu'on essaye d'atteindre, on peut guère faire mieux nan ?) ?
-
-\vspace{1mm}
-\noindent
-Dessin avec 4 elipses : l'orientation des elipse est quand même très idéale mdrrrr
-
-\vspace{1mm}
-\noindent
-NON, plus subtile, curvature :
-De ce qu'on comprend, la Fisher information est simplement utilisée comme une métrique pour dire que le meilleur chemin pour migrer vers $\theta_B^*$ est celui qui nous maintient le plus longtemps dans le minimum pour la tache A
-
-\vspace{1mm}
-\noindent
-Si on écrit la phrase suivante, on doit être capable d'atteidre SoTA avec juste tradeoffs de modèles entrainés en // : EWC is nothing more than a way to incorporate tradeoffs between tasks in the differentiable optimization process.
-
-\vspace{1mm}
-\noindent
-Ils ne questionnent pas la légitimité de cette hypothèse :  This is with the assumption that there is always
-an overlapping region for the solution spaces of all tasks for the network to learn them sequentially.
-
-\vspace{1mm}
-\noindent
-Ils ne contrôlent pas 2 choses :
-- la distance entre zone acceptable pour tâche A et zone acceptable pour tâche B, donc ils ne contrôlent pas à quel point on va perdre en performance par rapport à ce qu'on pourrait atteindre sur chaque tâche individuellement
-- ecart entre la valeur du minimum visé par leur méthode de déplacement vers zone acceptable pour B et valeur du minimum atteint pour l'entrainement conjoint sur tâche A et B.
-
-\vspace{1mm}
-\noindent
-On aimerait certainement entrainer le modèle sur toutes les tâches à la fois, et voir les perfs qu'il obtient, on estime que ça constitue un peu une upper bound de ce qu'on peut atteindre, puisque le continual Learning force une exploration greedy de l'espace des paramètres tandis qu'un entrainement sur toutes les tâches simultanément offre une exploration de l'espace des paramètres plus complet. On veut forcer les paramètres à rester près de $\theta_A^*$, mais les paramètres qui marchent le mieux pour les tâches A et B sont probablement très différents de ceux qui marchent bien pour A seulement.
-
-\vspace{1mm}
-\noindent
-Avec le dessin des elipses, ils suggèrent très clairement, qu'après s'être entrainés sur la tâche A, on reste à proximité du minimum local sur lequel on a finit l'entrainement. Est-ce que c'est le cas (prcq la loss augmente probablement très fortement quand on passe à la tâche B, donc on est propulser bien loin de notre minimum pour la tâche A, cf notre dessin, et pour que ce ne soit pas le cas, il faudrait fortement diminuer le Learning rate, ce qu'il ne font pas, mais de toute manière ils ne mesurent pas l'augmentation de la loss et n'ont donc aucune chance de controler à quel point ils sont envoyés loin de $\theta_A^*$, et donc, a fortiori, de controler le Learning rate) ? Est-ce qu'on a besoin que ce soit le cas (peut être qu'on ne comprend pas bien comment ça marche, et que l'image n'est là qu'à des fins d'illustration?)
-
-\vspace{1mm}
-\noindent
-Pourquoi est-ce que c'est un trade-off ? Parce qu'on ne se dirige pas vers un minimum du modèle entrainé sur les données de A et B conjointement, mais vers un minimum du modèle entrainé sur les données de B uniquement, initialié d'une certaine manière, et avec la contrainte qu'on ne veut pas s'éloigner trop des valeurs initiales.
-
-\vspace{1mm}
-\noindent
-Hum, ya toujours un problème avec les élipses sur lequel on n'a pas encore bien mis le doigt : combien y a t il de loss en jeux ? Et avec quel loss est représenté chaque élément ?
-\begin{itemize}
-    \item Elipse A : $L_A$
-    \item Elipse B : $L_B$
-    \item Flèche
-\end{itemize}
-
-\vspace{1mm}
-\noindent
-EWC is good at specializing modules (subset of weights), but it does not tackle the problem of distributing intputs to the modules and merging outputs from the modules. Which are the core challenges of continual Learning. If distribuing and merging were not problems, we would simply train separated neural networks, one for each task.
 
 
-\begin{figure*}
-    \centering
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:ellipses_EWC}
-    \end{subfigure}
-    \hspace{-0mm}
-    \begin{subfigure}[b]{0.35\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/ellipse_real_life.png}
-        \caption{A more realistic view of parameters space}
-        \label{fig:realistic_ellipses}
-    \end{subfigure}
-    \caption{Representations of the parameters space}
-\end{figure*}
 
 
-\begin{figure*}
-    \centering
-    \begin{subfigure}[b]{0.25\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_45.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:two_ellipses_45_hard}
-    \end{subfigure}
-    \hspace{-8mm}
-    \begin{subfigure}[b]{0.25\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_45_hard.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:two_ellipses_45}
-    \end{subfigure}
-    \hspace{-8mm}
-    \begin{subfigure}[b]{0.25\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_90.png}
-        \caption{2 ellipses as depicted in EWC-like papers}
-        \label{fig:two_ellipses_90}
-    \end{subfigure}
-    \hspace{-8mm}
-    \begin{subfigure}[b]{0.25\textwidth}
-        \centering
-        \includegraphics[width=0.95\textwidth]{images/ellipse_overlap_180.png}
-        \caption{A more realistic view of parameters space}
-        \label{fig:two_ellipses_180}
-    \end{subfigure}
-    \caption{Representations of the parameters space}
-\end{figure*}
 
 
 

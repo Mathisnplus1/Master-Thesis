@@ -177,13 +177,13 @@ def train (model, grow_from, hessian_masks, overall_masks, growth_record, is_fir
     
                     # Keep track of growth
                     try :
-                        growth_record[0][-1].append(layers[0].in_features.detach().cpu().numpy())
+                        growth_record[0][-1].append(int(layers[0].in_features.detach().cpu().numpy()))
                     except :
-                        growth_record[0][-1].append(np.array(layers[0].in_features))
+                        growth_record[0][-1].append(int(layers[0].in_features))
                     try :
-                        growth_record[1][-1].append(layers[1].in_features.detach().cpu().numpy())
+                        growth_record[1][-1].append(int(layers[1].in_features.detach().cpu().numpy()))
                     except :
-                        growth_record[1][-1].append(np.array(layers[1].in_features))
+                        growth_record[1][-1].append(int(layers[1].in_features))
     
 
                 # LEFT LAYER GROWTH
@@ -215,13 +215,13 @@ def train (model, grow_from, hessian_masks, overall_masks, growth_record, is_fir
 
                     # Keep track of growth
                     try :
-                        growth_record[0][-1].append(layers[0].in_features.detach().cpu().numpy())
+                        growth_record[0][-1].append(int(layers[0].in_features.detach().cpu().numpy()))
                     except :
-                        growth_record[0][-1].append(np.array(layers[0].in_features))
+                        growth_record[0][-1].append(int(layers[0].in_features))
                     try :
-                        growth_record[1][-1].append(layers[1].in_features.detach().cpu().numpy())
+                        growth_record[1][-1].append(int(ayers[1].in_features.detach().cpu().numpy()))
                     except :
-                        growth_record[1][-1].append(np.array(layers[1].in_features))
+                        growth_record[1][-1].append(int(layers[1].in_features))
     
 
                 # END OF GROWTH

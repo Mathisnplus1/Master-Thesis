@@ -415,7 +415,7 @@ As the training loop is called once for each task, it means that a learning rate
     \hspace{-0mm}
     \begin{subfigure}[b]{0.35\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{images/avg_acc_curve.png}
+        \includegraphics[width=0.95\textwidth]{images/agg_avg_acc_curve.png}
         \caption{Average test accuracy on tasks trained so far}
         \label{fig:classic_plot}
     \end{subfigure}
@@ -433,14 +433,14 @@ Additionnaly, \ref{fig:classic_plot} shows the average test accuracy on tasks tr
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
-        \includegraphics[width=0.75\textwidth]{images/cat.jpg}
+        \includegraphics[width=0.75\textwidth]{images/lit.png}
         \caption{Our results, along with results collected in the litterature on the 10 tasks p-MNIST benchmark [REFLA].}
         \label{fig:results}
     \end{subfigure}
     \hspace{-0mm}
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
-        \includegraphics[width=0.75\textwidth]{images/cat.jpg}
+        \includegraphics[width=0.75\textwidth]{images/lit_grouped.png}
         \caption{Same results as in \ref{fig:results}, but grouped by type of approach.}
         \label{fig:results_grouped}
     \end{subfigure}
@@ -696,7 +696,7 @@ Each of these $3$ possible ways of proceeding would result in a total of $O(1)$,
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.40\textwidth]{images/cat.jpg}
+    \includegraphics[width=0.40\textwidth]{images/EWCs.png}
     \caption{Summary of the results we identified in the litterature about EWC on 10 tasks p-MNIST benchmarks [REFLA].}
     \label{fig:EWCs}
 \end{figure}
@@ -839,34 +839,6 @@ It does not mean that the more tasks there are to solve, the harder it gets to s
 
 
 \subsection{Combinatorial argument}
-% introduire les points nécessaires des méthodes que cet argument critique
-
-
-
-
-
-
-
-\section{Additional remarks and opening}
-% GradMax
-% Usecases
-% DANN
-
-
-
-\section{Conclusion}
-
-
-
-\section{Our criticism}
-
-
-
-\subsection{Pollutions}
-
-
-
-
 
 
 \vspace{1mm}
@@ -926,53 +898,10 @@ Conversely, allowing some form of memorization of previous data distribution may
 
 
 
-
-
-
-
-
-
-
-
-
-\vspace{1mm}
-\noindent
-Overcomplexification : In AFEC: Active Forgetting of Negative Transfer in Continual Learning, they introduce a new term in the loss, with a new hyperparameter "while the forgetting factor regulates a penalty to selectively merge the main network parameters with the expanded parameters, so as to learn a better overall representation of both the old tasks and the new task.", so they are trying to mitigate the mitigation made by a regularization method such as EWC. Additionnaly, they hope "to learn a better overall representation of both the old tasks and the new task", which has no reason to happen without enforcing such behavior through constraints, which they don't do.
-
-There is no doubt that EWC is capable of solving benchmarks, but with all these inaccuracies and uncertainties, it certainly does not solve continual learning by "overcoming catastrophic forgetting". At best, it mitigates it, and the purpose of the following section is to attempt to quantify how much EWC is able to mitigate catastrophic forgetting.
-
-
-
-\section{Discussion}
-
-\subsection{Criticism of the benchmark-oriented approach}
-
-We are really good at designing cute benchmarks, like permuted MNIST, which constitute interesting puzzles to solve from the point of view of artificial learning.
-
-but are we good at solving real-world problems ?
-
-\subsection{Continual learning usecases}
-
-We already argued that continual learning is not a well-defined problem. In this section, we will question the very fundamental assumption of continual learning. and it is not clear what are the usecases of continual learning.
-
-Here is a list each and every usecase of continual learning :
-\begin{itemize}
-    \item Adapt to new data quickly https://neptune.ai/blog/continual-learning-methods-and-application
-        \begin{itemize}
-            \item Bank fraud (want to adapt quickly to new method)
-        \end{itemize}
-    \item A model needs to be personalized https://neptune.ai/blog/continual-learning-methods-and-application
-        \begin{itemize}
-            \item Let’s say you maintain a document classification pipeline, and each of your many users has slightly different data to be processed—for example, documents with different vocabulary and writing styles. With continual learning, you can use each document to automatically retrain models, gradually adjusting it to the data the user uploads to the system.
-        \end{itemize}
-\end{itemize}
-
-Remarks :
-\begin{itemize}
-    \item For bank fraud, we don't have enough knowledge to formulate objections.
-    \item Model personalization sounds like finetuining, not continual learning... does it make sense to try to train a single model that we want to use on every client ? Isn't it better to do it in the LoRA fashion, and fine-tune a module that we store with the  client's data ?
-\end{itemize}
-
+\section{Additional remarks and opening}
+% GradMax
+% Usecases
+% DANN
 
 
 \section{Conclusion}
@@ -998,6 +927,42 @@ Finally, it appears that manipulation of hyperparameters in the context of conti
 
 
 \end{document}
+
+
+
+
+
+
+
+\subsection{Continual learning usecases}
+
+We already argued that continual learning is not a well-defined problem. In this section, we will question the very fundamental assumption of continual learning. and it is not clear what are the usecases of continual learning.
+
+Here is a list each and every usecase of continual learning :
+\begin{itemize}
+    \item Adapt to new data quickly https://neptune.ai/blog/continual-learning-methods-and-application
+        \begin{itemize}
+            \item Bank fraud (want to adapt quickly to new method)
+        \end{itemize}
+    \item A model needs to be personalized https://neptune.ai/blog/continual-learning-methods-and-application
+        \begin{itemize}
+            \item Let’s say you maintain a document classification pipeline, and each of your many users has slightly different data to be processed—for example, documents with different vocabulary and writing styles. With continual learning, you can use each document to automatically retrain models, gradually adjusting it to the data the user uploads to the system.
+        \end{itemize}
+\end{itemize}
+
+Remarks :
+\begin{itemize}
+    \item For bank fraud, we don't have enough knowledge to formulate objections.
+    \item Model personalization sounds like finetuining, not continual learning... does it make sense to try to train a single model that we want to use on every client ? Isn't it better to do it in the LoRA fashion, and fine-tune a module that we store with the  client's data ?
+\end{itemize}
+
+
+
+
+\vspace{1mm}
+\noindent
+Overcomplexification : In AFEC: Active Forgetting of Negative Transfer in Continual Learning, they introduce a new term in the loss, with a new hyperparameter "while the forgetting factor regulates a penalty to selectively merge the main network parameters with the expanded parameters, so as to learn a better overall representation of both the old tasks and the new task.", so they are trying to mitigate the mitigation made by a regularization method such as EWC. Additionnaly, they hope "to learn a better overall representation of both the old tasks and the new task", which has no reason to happen without enforcing such behavior through constraints, which they don't do.
+
 
 
 

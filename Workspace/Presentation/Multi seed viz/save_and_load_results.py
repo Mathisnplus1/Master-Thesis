@@ -78,7 +78,7 @@ def load_one_folder(method_name, result_number) :
         best_params_list = []
         reader = csv.DictReader(file)
         for row in reader:
-            best_params_list.append(dict(row))
+            best_params_list.append({key: float(value) for key, value in dict(row).items()})
 
     #val_accs_path = folder_path+f'/val_accs_matrix_{HPO_name}_{method_name}_{benchmark_name}_{difficulty}.csv'
     val_accs_path = folder_path+f'/val_accs_matrix.csv'

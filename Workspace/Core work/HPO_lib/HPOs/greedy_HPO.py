@@ -204,4 +204,4 @@ def call_greedy_HPO_for_EWC(HPO_settings, method_settings, benchmark_settings, b
         for j in range(num_tasks) :
             test_accs_matrix[task_number,j] = round(test(model, test_loaders_list[j], device),2)
     
-    return test_accs_matrix, best_params_list
+    return test_accs_matrix, best_params_list, None

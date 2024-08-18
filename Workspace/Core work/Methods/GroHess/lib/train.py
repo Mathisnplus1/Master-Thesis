@@ -74,8 +74,8 @@ def get_overall_mask(layer, grow_from, overall_mask, overlap_mask, device):
 
 
 def should_we_grow (loss_hist) :
-    diff = np.mean(loss_hist[-40:-20]) - np.mean(loss_hist[-20:])
-    return 0 < diff and diff < 0.01
+    diff = np.mean(loss_hist[-40:-20]) - np.mean(loss_hist[-20])
+    return 0 < diff and diff < 0.0002
 
 
 def train (model, grow_from, hessian_masks, overall_masks, growth_record, is_first_task,
@@ -115,7 +115,7 @@ def train (model, grow_from, hessian_masks, overall_masks, growth_record, is_fir
                     layers[1].weight.register_hook(lambda grad: apply_mask(grad, overall_masks[1]))]
 
     # Epoch training loop
-    for epoch in tqdm(range(num_epochs)):
+    for epoch in tqdm(range(int(num_epochs))):
 
         # Verbose
         if verbose > 0 :

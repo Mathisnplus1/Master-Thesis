@@ -1,0 +1,29 @@
+global_seed : 90
+save_results : True
+# Parameters specfific to the benchmark
+benchmark_settings : {"benchmark_name" : "pMNIST_via_avalanche",
+                      "difficulty" : "standard",
+                      "num_tasks" : 10,
+                      "train_percentage" : 0.8,
+                      "num_val_benchmarks" : 10,
+                      "batch_size" : 128}
+
+# Parameters specific to the method
+method_settings : {"method_name" : "EWC",
+                   "grow_from" : "output",
+                   #"hessian_percentile" : 96,
+                   #"grad_percentile" : 96,
+                   "num_inputs" : 784,
+                   "num_hidden_root" : 1000,
+                   "num_outputs" : 10,
+                   "loss_name" : "CE",
+                   "optimizer_name" : "Adam"}
+
+# Parameters specific to HPO
+HPO_settings : {"HPO_name" : "greedy_HPO",
+                "n_trials" : 20,
+                "lr" : !!seq [!!float 1e-5, !!float 2e-3],
+                "num_epochs" : !!seq [!!int 2,!!int 10],
+                #"tau" : !!seq [!!float 0.999,!!float 1],
+                "ewc_lambda" : !!seq [!!int 50,!!int 5000]
+                }

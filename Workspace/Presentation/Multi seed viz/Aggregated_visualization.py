@@ -78,7 +78,7 @@ def visualize_litterature(Ours, Regs, Reps, savefig=False) :
 
     # Customize the plot
     plt.xticks([])
-    plt.xlim([-0.4, 0.8])
+    plt.xlim([-0.3, 0.9])
     #plt.xlabel('Value')
     plt.ylabel('Test accuracy')
 

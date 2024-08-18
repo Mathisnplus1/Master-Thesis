@@ -17,6 +17,7 @@ Workspace/Preliminary work/Growth/TINY/TINY_workspace
 *.run.xml
 *.synctex.gz
 *.bbl
+*.toc
 
 # Notebook checkpoints
 *-checkpoint.ipynb

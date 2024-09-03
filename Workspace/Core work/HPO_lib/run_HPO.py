@@ -1,4 +1,4 @@
-from HPOs.greedy_HPO import call_greedy_HPO, call_greedy_HPO_for_EWC
+from HPOs.greedy_HPO_exp import call_greedy_HPO, call_greedy_HPO_for_EWC
 from HPOs.cheated_HPO import call_cheated_HPO
 
 

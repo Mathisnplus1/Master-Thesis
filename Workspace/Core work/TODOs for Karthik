@@ -1,0 +1,10 @@
+PENDING :
+- Quantify the impact of the Hessian and Gradient thresholds. Should they be optimizable HPs ? 
+- Our way of triggering the loss is a hyperparameter that has to be studied quantitavely.
+- Are we happy with the way we initialize the new neurons (bias, weights, and their respective gradient) ?
+- Quantify pollution. This can be done through the metric I formalized, however, it lacks versatility, in the sense that it does not allow to compare with regulatization methods or methods using a model that is not an MLP. Here there is a lot to do, and quantifying pollutino properly would need a Master thesis in itself.
+- Quantify the similarity of the permutations and study overfitting on benchmark as a function of similarity between the tasks of a benchmark.
+- Previously, I was computing the Hessian at the same time as the gradient when we wanted to grow. They we said that it was more meaningful to compute it right after we are done training on a task. However, a weight that has a big second derivative right after finishing to train on a task might have a completely different derivative at the moment of the growth. We do not control this effect.
+
+
+I encourage you to have a look at this paper https://proceedings.neurips.cc/paper_files/paper/2021/file/901797aebf0b23ecbab534d61ad33bb1-Paper.pdf where they acknoledge that trade-offs are a core component of a lot of SOTA approaches to continual learning. They offer a formalization of the trade-offs that they leverage to develop their method, as far as I understand.
